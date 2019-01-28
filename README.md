@@ -1,2 +1,2 @@
 # libserverkit
-Linux server kit in C
+Linux server kit
