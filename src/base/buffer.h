@@ -7,10 +7,12 @@
 
 #include <string.h>
 #include <list>
-#include "base/base.h"
-#include "base/global.h"
+#include "base/macros.h"
 #include "base/object_pool.h"
-#include "base/thread_local_storage.h"
+
+namespace serverkit {
+
+static const int kBufferSize = 1024;
 
 class Buffer {
 public:
@@ -34,13 +36,14 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 
+static thread_local ObjectPool<Buffer> gBufferPool;
+
 class BufferList {
 public:
   BufferList()
     : read_inx_(0),
-      write_inx_(0),
-      obj_pool_(static_cast<ObjectPool<Buffer>*>(GetTLS(gBufferPoolKey))) {
-    buffer_list_.push_back(obj_pool_->Get());
+      write_inx_(0) {
+    buffer_list_.push_back(gBufferPool.Get());
   }
 
   // read at most n bytes into to, return bytes actual read
@@ -78,9 +81,10 @@ private:
   size_t write_inx_;
 
   std::list<Buffer*> buffer_list_;
-  ObjectPool<Buffer> *obj_pool_;
 
   DISALLOW_COPY_AND_ASSIGN(BufferList);
 };
+
+};  // namespace serverkit
 
 #endif  // __QNODE_BASE_BUFFER_H__

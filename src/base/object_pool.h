@@ -2,15 +2,20 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_BASE_OBJECT_POOL_H__
-#define __QNODE_BASE_OBJECT_POOL_H__
+#ifndef __SERVERKIT_BASE_OBJECT_POOL_H__
+#define __SERVERKIT_BASE_OBJECT_POOL_H__
 
 #include <list>
-#include "base/base.h"
+#include "base/error.h"
 
 using namespace std;
 
 // non-thread safe object pool
+
+namespace serverkit {
+
+// number per ObjectPool alloc
+static const int kAllocObjectNumber = 100;
 
 template <typename T>
 class ObjectPool {
@@ -35,10 +40,12 @@ public:
     }
     T* obj = free_list_.front();
     free_list_.pop_front();
+    Assert(obj != NULL);
     return obj;
   }
 
   void Free(T *obj) {
+    Assert(obj != NULL);
     obj->Reset();
     free_list_.push_back(obj);
   }
@@ -61,4 +68,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(ObjectPool);
 };
 
-#endif  // __QNODE_BASE_OBJECT_POOL_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_BASE_OBJECT_POOL_H__

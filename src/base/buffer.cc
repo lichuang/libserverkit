@@ -5,6 +5,8 @@
 #include <string.h>
 #include "base/buffer.h"
 
+namespace serverkit {
+
 size_t BufferList::Read(char* to, size_t n) {
   size_t orig = n;
   size_t read_size;
@@ -52,7 +54,7 @@ void BufferList::ReadAdvance(size_t n) {
     Buffer* buffer = buffer_list_.front();
     buffer_list_.pop_front();
     read_inx_ = 0;
-    obj_pool_->Free(buffer);
+    gBufferPool.Free(buffer);
   }
 }
 
@@ -60,7 +62,7 @@ void BufferList::WriteAdvance(size_t n) {
   write_inx_ += n;
   // a buffer has been filled in, create a new buffer into list
   if (write_inx_ == kBufferSize) {
-    buffer_list_.push_back(obj_pool_->Get());
+    buffer_list_.push_back(gBufferPool.Get());
     write_inx_ = 0;
   }
 }
@@ -76,3 +78,5 @@ size_t BufferList::ReadableSize() const {
 size_t BufferList::WriteableSize() const {
   return kBufferSize - write_inx_;
 }
+
+};  // namespace serverkit

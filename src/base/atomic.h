@@ -2,13 +2,15 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_ATOMIC_H__
-#define __QNODE_CORE_ATOMIC_H__
+#ifndef __SERVERKIT_BASE_ATOMIC_H__
+#define __SERVERKIT_BASE_ATOMIC_H__
 
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
 #include "base/base.h"
+
+namespace serverkit {
 
 inline void *atomic_xchg_ptr (void **ptr_,
   void *const val_) {
@@ -124,4 +126,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(atomic_counter_t);
 } __attribute__ ((aligned (sizeof (void *))));
 
-#endif // __QNODE_CORE_ATOMIC_H__
+};  // namespace serverkit
+
+#endif // __SERVERKIT_BASE_ATOMIC_H__
