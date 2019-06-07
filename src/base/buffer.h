@@ -36,14 +36,12 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
 
-static thread_local ObjectPool<Buffer> gBufferPool;
-
 class BufferList {
 public:
   BufferList()
     : read_inx_(0),
       write_inx_(0) {
-    buffer_list_.push_back(gBufferPool.Get());
+    buffer_list_.push_back(GetObject<Buffer>());
   }
 
   // read at most n bytes into to, return bytes actual read

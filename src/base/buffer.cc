@@ -54,7 +54,7 @@ void BufferList::ReadAdvance(size_t n) {
     Buffer* buffer = buffer_list_.front();
     buffer_list_.pop_front();
     read_inx_ = 0;
-    gBufferPool.Free(buffer);
+    FreeObject<Buffer>(buffer);
   }
 }
 
@@ -62,7 +62,7 @@ void BufferList::WriteAdvance(size_t n) {
   write_inx_ += n;
   // a buffer has been filled in, create a new buffer into list
   if (write_inx_ == kBufferSize) {
-    buffer_list_.push_back(gBufferPool.Get());
+    buffer_list_.push_back(GetObject<Buffer>());
     write_inx_ = 0;
   }
 }

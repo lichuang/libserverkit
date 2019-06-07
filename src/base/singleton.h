@@ -14,12 +14,12 @@ template <typename T>
 class Singleton {
 public:
   static T* Instance() {
-    pthread_once(&ponce_, &Singleton::Init);
+    pthread_once(&ponce_, &Singleton::init);
     return value_;
   }
 
 private:  
-  static void Init() {
+  static void init() {
     value_ = new T();
   }
 
