@@ -10,6 +10,7 @@
 #include "base/error.h"
 #include "base/macros.h"
 #include "base/object_pool.h"
+#include "base/singleton.h"
 
 using namespace std;
 
@@ -74,11 +75,6 @@ public:
   ObjectPool() {
   }
 
-  static ObjectPool<T>* Instance() {
-    pthread_once(&ponce_, &ObjectPool<T>::init);
-    return instance_;
-  }
-
   T* Get() {
     return obj_list_.Get();
   }
@@ -86,34 +82,21 @@ public:
     obj_list_.Free(obj);
   }
 
-private:  
-  static void init() {
-    instance_ = new ObjectPool<T>();
-  }
-
 private:
   thread_local static ObjectList<T> obj_list_;
-  static ObjectPool<T> *instance_;
-  static pthread_once_t ponce_;
 };
 
 template <typename T>
 thread_local ObjectList<T> ObjectPool<T>::obj_list_;
 
 template <typename T>
-ObjectPool<T>* ObjectPool<T>::instance_ = NULL;
-
-template<typename T>
-pthread_once_t ObjectPool<T>::ponce_ = PTHREAD_ONCE_INIT;
-
-template <typename T>
 T* GetObject() {
-  return ObjectPool<T>::Instance()->Get();
+  return Singleton< ObjectPool<T> >::Instance()->Get();
 }
 
 template <typename T>
 void FreeObject(T* obj) {
-  ObjectPool<T>::Instance()->Free(obj);
+  Singleton< ObjectPool<T> >::Instance()->Free(obj);
 }
 
 };  // namespace serverkit
