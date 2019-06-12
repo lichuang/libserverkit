@@ -2,8 +2,8 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_SESSION_H__
-#define __QNODE_CORE_SESSION_H__
+#ifndef __SERVERKIT_CORE_SESSION_H__
+#define __SERVERKIT_CORE_SESSION_H__
 
 #include <string>
 #include "core/data_handler.h"
@@ -11,6 +11,8 @@
 #include "socket.h"
 
 using namespace std;
+
+namespace serverkit {
 
 class Poller;
 
@@ -65,4 +67,5 @@ public:
   virtual Session* Create(int fd, const string&) = 0;
 };
 
-#endif  // __QNODE_CORE_SESSION_H__
+};  // namespace serverkit
+#endif  // __SERVERKIT_CORE_SESSION_H__

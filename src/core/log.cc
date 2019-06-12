@@ -1,13 +1,15 @@
 /*
  * Copyright (C) codedump
  */
+
 #include <string.h>
 #include <pthread.h>
 #include "base/thread.h"
-#include "base/thread_local_storage.h"
 #include "core/config.h"
 #include "core/global.h"
 #include "core/log.h"
+
+namespace serverkit {
 
 extern void UpdateGlobalTime();
 
@@ -39,6 +41,7 @@ InitLog() {
 
 void
 Log(int level, const char* file, int line, const char *fmt, ...) {
+  /*
   threadInfo *info = CurrentThreadInfo();
   char *p = &(info->buffer[0]);
   char *end = p + kLogBufferSize;
@@ -59,4 +62,7 @@ Log(int level, const char* file, int line, const char *fmt, ...) {
   *(p + n + 1) = '\0';
 
   printf("%s", info->buffer);
+  */
 }
+
+};  // namespace serverkit

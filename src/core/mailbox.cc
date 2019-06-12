@@ -6,6 +6,8 @@
 #include "core/mailbox.h"
 #include "core/message.h"
 
+namespace serverkit {
+
 Mailbox::Mailbox()
   : active_(false) {
   pipe_.check_read();
@@ -50,3 +52,5 @@ Mailbox::Recv(Message** msg, int timeout) {
   pipe_.read(msg);
   return kOK;
 }
+
+};  // namespace serverkit

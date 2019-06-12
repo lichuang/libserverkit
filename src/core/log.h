@@ -1,11 +1,13 @@
 /*
  * Copyright (C) codedump
  */
-#ifndef __QNODE_CORE_LOG_H__
-#define __QNODE_CORE_LOG_H__
+#ifndef __SERVERKIT_CORE_LOG_H__
+#define __SERVERKIT_CORE_LOG_H__
 
 #include <stdarg.h>
 #include <stdio.h>
+
+namespace serverkit {
 
 // log level
 enum {
@@ -29,4 +31,6 @@ extern void SetLogLevel(int level);
 #define Infof(args...)  if (gLogLevel >= LOG_INFO)  Log(LOG_INFO, __FILE__, __LINE__, args)
 #define Debug(args...)  if (gLogLevel >= LOG_DEBUG) Log(LOG_DEBUG, __FILE__, __LINE__, args)
 
-#endif  // __QNODE_CORE_LOG_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_LOG_H__

@@ -4,9 +4,7 @@
 
 #include "base/buffer.h"
 #include "base/errcode.h"
-#include "base/global.h"
 #include "base/object_pool.h"
-#include "base/thread_local_storage.h"
 #include "core/accept_message.h"
 #include "core/epoll.h"
 #include "core/log.h"
@@ -14,28 +12,11 @@
 #include "core/session.h"
 #include "core/socket.h"
 
-pthread_once_t IOThread::once_ = PTHREAD_ONCE_INIT;
-tls_key_t gBufferPoolKey;
-
-static void
-destroyBufferPool(void *arg) {
-  ObjectPool<Buffer> *pool = static_cast<ObjectPool<Buffer>*>(arg);
-  delete pool;
-}
-
-void IOThread::initIothreadOnceResource() {
-  CreateTLSKey(&gBufferPoolKey, &destroyBufferPool);
-}
+namespace serverkit {
 
 IOThread::IOThread(const string &name)
   : Thread(name),
     poller_(new Epoll()) {
-  pthread_once(&once_, &IOThread::initIothreadOnceResource);
-
-  // create buffer list object pool
-  ObjectPool<Buffer> *buf_list = new ObjectPool<Buffer>();
-  CreateTLS(gBufferPoolKey, buf_list);
-
   int rc = poller_->Init(1024);
   if (rc != kOK) {
     return;
@@ -99,3 +80,5 @@ IOThread::Run(void *arg) {
 
   poller_->Loop();
 }
+
+};  // namespace serverkit

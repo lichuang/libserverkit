@@ -2,13 +2,16 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_MAILBOX_H__
-#define __QNODE_CORE_MAILBOX_H__
+#ifndef __SERVERKIT_CORE_MAILBOX_H__
+#define __SERVERKIT_CORE_MAILBOX_H__
 
-#include "base/base.h"
+#include "base/macros.h"
+#include "base/typedef.h"
 #include "base/ypipe.h"
 #include "base/mutex.h"
 #include "core/signaler.h"
+
+namespace serverkit {
 
 class Message;
 
@@ -44,4 +47,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Mailbox);
 };
 
-#endif // __QNODE_CORE_MAILBOX_H__
+};  // namespace serverkit
+
+#endif // __SERVERKIT_CORE_MAILBOX_H__

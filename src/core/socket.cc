@@ -7,6 +7,8 @@
 #include "core/log.h"
 #include "core/socket.h"
 
+namespace serverkit {
+
 Socket::Socket(int fd, const string& addr, DataHandler* h)
   : fd_(fd),
     handler_(h),
@@ -119,3 +121,5 @@ int
 Socket::SetOut() {
   return poller_->SetOut(handle_);
 }
+
+};  // namespace serverkit

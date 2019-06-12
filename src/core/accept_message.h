@@ -2,10 +2,12 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_ACCEPT_MESSAGE_H__
-#define __QNODE_ACCEPT_MESSAGE_H__
+#ifndef __SERVERKIT_ACCEPT_MESSAGE_H__
+#define __SERVERKIT_ACCEPT_MESSAGE_H__
 
 #include "core/message.h"
+
+namespace serverkit {
 
 class Session;
 
@@ -25,4 +27,6 @@ private:
   Session *session_;
 };
 
-#endif  // __QNODE_ACCEPT_MESSAGE_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_ACCEPT_MESSAGE_H__

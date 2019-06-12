@@ -2,16 +2,17 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_SERVER_H__
-#define __QNODE_CORE_SERVER_H__
+#ifndef __SERVERKIT_CORE_SERVER_H__
+#define __SERVERKIT_CORE_SERVER_H__
 
 #include <map>
 #include <string>
 #include <vector>
-#include "base/base.h"
 #include "core/acceptor_handler.h"
 
 using namespace std;
+
+namespace serverkit {
 
 class Listener;
 class IOThread;
@@ -39,4 +40,5 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Server);
 };
 
-#endif  // __QNODE_CORE_SERVER_H__
+};  // namespace serverkit
+#endif  // __SERVERKIT_CORE_SERVER_H__

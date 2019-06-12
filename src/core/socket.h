@@ -2,14 +2,17 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_SOCKET_H__
-#define __QNODE_CORE_SOCKET_H__
+#ifndef __SERVERKIT_CORE_SOCKET_H__
+#define __SERVERKIT_CORE_SOCKET_H__
 
 #include <string>
 #include "base/buffer.h"
+#include "base/macros.h"
 #include "core/event.h"
 
 using namespace std;
+
+namespace serverkit {
 
 class DataHandler;
 class Poller;
@@ -63,4 +66,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Socket);
 };
 
-#endif  // __QNODE_CORE_SOCKET_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_SOCKET_H__

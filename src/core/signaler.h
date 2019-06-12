@@ -2,11 +2,13 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_SIGNALER_H__
-#define __QNODE_CORE_SIGNALER_H__
+#ifndef __SERVERKIT_CORE_SIGNALER_H__
+#define __SERVERKIT_CORE_SIGNALER_H__
 
-#include "base/base.h"
+#include "base/macros.h"
 #include "core/typedef.h"
+
+namespace serverkit {
 
 class Signaler {
 public:
@@ -28,4 +30,6 @@ private:
   DISALLOW_COPY_AND_ASSIGN(Signaler);
 };
 
-#endif // __QNODE_CORE_SIGNALER_H__
+};  // namespace serverkit
+
+#endif // __SERVERKIT_CORE_SIGNALER_H__

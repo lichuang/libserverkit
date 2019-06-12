@@ -2,13 +2,15 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_LISTENER_H__
-#define __QNODE_CORE_LISTENER_H__
+#ifndef __SERVERKIT_CORE_LISTENER_H__
+#define __SERVERKIT_CORE_LISTENER_H__
 
 #include <string>
 #include "core/event.h"
 
 using namespace std;
+
+namespace serverkit {
 
 class AcceptorHandler;
 class Poller;
@@ -40,4 +42,6 @@ private:
   string string_;
 };
 
-#endif  // __QNODE_CORE_LISTENER_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_LISTENER_H__

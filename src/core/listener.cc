@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include "base/assert.h"
+#include "base/error.h"
 #include "base/errcode.h"
 #include "base/net.h"
 #include "base/string.h"
@@ -14,6 +14,8 @@
 #include "core/listener.h"
 #include "core/log.h"
 #include "core/session.h"
+
+namespace serverkit {
 
 Listener::Listener(const string& addr, int port, Poller* poller,
                    AcceptorHandler *h, SessionFactory *f)
@@ -24,7 +26,7 @@ Listener::Listener(const string& addr, int port, Poller* poller,
     factory_(f) {
   int error;      
   fd_ = Listen(addr, port, kBacklog, &error);
-  Assert(fd > 0);
+  Assert(fd_ > 0);
   handle_ = poller_->Add(fd_, this, kEventRead);
   Stringf(&string_, "%s:%d", addr.c_str(), port);
 }
@@ -61,3 +63,5 @@ void
 Listener::Timeout() {
   Assert(false);
 }
+
+};  // namespace serverkit

@@ -2,7 +2,7 @@
  * Copyright (C) codedump
  */
 
-#include "base/assert.h"
+#include "base/error.h"
 #include "base/time.h"
 #include "base/string.h"
 #include "core/accept_message.h"
@@ -12,6 +12,8 @@
 #include "core/server.h"
 #include "core/poller.h"
 #include "core/epoll.h"
+
+namespace serverkit {
 
 volatile uint64_t gCurrentMs;
 string   gCurrentMsString;
@@ -77,3 +79,5 @@ void
 Server::Run() {
   poller_->Loop();
 }
+
+};  // namespace serverkit

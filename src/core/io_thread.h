@@ -1,10 +1,11 @@
 /*
  * Copyright (C) codedump
  */
-#ifndef __QNODE_CORE_IO_THREAD_H__
-#define __QNODE_CORE_IO_THREAD_H__
+#ifndef __SERVERKIT_CORE_IO_THREAD_H__
+#define __SERVERKIT_CORE_IO_THREAD_H__
 
 #include <string>
+#include "base/macros.h"
 #include "base/thread.h"
 #include "core/event.h"
 #include "core/mailbox.h"
@@ -12,6 +13,8 @@
 #include "core/poller.h"
 
 using namespace std;
+
+namespace serverkit {
 
 class IOThread 
   : public Thread,
@@ -41,10 +44,9 @@ protected:
   Poller *poller_;
   Mailbox mailbox_;
 
-  static pthread_once_t once_;
-  static void initIothreadOnceResource();
   DISALLOW_COPY_AND_ASSIGN(IOThread);
 };
 
+};  // namespace serverkit
 
-#endif  // __QNODE_CORE_IO_THREAD_H__
+#endif  // __SERVERKIT_CORE_IO_THREAD_H__

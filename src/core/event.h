@@ -2,11 +2,12 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_EVENT_H__
-#define __QNODE_CORE_EVENT_H__
+#ifndef __SERVERKIT_CORE_EVENT_H__
+#define __SERVERKIT_CORE_EVENT_H__
 
 #include "core/poller.h"
 
+namespace serverkit {
 // virtual interface for notify events
 class Event {
 public:
@@ -31,4 +32,6 @@ protected:
   timer_id_t timer_id_;
 };
 
-#endif  // __QNODE_CORE_EVENT_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_EVENT_H__

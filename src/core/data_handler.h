@@ -2,8 +2,10 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_DATA_HANDLER_H__
-#define __QNODE_CORE_DATA_HANDLER_H__
+#ifndef __SERVERKIT_CORE_DATA_HANDLER_H__
+#define __SERVERKIT_CORE_DATA_HANDLER_H__
+
+namespace serverkit {
 
 // virtual interface for socket data handler
 class DataHandler {
@@ -16,4 +18,6 @@ public:
   virtual void OnError(int err) = 0;
 };
 
-#endif  // __QNODE_CORE_DATA_HANDLER_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_DATA_HANDLER_H__

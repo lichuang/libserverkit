@@ -1,14 +1,16 @@
 /*
  * Copyright (C) codedump
  */
-#ifndef __QNODE_CORE_POLLER_H__
-#define __QNODE_CORE_POLLER_H__
+#ifndef __SERVERKIT_CORE_POLLER_H__
+#define __SERVERKIT_CORE_POLLER_H__
 
 #include <map>
 #include <stdio.h>
 #include "base/atomic.h"
 #include "base/clock.h"
 #include "core/typedef.h"
+
+namespace serverkit {
 
 // epoll
 class EpollEntry;
@@ -84,4 +86,6 @@ protected:
   atomic_counter_t load_;
 };
 
-#endif // __QNODE_CORE_POLLER_H__
+};  // namespace serverkit
+
+#endif // __SERVERKIT_CORE_POLLER_H__

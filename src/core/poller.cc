@@ -3,9 +3,9 @@
  */
 #include "base/time.h"
 #include "core/event.h"
-#include "core/global.h"
 #include "core/poller.h"
 
+namespace serverkit {
 extern void UpdateGlobalTime();
 
 Poller::Poller()
@@ -98,3 +98,5 @@ Poller::Loop() {
 void
 Poller::checkThread() {
 }
+
+};  // namespace serverkit

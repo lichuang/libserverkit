@@ -6,10 +6,11 @@
 #include "base/errcode.h"
 #include "base/net.h"
 #include "core/config.h"
-#include "core/const.h"
 #include "core/epoll.h"
 #include "core/event.h"
 #include "core/log.h"
+
+namespace serverkit {
 
 Epoll::Epoll() 
   : size_(0),
@@ -198,3 +199,5 @@ Epoll::processRetired() {
   }
   retired_list_.clear();
 }
+
+};  // namespace serverkit

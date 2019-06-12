@@ -2,8 +2,8 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_EPOLL_H__
-#define __QNODE_CORE_EPOLL_H__
+#ifndef __SERVERKIT_CORE_EPOLL_H__
+#define __SERVERKIT_CORE_EPOLL_H__
 
 #include <list>
 #include <vector>
@@ -12,6 +12,8 @@
 #include "core/poller.h"
 
 using namespace std;
+
+namespace serverkit {
 
 struct EpollEntry {
   fd_t fd;
@@ -48,4 +50,6 @@ private:
   EntryList retired_list_;
 };
 
-#endif  // __QNODE_CORE_EPOLL_H__
+};  // namespace serverkit
+
+#endif  // __SERVERKIT_CORE_EPOLL_H__

@@ -8,8 +8,9 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include "base/net.h"
-#include "core/const.h"
 #include "core/signaler.h"
+
+namespace serverkit {
 
 Signaler::Signaler()
   : wfd_(kInvalidFd),
@@ -57,3 +58,5 @@ Signaler::RecvFailable() {
   uint64_t dummy;
   return ::read(rfd_, &dummy, sizeof(dummy));
 }
+
+};  // namespace serverkit

@@ -2,11 +2,12 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_CORE_MESSAGE_H__
-#define __QNODE_CORE_MESSAGE_H__
+#ifndef __SERVERKIT_CORE_MESSAGE_H__
+#define __SERVERKIT_CORE_MESSAGE_H__
 
 #include "base/typedef.h"
 
+namespace serverkit {
 class Message;
 
 // add message types here
@@ -45,4 +46,6 @@ protected:
   MessageHandler *handler_;
 };
 
-#endif // __QNODE_CORE_MESSAGE_H__
+};  // namespace serverkit
+
+#endif // __SERVERKIT_CORE_MESSAGE_H__
