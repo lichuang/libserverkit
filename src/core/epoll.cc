@@ -43,7 +43,6 @@ Epoll::Init(int size) {
 handle_t
 Epoll::Add(fd_t fd, Event *event, int flags) {
   int ev = 0;
-  checkThread();
 
   EpollEntry *ee = new(std::nothrow)EpollEntry;
   memset(ee, 0, sizeof(EpollEntry));
@@ -77,8 +76,6 @@ Epoll::Add(fd_t fd, Event *event, int flags) {
 
 int
 Epoll::Del(handle_t handle) {
-  checkThread();
-
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
   int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, ee->fd, &ee->ev);
   ee->fd = kInvalidFd;
@@ -89,8 +86,6 @@ Epoll::Del(handle_t handle) {
 
 int
 Epoll::ResetIn(handle_t handle) {
-  checkThread();
-
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
   if (!(ee->flags | kEventRead)) {
     return kOK;
@@ -103,8 +98,6 @@ Epoll::ResetIn(handle_t handle) {
 
 int
 Epoll::SetIn(handle_t handle) {
-  checkThread();
-
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
   if (ee->flags | kEventRead) {
     return kOK;
@@ -117,8 +110,6 @@ Epoll::SetIn(handle_t handle) {
 
 int
 Epoll::ResetOut(handle_t handle) {
-  checkThread();
-
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
   if (!(ee->flags | kEventWrite)) {
     return kOK;
@@ -131,8 +122,6 @@ Epoll::ResetOut(handle_t handle) {
 
 int
 Epoll::SetOut(handle_t handle) {
-  checkThread();
-
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
   if (ee->flags | kEventWrite) {
     return kOK;
@@ -151,6 +140,7 @@ Epoll::Poll(int timeout) {
   Event* event;
 
   num = epoll_wait(epoll_fd_, ep_events_.data(), size_, timeout);
+
   if (num <= 0) {
     return num;
   }

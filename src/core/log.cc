@@ -2,16 +2,22 @@
  * Copyright (C) codedump
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
 #include <pthread.h>
+#include "base/error.h"
+#include "base/singleton.h"
 #include "base/thread.h"
 #include "core/config.h"
-#include "core/global.h"
 #include "core/log.h"
 
 namespace serverkit {
 
-extern void UpdateGlobalTime();
+extern thread_local uint64_t gCurrentMs;
+extern thread_local char gCurrentTimeString[sizeof("yy-mm-dd hh-mm-ss.000") - 1];
 
 int gLogLevel = LOG_DEBUG;
 
@@ -23,33 +29,38 @@ static const char* kLogLevelString[] = {
   "D"
 };
 
-// global thread info
-struct globalThreadInfo{
-  int fd;
+// global thread log info
+struct globalThreadInfo {
   string path;
+
+  globalThreadInfo() 
+    : path("") {
+  }
 };
 
+
 void
-SetLogLevel(int level) {
+InitLog(const string& path, int level) {
+  Singleton<globalThreadInfo>::Instance()->path = path;
   gLogLevel = level;
 }
 
 void
-InitLog() {
-  UpdateGlobalTime();
-}
-
-void
 Log(int level, const char* file, int line, const char *fmt, ...) {
-  /*
-  threadInfo *info = CurrentThreadInfo();
+  ThreadInfo *info = CurrentThreadInfo();
+  if (info->fd == -1) {
+    string file = Singleton<globalThreadInfo>::Instance()->path + "/qnode.log";
+    info->fd = open(file.c_str(), O_WRONLY | O_APPEND | O_CREAT);
+    Assert(info->fd != -1);
+  }
+
   char *p = &(info->buffer[0]);
   char *end = p + kLogBufferSize;
   int n;
 
   // log header
   n = snprintf(p, end - p, "[%s %s %s %s:%d]", 
-    kLogLevelString[level], gCurrentMsString.c_str(),
+    kLogLevelString[level], gCurrentTimeString,
     info->name.c_str(), file, line);
   p += n;
 
@@ -61,8 +72,7 @@ Log(int level, const char* file, int line, const char *fmt, ...) {
   *(p + n) = '\n';
   *(p + n + 1) = '\0';
 
-  printf("%s", info->buffer);
-  */
+  write(info->fd, info->buffer, p - &(info->buffer[0]) + n + 1);
 }
 
 };  // namespace serverkit

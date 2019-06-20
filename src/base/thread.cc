@@ -10,7 +10,7 @@
 
 namespace serverkit {
 
-static thread_local Thread* gThread = NULL;
+static thread_local ThreadInfo gPerThreadInfo;
 
 struct threadStartEntry {
   Condition *cond;
@@ -58,7 +58,8 @@ Thread::main(void* arg) {
   Thread *thread = entry->thread;
 
   ::prctl(PR_SET_NAME, thread->name_.c_str());
-  gThread = thread;
+  gPerThreadInfo.name = thread->name_;
+  gPerThreadInfo.thread = thread;
 
   cond->Notify();
 
@@ -69,13 +70,12 @@ Thread::main(void* arg) {
 
 const string&
 CurrentThreadName() {
-  return CurrentThread()->Name();
+  return gPerThreadInfo.name;
 }
 
-Thread*
-CurrentThread() {
-  Assert(gThread != NULL);
-  return gThread;
+ThreadInfo*
+CurrentThreadInfo() {
+  return &gPerThreadInfo;
 }
 
 };  // namespace serverkit

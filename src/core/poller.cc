@@ -4,13 +4,17 @@
 #include "base/time.h"
 #include "core/event.h"
 #include "core/poller.h"
+#include <string>
+
+using namespace std;
 
 namespace serverkit {
-extern void UpdateGlobalTime();
+
+thread_local uint64_t gCurrentMs;
+thread_local char gCurrentTimeString[sizeof("yy-mm-dd hh-mm-ss.000") - 1];
 
 Poller::Poller()
-  : update_global_time_(false),
-    max_timer_id_(0) {
+  : max_timer_id_(0) {
 }
 
 Poller::~Poller() {
@@ -18,7 +22,7 @@ Poller::~Poller() {
 
 timer_id_t
 Poller::AddTimer(int timeout, Event *event) {
-  uint64_t expire = clock_.NowMs() + timeout;
+  uint64_t expire = NowMs() + timeout;
   ++max_timer_id_;
   timer_id_t id = max_timer_id_;
   TimerEntry *entry = new TimerEntry(expire, event, id);
@@ -53,7 +57,7 @@ Poller::executeTimers() {
   if (timers_.empty()) {
     return 0;
   }
-  uint64_t current = clock_.NowMs();
+  uint64_t current = NowMs();
   uint64_t res = 0;
   TimerIdMap::iterator iter = timers_.begin();
   TimerIdMap::iterator begin = timers_.begin();
@@ -73,10 +77,15 @@ Poller::executeTimers() {
 
 void
 Poller::updateTime() {
-  clock_.Update();
-  if (update_global_time_) {
-    UpdateGlobalTime();
-  }
+  gCurrentMs = NowMs();
+
+  struct timeval t;
+  ::gettimeofday(&t, NULL);
+  struct tm tim;
+  ::localtime_r(&t.tv_sec, &tim);
+  snprintf(gCurrentTimeString, sizeof(gCurrentTimeString), "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+    tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
+    tim.tm_hour, tim.tm_min, tim.tm_sec, (int)t.tv_usec / 1000);
 }
 
 void
@@ -91,12 +100,10 @@ Poller::Loop() {
       }
     }
 
+    updateTime();
+
     Poll(timeout);
   }
-}
-
-void
-Poller::checkThread() {
 }
 
 };  // namespace serverkit

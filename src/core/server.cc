@@ -15,24 +15,12 @@
 
 namespace serverkit {
 
-volatile uint64_t gCurrentMs;
-string   gCurrentMsString;
-
-void
-UpdateGlobalTime() {
-  gCurrentMs = NowMs();
-  string ret;
-  NowMsString(&ret);
-  gCurrentMsString = ret;
-}
-
 Server::Server(int worker)
   : index_(0),
     poller_(new Epoll()) {
   Assert(poller_ != NULL);
   Assert(worker > 0);
   poller_->Init(1024);
-  poller_->SetUpdateGlobalTime();
 
   int n;
   for (n = 0; n < worker; ++n) {

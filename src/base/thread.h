@@ -47,8 +47,33 @@ protected:
   void *arg_;
 };
 
+// max size per log
+static const int kLogBufferSize = 1024 * 1024;
+
+// per thread info
+struct ThreadInfo {
+  // log file fd
+  int fd;
+  // log buffer
+  char* buffer;
+  // thread name
+  string name;
+  Thread *thread;
+
+  ThreadInfo()
+    : fd(-1),
+      buffer(new char[kLogBufferSize]),
+      name("main"),  // default is main thread
+      thread(NULL) {
+  }
+
+  ~ThreadInfo() {
+    delete [] buffer;
+  }
+};
+
 const string& CurrentThreadName();
-Thread* CurrentThread();
+ThreadInfo* CurrentThreadInfo();
 
 };  // namespace serverkit
 

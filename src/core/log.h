@@ -6,6 +6,9 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <string>
+
+using namespace std;
 
 namespace serverkit {
 
@@ -22,13 +25,12 @@ extern int gLogLevel;
 
 extern void Log(int level, const char* file, int line, const char *format, ...);
 
-extern void InitLog();
-extern void SetLogLevel(int level);
+extern void InitLog(const string& path, int level);
 
 #define Fatalf(args...) if (gLogLevel >= LOG_FATAL)   Log(LOG_ERR, __FILE__, __LINE__, args)
 #define Errorf(args...) if (gLogLevel >= LOG_ERR)   Log(LOG_ERR, __FILE__, __LINE__, args)
 #define Warnf(args...)  if (gLogLevel >= LOG_WARN)  Log(LOG_WARN, __FILE__, __LINE__, args)
-#define Infof(args...)  if (gLogLevel >= LOG_INFO)  Log(LOG_INFO, __FILE__, __LINE__, args)
+#define Infof(args...)  if (serverkit::gLogLevel >= serverkit::LOG_INFO)  Log(serverkit::LOG_INFO, __FILE__, __LINE__, args)
 #define Debug(args...)  if (gLogLevel >= LOG_DEBUG) Log(LOG_DEBUG, __FILE__, __LINE__, args)
 
 };  // namespace serverkit

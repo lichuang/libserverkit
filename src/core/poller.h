@@ -7,7 +7,7 @@
 #include <map>
 #include <stdio.h>
 #include "base/atomic.h"
-#include "base/clock.h"
+#include "base/time.h"
 #include "core/typedef.h"
 
 namespace serverkit {
@@ -39,12 +39,9 @@ public:
   timer_id_t AddTimer(int timeout, Event *);
   void CancelTimer(timer_id_t);
   uint64_t NowMs() const {
-    return clock_.NowMs();
+    return NowMs();
   }
 
-  void SetUpdateGlobalTime() {
-    update_global_time_ = true;
-  }
   void Loop();
 
 protected:
@@ -52,7 +49,6 @@ protected:
 
   void updateTime();
   uint64_t executeTimers();
-  void checkThread();
 
   // for load
   inline void adjustLoad(int cnt) {
@@ -68,8 +64,6 @@ protected:
   }
 
 protected:  
-  bool update_global_time_;
-  Clock clock_;
   struct TimerEntry {
     uint64_t expire;
     Event *event;
@@ -86,6 +80,9 @@ protected:
   atomic_counter_t load_;
 };
 
+// per thread global variable
+extern thread_local uint64_t gCurrentMs;
+extern thread_local char gCurrentTimeString[sizeof("yy-mm-dd hh-mm-ss.000") - 1];
 };  // namespace serverkit
 
 #endif // __SERVERKIT_CORE_POLLER_H__
