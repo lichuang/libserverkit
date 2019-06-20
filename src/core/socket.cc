@@ -4,7 +4,7 @@
 
 #include "base/net.h"
 #include "core/data_handler.h"
-#include "core/log.h"
+//#include "core/log.h"
 #include "core/socket.h"
 
 namespace serverkit {
@@ -15,7 +15,7 @@ Socket::Socket(int fd, const string& addr, DataHandler* h)
     poller_(NULL),
     is_writable_(false),
     addr_(addr) {
-  Infof("addr: %s, fd: %d", addr.c_str(), fd);      
+  //Infof("addr: %s, fd: %d", addr.c_str(), fd);      
 }
 
 Socket::~Socket() {

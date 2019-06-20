@@ -8,7 +8,6 @@
 #include "core/config.h"
 #include "core/epoll.h"
 #include "core/event.h"
-#include "core/log.h"
 
 namespace serverkit {
 

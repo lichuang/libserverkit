@@ -12,7 +12,6 @@
 #include "core/acceptor_handler.h"
 #include "core/config.h"
 #include "core/listener.h"
-#include "core/log.h"
 #include "core/session.h"
 
 namespace serverkit {
@@ -49,7 +48,7 @@ Listener::In() {
       break;
     } else {
       handler_->OnError(error);
-      Errorf("accept connection error: %s", strerror(error));
+      //Errorf("accept connection error: %s", strerror(error));
     }
   }
 }
