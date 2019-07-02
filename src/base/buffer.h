@@ -25,13 +25,33 @@ public:
   char* Data() {
     return &(data_[0]);
   }
+  int Length() const { 
+    return static_cast<int>(cur_ - data_);
+  }
 
   void Reset() {
-    memset(data_, '\0', sizeof(char) * kBufferSize);
+    memset(data_, '0', sizeof(data_));
+    cur_ = data_;
   }
+
+  char* Current() { return cur_; }
+  int Avail() const { return static_cast<int>(End() - cur_); }
+  void Add(size_t len) { cur_ += len; }
+
+  void Append(const char* /*restrict*/ buf, size_t len) {
+    if ((size_t)Avail() > len) {
+      memcpy(cur_, buf, len);
+      cur_ += len;
+    }
+  }
+
+  void BZero() { memset(data_, 0, sizeof(data_)); }
+
+  const char* End() const { return data_ + sizeof(data_); }
 
 private:
   char data_[kBufferSize];
+  char *cur_;
 
   DISALLOW_COPY_AND_ASSIGN(Buffer);
 };

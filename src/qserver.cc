@@ -2,15 +2,13 @@
  * Copyright (C) codedump
  */
 #include <string>
-//#include "core/log.h"
+#include "base/log.h"
 using namespace std;
 
 int main() {
-  /*
-  serverkit::InitLog("./", serverkit::LOG_DEBUG);
+  //serverkit::InitLog("./", serverkit::LOG_DEBUG);
 
-  Infof("test");
-  */
+  Info << "test";
 
   return 0;
 }
