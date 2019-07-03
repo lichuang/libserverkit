@@ -38,10 +38,6 @@ public:
 
   timer_id_t AddTimer(int timeout, Event *);
   void CancelTimer(timer_id_t);
-  uint64_t NowMs() const {
-    return NowMs();
-  }
-
   void Loop();
 
 protected:
@@ -80,9 +76,8 @@ protected:
   atomic_counter_t load_;
 };
 
-// per thread global variable
-extern thread_local uint64_t gCurrentMs;
-extern thread_local char gCurrentTimeString[sizeof("yy-mm-dd hh-mm-ss.000") - 1];
+extern uint64_t CurrentMs();
+
 };  // namespace serverkit
 
 #endif // __SERVERKIT_CORE_POLLER_H__

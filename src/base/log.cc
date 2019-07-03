@@ -86,8 +86,10 @@ Logger::Impl::Impl(LogLevel level, int savedErrno, const SourceFile& file, int l
    :level_(level),
     line_(line),
     basename_(file) {
-  gStream << T(kLogLevelName[level], 3);
-  gStream << CurrentThreadName() << " " << basename_ << ':' << line_ << ']';
+  gStream << kLogLevelName[level];
+  gStream << CurrentThreadName() << " " << basename_ <<
+    ':' << line_ << " " << CurrentMsString() << ']';
+
   if (savedErrno != 0) {
     gStream << strerror_tl(savedErrno) << " (errno=" << savedErrno << ") ";
   }
@@ -99,7 +101,6 @@ void Logger::Impl::finish() {
 
 Logger::Logger(SourceFile file, int line, LogLevel level, const char* func)
   : impl_(level, 0, file, line) {
-  //impl_.stream_ << func << ' ';
 }
 
 Logger::~Logger() {

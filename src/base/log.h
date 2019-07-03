@@ -53,7 +53,6 @@ class Logger {
   Logger(SourceFile file, int line, LogLevel level, const char* func);
   ~Logger();
 
-  //LogStream& stream() { return impl_.stream_; }
   LogStream& stream() { return gStream; }
 
   static LogLevel logLevel();
@@ -68,6 +67,7 @@ class Logger {
   class Impl {
    public:
     Impl(LogLevel level, int old_errno, const SourceFile& file, int line);
+    Impl(LogLevel level, int old_errno, const char* file, int line);
     void finish();
 
     LogLevel level_;

@@ -35,10 +35,10 @@ public:
   }
 
   virtual void OnWrite() {
-    last_write_time_ = poller_->NowMs();
+    last_write_time_ = CurrentMs();
   }
   virtual void OnRead() {
-    last_read_time_ = poller_->NowMs();
+    last_read_time_ = CurrentMs();
   }
   virtual void OnError(int err) = 0;
 

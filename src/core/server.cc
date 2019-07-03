@@ -3,6 +3,7 @@
  */
 
 #include "base/error.h"
+#include "base/log.h"
 #include "base/time.h"
 #include "base/string.h"
 #include "core/accept_message.h"
@@ -64,6 +65,7 @@ Server::Listen(const string& addr, int port, SessionFactory* f) {
 
 void
 Server::Run() {
+  Info << "server running...";
   poller_->Loop();
 }
 

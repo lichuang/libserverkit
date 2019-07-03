@@ -2,6 +2,7 @@
  * Copyright (C) codedump
  */
 #include "base/time.h"
+#include "base/thread.h"
 #include "core/event.h"
 #include "core/poller.h"
 #include <string>
@@ -9,9 +10,6 @@
 using namespace std;
 
 namespace serverkit {
-
-thread_local uint64_t gCurrentMs;
-thread_local char gCurrentTimeString[sizeof("yy-mm-dd hh-mm-ss.000") - 1];
 
 Poller::Poller()
   : max_timer_id_(0) {
@@ -77,15 +75,7 @@ Poller::executeTimers() {
 
 void
 Poller::updateTime() {
-  gCurrentMs = NowMs();
-
-  struct timeval t;
-  ::gettimeofday(&t, NULL);
-  struct tm tim;
-  ::localtime_r(&t.tv_sec, &tim);
-  snprintf(gCurrentTimeString, sizeof(gCurrentTimeString), "%04d-%02d-%02d %02d:%02d:%02d.%03d",
-    tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
-    tim.tm_hour, tim.tm_min, tim.tm_sec, (int)t.tv_usec / 1000);
+  UpdateThreadTime();
 }
 
 void
