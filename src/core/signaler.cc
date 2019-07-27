@@ -47,13 +47,13 @@ Signaler::Wait(int timeout) {
   return poll(&pfd, 1, timeout);
 }
 
-void
+ssize_t
 Signaler::Recv() {
   uint64_t dummy;
-  ::read(rfd_, &dummy, sizeof(dummy));
+  return ::read(rfd_, &dummy, sizeof(dummy));
 }
 
-int
+ssize_t
 Signaler::RecvFailable() {
   uint64_t dummy;
   return ::read(rfd_, &dummy, sizeof(dummy));

@@ -75,7 +75,7 @@ IOThread::Send(Message *msg) {
 
 void
 IOThread::Run(void *arg) {
-  arg = NULL;
+  UNUSED(arg);
 
   poller_->Loop();
 }

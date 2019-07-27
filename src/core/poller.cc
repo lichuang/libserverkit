@@ -83,7 +83,7 @@ Poller::Loop() {
   int timeout;
 
   while (true) {
-    timeout = executeTimers();
+    timeout = static_cast<int>(executeTimers());
     if (timeout) {
       if (getLoad() == 0) {
         continue;

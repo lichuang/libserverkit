@@ -44,7 +44,7 @@ Server::~Server() {
 
 void
 Server::OnAccept(Session* s) {
-  index_ = (index_ + 1) % workers_.size();
+  index_ = (index_ + 1) % static_cast<int>(workers_.size());
 
   IOThread *worker = workers_[index_];
   AcceptMessage *msg = new AcceptMessage(s, worker->GetTid(), worker);

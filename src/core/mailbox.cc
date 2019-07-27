@@ -42,7 +42,7 @@ Mailbox::Recv(Message** msg, int timeout) {
   }
 
   //  Receive the signal.
-  rc = signaler_.RecvFailable();
+  rc = static_cast<int>(signaler_.RecvFailable());
   if (rc == -1) {
     return kError;
   }

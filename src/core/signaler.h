@@ -20,9 +20,9 @@ public:
   }
   void Send();
   int Wait(int timeout);
-  void Recv();
+  ssize_t Recv();
 
-  int RecvFailable();
+  ssize_t RecvFailable();
 private:
   fd_t wfd_;
   fd_t rfd_;

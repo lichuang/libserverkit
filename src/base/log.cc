@@ -37,7 +37,7 @@ static LogLevel initLogLevel() {
   int i;
   for (i = TRACE; i < NUM_LOG_LEVELS; ++i) {
     if (!strcmp(kLogLevelName[i], val)) {
-      return (LogLevel)i;
+      return static_cast<LogLevel>(i);
     }
   }
   return INFO;

@@ -16,7 +16,7 @@ set(CXX_FLAGS
 # -Werror
  -Wconversion
  -Wno-unused-parameter
-#-Wold-style-cast
+ -Wold-style-cast
  -Woverloaded-virtual
  -Wpointer-arith
  -Wshadow
@@ -26,9 +26,7 @@ set(CXX_FLAGS
  -std=c++11
  -rdynamic
  )
-if(CMAKE_BUILD_BITS EQUAL 32)
-  list(APPEND CXX_FLAGS "-m32")
-endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND CXX_FLAGS "-Wno-null-dereference")
   list(APPEND CXX_FLAGS "-Wno-sign-conversion")

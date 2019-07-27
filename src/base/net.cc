@@ -76,7 +76,7 @@ Listen(const string& addr, int port, int backlog, int *error) {
     return kError;
   }
 
-  if (bind(fd, (struct sockaddr*)&sa, sizeof(sa)) < 0) {
+  if (bind(fd, reinterpret_cast<struct sockaddr*>(&sa), sizeof(sa)) < 0) {
     *error =  errno;
     close(fd);
     return kError;
@@ -98,7 +98,7 @@ Accept(int listen_fd, string *ret, int *error) {
   int fd;
 
   while (true) {
-    fd = accept(listen_fd, (struct sockaddr *)&addr, &addrlen);
+    fd = accept(listen_fd, reinterpret_cast<struct sockaddr *>(&addr), &addrlen);
     if (fd == -1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
         *error = kAgain;
@@ -134,7 +134,7 @@ Recv(int fd, BufferList *buffer, int *error) {
     nbytes = ::read(fd, buffer->WritePoint(), buffer->WriteableSize());
     if (nbytes > 0) {
       buffer->WriteAdvance(nbytes);
-      ret += nbytes;
+      ret += static_cast<int>(nbytes);
     } else if (nbytes < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
         // there is nothing in the tcp stack,return and wait for the next in event
@@ -175,7 +175,7 @@ Send(int fd, BufferList *buffer, int *error) {
 
     if (nbytes > 0) {
       buffer->ReadAdvance(nbytes);
-      ret += nbytes;
+      ret += static_cast<int>(nbytes);
     } else if (nbytes < 0) {
       if (err == EINTR) {
         continue;

@@ -39,7 +39,7 @@ public:
   void Add(size_t len) { cur_ += len; }
 
   void Append(const char* /*restrict*/ buf, size_t len) {
-    if ((size_t)Avail() > len) {
+    if (static_cast<size_t>(Avail()) > len) {
       memcpy(cur_, buf, len);
       cur_ += len;
     }

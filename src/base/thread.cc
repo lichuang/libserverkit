@@ -126,7 +126,7 @@ UpdateThreadTime() {
   snprintf(gPerThreadInfo.now_str, TIME_FORMAT_LENGTH,
     "%4d/%02d/%02d %02d:%02d:%02d.%03d",
     tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
-    tim.tm_hour, tim.tm_min, tim.tm_sec, (int)t.tv_usec / 1000);
+    tim.tm_hour, tim.tm_min, tim.tm_sec, static_cast<int>(t.tv_usec / 1000));
 }
 
 const char*
