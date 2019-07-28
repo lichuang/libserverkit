@@ -65,7 +65,6 @@ class LogStream {
   }
 
   Buffer* buffer() { return &buffer_; }
-  void ResetBuffer() { buffer_.Reset(); }
 
  private:
   template<typename T>

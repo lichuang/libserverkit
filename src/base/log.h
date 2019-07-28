@@ -23,37 +23,10 @@ extern thread_local LogStream gStream;
 
 class Logger {
  public:
-  // compile time calculation of basename of source file
-  class SourceFile {
-   public:
-    template<int N>
-    SourceFile(const char (&arr)[N])
-      : data_(arr),
-        size_(N-1) {
-      const char* slash = strrchr(data_, '/'); // builtin function
-      if (slash) {
-        data_ = slash + 1;
-        size_ -= static_cast<int>(data_ - arr);
-      }
-    }
-
-    explicit SourceFile(const char* filename)
-      : data_(filename) {
-      const char* slash = strrchr(filename, '/');
-      if (slash) {
-        data_ = slash + 1;
-      }
-      size_ = static_cast<int>(strlen(data_));
-    }
-
-    const char* data_;
-    int size_;
-  };
-
-  Logger(SourceFile file, int line, LogLevel level, const char* func);
+  Logger(const char* file, int line, LogLevel level, const char* func);
   ~Logger();
 
-  LogStream& stream() { return gStream; }
+  LogStream& Stream() { return gStream; }
 
   static LogLevel logLevel();
   static void setLogLevel(LogLevel level);
@@ -66,18 +39,15 @@ class Logger {
  private:
   class Impl {
    public:
-    Impl(LogLevel level, int old_errno, const SourceFile& file, int line);
-    Impl(LogLevel level, int old_errno, const char* file, int line);
-    void finish();
+    Impl(LogLevel level, const char* file, int line);
+    void Finish();
 
     LogLevel level_;
     int line_;
-    SourceFile basename_;
   };
 
   Impl impl_;
 };
-
 
 extern LogLevel gLogLevel;
 
@@ -86,16 +56,22 @@ inline LogLevel Logger::logLevel() {
 }
 
 #define Trace if (serverkit::Logger::logLevel() <= serverkit::TRACE) \
-  serverkit::Logger(__FILE__, __LINE__, serverkit::TRACE, __func__).stream()
+  serverkit::Logger(__FILE__, __LINE__, serverkit::TRACE, __func__).Stream()
 
 #define Debug if (serverkit::Logger::logLevel() <= serverkit::DEBUG) \
-  serverkit::Logger(__FILE__, __LINE__, serverkit::DEBUG, __func__).stream()
+  serverkit::Logger(__FILE__, __LINE__, serverkit::DEBUG, __func__).Stream()
 
 #define Info if (serverkit::Logger::logLevel() <= serverkit::INFO) \
-  serverkit::Logger(__FILE__, __LINE__, serverkit::INFO, __func__).stream()
+  serverkit::Logger(__FILE__, __LINE__, serverkit::INFO, __func__).Stream()
 
-const char* strerror_tl(int savedErrno);
+#define Warn if (serverkit::Logger::logLevel() <= serverkit::INFO) \
+  serverkit::Logger(__FILE__, __LINE__, serverkit::WARN, __func__).Stream()
 
+#define Error if (serverkit::Logger::logLevel() <= serverkit::INFO) \
+  serverkit::Logger(__FILE__, __LINE__, serverkit::ERROR, __func__).Stream()
+
+#define Fatal if (serverkit::Logger::logLevel() <= serverkit::INFO) \
+  serverkit::Logger(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream()
 }  // namespace serverkit
 
 #endif  // __SERVERKIT_BASE_LOG_H__

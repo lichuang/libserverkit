@@ -7,7 +7,8 @@
 
 namespace serverkit {
 
-size_t BufferList::Read(char* to, size_t n) {
+size_t 
+BufferList::Read(char* to, size_t n) {
   size_t orig = n;
   size_t read_size;
 
@@ -28,7 +29,8 @@ size_t BufferList::Read(char* to, size_t n) {
   return orig - n;
 }
 
-void BufferList::Write(const char* from, size_t n) {
+void 
+BufferList::Write(const char* from, size_t n) {
   size_t write_size;
 
   while (n > 0) {
@@ -47,7 +49,8 @@ void BufferList::Write(const char* from, size_t n) {
   }
 }
 
-void BufferList::ReadAdvance(size_t n) {
+void 
+BufferList::ReadAdvance(size_t n) {
   read_inx_ += n;
   // a buffer has been read out, pop it from list
   if (read_inx_ == kBufferSize) {
@@ -58,7 +61,8 @@ void BufferList::ReadAdvance(size_t n) {
   }
 }
 
-void BufferList::WriteAdvance(size_t n) {
+void 
+BufferList::WriteAdvance(size_t n) {
   write_inx_ += n;
   // a buffer has been filled in, create a new buffer into list
   if (write_inx_ == kBufferSize) {
@@ -67,7 +71,8 @@ void BufferList::WriteAdvance(size_t n) {
   }
 }
 
-size_t BufferList::ReadableSize() const {
+size_t 
+BufferList::ReadableSize() const {
   if (buffer_list_.size() == 1) {
     return write_inx_ - read_inx_;
   }
@@ -75,8 +80,13 @@ size_t BufferList::ReadableSize() const {
   return kBufferSize - read_inx_;
 }
 
-size_t BufferList::WriteableSize() const {
+size_t 
+BufferList::WriteableSize() const {
   return kBufferSize - write_inx_;
 }
 
+void 
+BufferList::Append(const char* /*restrict*/ buf, size_t len) {
+  // TODO
+}
 };  // namespace serverkit

@@ -12,6 +12,7 @@
 #include "base/macros.h"
 
 namespace serverkit {
+
 //  This class encapsulates several atomic operations on pointers.
 template <typename T>
 class atomic_ptr_t {
@@ -19,10 +20,10 @@ public:
   //  Initialise atomic pointer
   inline atomic_ptr_t() : ptr_(NULL) { }
 
-  //  Set value of atomic pointer in a non-threadsafe way
+  //  Set value of atomic pointer
   //  Use this function only when you are sure that at most one
   //  thread is accessing the pointer at the moment.
-  inline void set(T *ptr) { ptr_ = ptr; }
+  inline void set(T *ptr) { ptr_.store(ptr); }
 
   //  Perform atomic 'exchange pointers' operation. Pointer is set
   //  to the 'val_' value. Old value is returned.
@@ -75,20 +76,20 @@ public:
     : value_(value) {
   }
 
-  //  Set counter _value (not thread-safe).
-  inline void set(integer_t value) { value_ = value; }
+  //  Set counter _value
+  inline void set(integer_t value) { value_.store(value); }
 
   //  Atomic addition. Returns the old _value.
   inline integer_t add(integer_t increment) {
     integer_t old_value;
-    old_value = value_.fetch_add (increment, std::memory_order_acq_rel);
+    old_value = value_.fetch_add(increment, std::memory_order_acq_rel);
 
     return old_value;
   }
 
   //  Atomic subtraction. Returns false if the counter drops to zero.
   inline bool sub(integer_t decrement) {
-    integer_t old = value_.fetch_sub (decrement, std::memory_order_acq_rel);
+    integer_t old = value_.fetch_sub(decrement, std::memory_order_acq_rel);
     return old - decrement != 0;
   }
 
