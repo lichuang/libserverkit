@@ -11,6 +11,7 @@
   TypeName(const TypeName&);               \
   void operator=(const TypeName&)
 
+// shutdown compiler complain
 #define UNUSED(object) (void) object
 
 #endif  // __SERVERKIT_BASE_MACROS_H__

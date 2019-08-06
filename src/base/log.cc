@@ -22,8 +22,6 @@ const char* kLogLevelName[NUM_LOG_LEVELS] = {
   "[F ",
 };
 
-thread_local LogStream gStream;
-
 static LogLevel initLogLevel() {
   char *val = ::getenv("SERVERKIT_LOG_LEVEL");
   if (val == NULL) {
@@ -51,44 +49,43 @@ void defaultFlush() {
   fflush(stdout);
 }
 
-Logger::OutputFunc gOutputput = defaultOutput;
-Logger::FlushFunc gFlush = defaultFlush;
+LogMessage::OutputFunc gOutputput = defaultOutput;
+LogMessage::FlushFunc gFlush = defaultFlush;
 
-Logger::Impl::Impl(LogLevel level, const char* file, int line)
-   :level_(level),
-    line_(line) {
-  gStream << kLogLevelName[level];
-  gStream << CurrentThreadName() << " " << file <<
-    ':' << line_ << " " << CurrentMsString() << ']';
+LogMessage::LogMessage(const char* file, int line, LogLevel level, const char* func)
+  : data_(new LogMessageData()) {
+  Stream() << kLogLevelName[level];
+  Stream() << CurrentThreadName() << " " << file <<
+    ':' << line << " " << CurrentMsString() << ']';
 }
 
-void Logger::Impl::Finish() {
-  gStream << "\n";
-}
+LogMessage::~LogMessage() {
+  finish();
 
-Logger::Logger(const char* file, int line, LogLevel level, const char* func)
-  : impl_(level, file, line) {
-}
-
-Logger::~Logger() {
-  impl_.Finish();
+  /* 
   Buffer* buf = Stream().buffer();
   gOutputput(buf->Data(), buf->Length());
   if (impl_.level_ == FATAL) {
     gFlush();
     abort();
   }
+  */
 }
 
-void Logger::setLogLevel(LogLevel level) {
+void
+LogMessage::finish() {
+  Stream() << "\n";
+}
+
+void LogMessage::setLogLevel(LogLevel level) {
   gLogLevel = level;
 }
 
-void Logger::setOutput(OutputFunc out) {
+void LogMessage::setOutput(OutputFunc out) {
   gOutputput = out;
 }
 
-void Logger::setFlush(FlushFunc flush) {
+void LogMessage::setFlush(FlushFunc flush) {
   gFlush = flush;
 }
 

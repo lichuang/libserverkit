@@ -65,7 +65,7 @@ Server::Listen(const string& addr, int port, SessionFactory* f) {
 
 void
 Server::Run() {
-  Info << "server running...";
+  Info() << "server running...";
   poller_->Loop();
 }
 
