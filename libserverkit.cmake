@@ -4,7 +4,7 @@ set(libserverkit_files
   src/base/error.cc
   src/base/lock.cc
   src/base/log.cc
-  src/base/log_stream.cc
+  src/base/log_thread.cc
   src/base/net.cc
   src/base/string.cc
   src/base/thread.cc

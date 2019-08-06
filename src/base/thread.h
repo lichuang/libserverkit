@@ -50,10 +50,7 @@ protected:
 // max size per log
 static const int kLogBufferSize = 1024 * 1024;
 
-extern void UpdateThreadTime();
 extern const string& CurrentThreadName();
-extern uint64_t CurrentMs();
-extern const char* CurrentMsString();
 
 };  // namespace serverkit
 

@@ -7,6 +7,7 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include "base/macros.h"
 
 namespace serverkit {
 class Condition;

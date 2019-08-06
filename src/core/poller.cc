@@ -74,11 +74,6 @@ Poller::executeTimers() {
 }
 
 void
-Poller::updateTime() {
-  UpdateThreadTime();
-}
-
-void
 Poller::Loop() {
   int timeout;
 
@@ -89,8 +84,6 @@ Poller::Loop() {
         continue;
       }
     }
-
-    updateTime();
 
     Poll(timeout);
   }

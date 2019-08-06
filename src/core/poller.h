@@ -43,7 +43,6 @@ public:
 protected:
   virtual int    Poll(int timeout) = 0;
 
-  void updateTime();
   uint64_t executeTimers();
 
   // for load

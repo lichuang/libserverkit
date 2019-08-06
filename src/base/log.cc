@@ -9,6 +9,7 @@
 #include <sstream>
 #include "base/buffer.h"
 #include "base/log.h"
+#include "base/log_thread.h"
 #include "base/thread.h"
 
 namespace serverkit {
