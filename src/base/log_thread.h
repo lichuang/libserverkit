@@ -17,13 +17,14 @@ namespace serverkit {
 static const int kTimeFormatLength = 84;
 
 struct LogMessageData;
+class File;
 class Poller;
 
 // the log thread MUST be singleton
 class LogThread : public Thread, 
                   public Event {
+  friend class Singleton<LogThread>;
 public:
-  LogThread();
   virtual ~LogThread();
 
   void Send(LogMessageData *);
@@ -44,7 +45,9 @@ public:
   }
 
 private:
-  void UpdateThreadTime();
+  LogThread();
+  void updateTime();
+  void output(LogMessageData*);
 
 protected:
   virtual void Run(void* arg);
@@ -58,7 +61,7 @@ private:
   LogList *write_list_;
   LogList *read_list_;
   // write list index
-  int index_;
+  int write_index_;
 
   Mutex* mutex_;
   Poller* poller_;
@@ -67,20 +70,14 @@ private:
   volatile uint64_t now_ms_;
   // now ms string
   volatile char now_str_[kTimeFormatLength];
+
+  // log file
+  File* file_;
 };
 
-void
-SendLog(LogMessageData *data) {
-  Singleton<LogThread>::Instance()->Send(data);
-}
-
-uint64_t CurrentMs() {
-  return Singleton<LogThread>::Instance()->CurrentMs();
-}
-
-const char* CurrentMsString() {
-  return Singleton<LogThread>::Instance()->CurrentMsString();
-}
+extern void SendLog(LogMessageData *data);
+extern uint64_t CurrentMs();
+extern const char* CurrentMsString();
 
 }; // namespace serverkit
 

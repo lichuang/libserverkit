@@ -3,6 +3,7 @@
  */
 
 #include "base/errcode.h"
+#include "base/file.h"
 #include "base/log.h"
 #include "base/log_thread.h"
 #include "base/macros.h"
@@ -16,12 +17,13 @@ static const int kUpdateTimeInterval = 10;
 
 LogThread::LogThread()
 	: Thread("log_thread"),
-		index_(0),
+		write_index_(0),
 		mutex_(new Mutex()),
 		poller_(new Epoll()),
-		now_ms_(NowMs()) {
-	write_list_ = &(log_list_[index_]);
-	read_list_ = &(log_list_[index_ + 1]);
+		now_ms_(NowMs()), 
+		file_(NULL) {
+	write_list_ = &(log_list_[write_index_]);
+	read_list_  = &(log_list_[write_index_ + 1]);
 
   int rc = poller_->Init(1024);
   if (rc != kOK) {
@@ -29,6 +31,8 @@ LogThread::LogThread()
   }
 
 	poller_->AddTimer(kUpdateTimeInterval, this);
+
+	Start(NULL);
 }
 
 LogThread::~LogThread() {
@@ -57,24 +61,28 @@ LogThread::Timeout() {
 	// exchange write and read list
 	if (read_list_->empty()) {
 		MutexGuard guard(mutex_);
-		read_list_ = &(log_list_[index_]);
-		index_ = (index_ + 1) % 2;
-		write_list_ = &(log_list_[index_]);
+		read_list_ = &(log_list_[write_index_]);
+		write_index_ = (write_index_ + 1) % 2;
+		write_list_ = &(log_list_[write_index_]);
 	}
 
-	UpdateThreadTime();
+	updateTime();
 
 	// TODO: optimize write log
-
 	LogListIter iter;
-	for (iter = read_list_->begin(); iter != read_list_->end(); ++iter) {
+	for (iter = read_list_->begin(); iter != read_list_->end(); ) {
 		LogMessageData* data = *iter;
+		++iter;
+		output(data);
 		delete data;
 	}
+	read_list_->clear();
+
+	poller_->AddTimer(kUpdateTimeInterval, this);
 }
 
 void
-LogThread::UpdateThreadTime() {
+LogThread::updateTime() {
   now_ms_ = NowMs();
 
   struct timeval t;
@@ -89,11 +97,34 @@ LogThread::UpdateThreadTime() {
     tim.tm_hour, tim.tm_min, tim.tm_sec, static_cast<int>(t.tv_usec / 1000));
 }
 
+void 
+LogThread::output(LogMessageData* data) {
+	if (file_ == NULL) {
+		file_ = new File("/tmp/serverkit.log");
+	}
+	file_->Append(Slice(data->text_, data->stream_.pcount()));
+}
+
 void
 LogThread::Run(void* arg) {
 	UNUSED(arg);
 
 	poller_->Loop();
+}
+
+void
+SendLog(LogMessageData *data) {
+  Singleton<LogThread>::Instance()->Send(data);
+}
+
+uint64_t 
+CurrentMs() {
+  return Singleton<LogThread>::Instance()->CurrentMs();
+}
+
+const char* 
+CurrentMsString() {
+  return Singleton<LogThread>::Instance()->CurrentMsString();
 }
 
 };  // namespace serverkit

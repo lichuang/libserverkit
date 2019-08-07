@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <libgen.h>
 #include <sstream>
 #include "base/buffer.h"
 #include "base/log.h"
@@ -54,28 +55,27 @@ LogMessage::OutputFunc gOutputput = defaultOutput;
 LogMessage::FlushFunc gFlush = defaultFlush;
 
 LogMessage::LogMessage(const char* file, int line, LogLevel level, const char* func)
-  : data_(new LogMessageData()) {
+  : data_(new LogMessageData()),
+    level_(level) {
   Stream() << kLogLevelName[level];
-  Stream() << CurrentThreadName() << " " << file <<
+  Stream() << CurrentThreadName() << " " << basename(const_cast<char*>(file)) <<
     ':' << line << " " << CurrentMsString() << ']';
 }
 
 LogMessage::~LogMessage() {
   finish();
-
-  /* 
-  Buffer* buf = Stream().buffer();
-  gOutputput(buf->Data(), buf->Length());
-  if (impl_.level_ == FATAL) {
-    gFlush();
+  
+  SendLog(data_);
+  if (level_ == FATAL) {
+    //gFlush();
     abort();
   }
-  */
 }
 
 void
 LogMessage::finish() {
   Stream() << "\n";
+  data_->text_[data_->stream_.pcount()] = '\0';
 }
 
 void LogMessage::setLogLevel(LogLevel level) {

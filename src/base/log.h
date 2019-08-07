@@ -77,7 +77,6 @@ public:
 
   LogMessageData()
     : stream_(text_, kMaxLogMessageLen, 0) {
-
   }
 };
 
@@ -105,6 +104,7 @@ class LogMessage {
   private:
     static LogLevel logLevel_;
     LogMessageData* data_;
+    LogLevel level_;
 };
 
 extern LogLevel gLogLevel;
