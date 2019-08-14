@@ -96,10 +96,10 @@ LogThread::Timeout() {
 
 void
 LogThread::updateTime() {
-  now_ms_ = NowMs();
-
   struct timeval t;
   ::gettimeofday(&t, NULL);
+	
+	now_ms_ = t.tv_sec * 1000 + t.tv_usec / 1000;
   struct tm tim;
   ::localtime_r(&t.tv_sec, &tim);
   int n = kTimeFormatLength;
