@@ -13,14 +13,16 @@
 namespace serverkit {
 
 // update log thread time internal
-static const int kUpdateTimeInterval = 10;
+static const int kUpdateTimeInterval = 100;
+// flush log time internal
+static const int kFlushTimeInterval = 500;
 
 LogThread::LogThread()
-	: Thread("log_thread"),
+	: Thread("log_thread", NULL),
 		write_index_(0),
 		mutex_(new Mutex()),
 		poller_(new Epoll()),
-		now_ms_(NowMs()), 
+		last_flush_time_(0),
 		file_(NULL) {
 	write_list_ = &(log_list_[write_index_]);
 	read_list_  = &(log_list_[write_index_ + 1]);
@@ -30,14 +32,19 @@ LogThread::LogThread()
     return;
   }
 
-	poller_->AddTimer(kUpdateTimeInterval, this);
-
-	Start(NULL);
+	updateTime();
+	poller_->AddTimer(kUpdateTimeInterval, this, kTimerPermanent);
 }
 
 LogThread::~LogThread() {
 	delete poller_;
 	delete mutex_;
+}
+
+void
+LogThread::doInit() {
+	// start thread
+	Start();
 }
 
 void
@@ -69,16 +76,22 @@ LogThread::Timeout() {
 	updateTime();
 
 	// TODO: optimize write log
-	LogListIter iter;
-	for (iter = read_list_->begin(); iter != read_list_->end(); ) {
-		LogMessageData* data = *iter;
-		++iter;
-		output(data);
-		delete data;
+	// is there any log to output?
+	if (!read_list_->empty()) {
+		LogListIter iter;
+		for (iter = read_list_->begin(); iter != read_list_->end(); ) {
+			LogMessageData* data = *iter;
+			++iter;
+			output(data);
+			delete data;
+		}
+		read_list_->clear();
 	}
-	read_list_->clear();
 
-	poller_->AddTimer(kUpdateTimeInterval, this);
+	// if need to flush file?
+	if (now_ms_ - last_flush_time_ >= kFlushTimeInterval) {
+		flush();
+	}
 }
 
 void
@@ -105,11 +118,19 @@ LogThread::output(LogMessageData* data) {
 	file_->Append(Slice(data->text_, data->stream_.pcount()));
 }
 
-void
-LogThread::Run(void* arg) {
-	UNUSED(arg);
+void 
+LogThread::flush() {
+	if (file_ != NULL) {
+		file_->Flush();
+	}
+	last_flush_time_ = now_ms_;
+}
 
-	poller_->Loop();
+void
+LogThread::Run() {
+  while (Running()) {
+    poller_->Dispatch();
+  }
 }
 
 void

@@ -28,6 +28,7 @@ Server::Server(int worker)
     string name;
     Stringf(&name, "lua-worker-%d", n + 1);
     ScriptIOThread *worker = new ScriptIOThread(name);
+    
     Assert(worker != NULL);
     workers_.push_back(worker);
     */
@@ -66,7 +67,10 @@ Server::Listen(const string& addr, int port, SessionFactory* f) {
 void
 Server::Run() {
   Info() << "server running...";
-  poller_->Loop();
+
+  while (true) {
+    poller_->Dispatch();
+  }
 }
 
 };  // namespace serverkit

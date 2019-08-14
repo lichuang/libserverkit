@@ -42,17 +42,18 @@ struct threadStartEntry {
   Thread *thread;
 };
 
-Thread::Thread(const string& name)
+Thread::Thread(const string& name, void *arg)
   : tid_(0),
-    name_(name) {
+    name_(name),
+    arg_(arg),
+    state_(kThreadNone) {
 }
 
 Thread::~Thread() {
 }
 
 int
-Thread::Start(void* arg) {
-  arg_ = arg;
+Thread::Start() {
   Mutex mutex;
   Condition cond;
   threadStartEntry entry = {
@@ -69,7 +70,9 @@ Thread::Start(void* arg) {
 }
 
 void
-Thread::Join() {
+Thread::Stop() {
+  state_ = kThreadStopped;
+
   if (tid_ != 0) {
     pthread_join(tid_, NULL);
     tid_ = 0;
@@ -88,7 +91,8 @@ Thread::main(void* arg) {
 
   cond->Notify();
 
-  thread->Run(thread->arg_);
+  thread->state_ = kThreadRunning;
+  thread->Run();
 
   return NULL;
 }

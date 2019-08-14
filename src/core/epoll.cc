@@ -91,8 +91,7 @@ Epoll::ResetIn(handle_t handle) {
   }
   ee->ev.events &= ~EPOLLIN;
   ee->flags &= ~kEventRead;
-  int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-  return rc;
+  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
 }
 
 int
@@ -103,8 +102,7 @@ Epoll::SetIn(handle_t handle) {
   }
   ee->ev.events |= EPOLLIN;
   ee->flags |= kEventRead;
-  int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-  return rc;
+  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
 }
 
 int
@@ -115,8 +113,7 @@ Epoll::ResetOut(handle_t handle) {
   }
   ee->ev.events &= ~EPOLLOUT;
   ee->flags &= ~kEventWrite;
-  int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-  return rc;
+  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
 }
 
 int
@@ -127,8 +124,7 @@ Epoll::SetOut(handle_t handle) {
   }
   ee->ev.events |= EPOLLOUT;
   ee->flags |= kEventWrite;
-  int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-  return rc;
+  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
 }
 
 int

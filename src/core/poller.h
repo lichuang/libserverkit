@@ -20,6 +20,13 @@ static const handle_t kInvalidHandle = NULL;
 static const int kEventRead  = 1 << 1;
 static const int kEventWrite = 1 << 2;
 
+enum TimerType {
+  // trigger one time
+  kTimerOnce,
+  // trigger permanent
+  kTimerPermanent
+};
+
 class Event;
 
 class Poller {
@@ -36,14 +43,14 @@ public:
   virtual int    ResetOut(handle_t) = 0; 
   virtual int    SetOut(handle_t) = 0; 
 
-  timer_id_t AddTimer(int timeout, Event *);
+  timer_id_t AddTimer(int timeout, Event *, TimerType);
   void CancelTimer(timer_id_t);
-  void Loop();
+  void Dispatch();
 
 protected:
   virtual int    Poll(int timeout) = 0;
 
-  uint64_t executeTimers();
+  int executeTimers();
 
   // for load
   inline void adjustLoad(int cnt) {
@@ -60,19 +67,39 @@ protected:
 
 protected:  
   struct TimerEntry {
+    // timeout(in ms)
+    uint64_t timeout;
+
+    // expire time(in ms)
     uint64_t expire;
+
+    // related event
     Event *event;
+
+    // time id
     timer_id_t id;
 
-    TimerEntry(uint64_t ex, Event *e, timer_id_t i)
-      : expire(ex),event(e), id(i) {}
+    // timer type
+    TimerType t;
+
+    TimerEntry(uint64_t out,uint64_t ex, Event *e, timer_id_t i, TimerType typ)
+      : timeout(out), expire(ex),event(e), id(i), t(typ) {}
+    ~TimerEntry();     
   };
+
   typedef std::multimap<uint64_t, TimerEntry*> TimerMap;
-  TimerMap timers_;
   typedef std::map<timer_id_t, TimerEntry*> TimerIdMap;
+  
+  // map expire time to TimerEntry
+  TimerMap timers_;
+
+  // map timer ID to TimerEntry
   TimerIdMap timer_ids_;
+
   timer_id_t max_timer_id_;
   atomic_counter_t load_;
+
+  uint64_t now_ms_;
 };
 
 extern uint64_t CurrentMs();

@@ -1,6 +1,8 @@
 /*
  * Copyright (C) codedump
  */
+
+#include <list>
 #include "base/time.h"
 #include "base/thread.h"
 #include "core/event.h"
@@ -11,6 +13,8 @@ using namespace std;
 
 namespace serverkit {
 
+static const int kDefaultTimeout = 100;
+
 Poller::Poller()
   : max_timer_id_(0) {
 }
@@ -19,11 +23,11 @@ Poller::~Poller() {
 }
 
 timer_id_t
-Poller::AddTimer(int timeout, Event *event) {
+Poller::AddTimer(int timeout, Event *event, TimerType t) {
   uint64_t expire = NowMs() + timeout;
   ++max_timer_id_;
   timer_id_t id = max_timer_id_;
-  TimerEntry *entry = new TimerEntry(expire, event, id);
+  TimerEntry *entry = new TimerEntry(timeout, expire, event, id, t);
   timers_.insert(TimerMap::value_type(expire, entry));
   timer_ids_[id] = entry;
   event->SetTimerId(id);
@@ -50,43 +54,56 @@ Poller::CancelTimer(timer_id_t id) {
   delete entry;
 }
 
-uint64_t
+int
 Poller::executeTimers() {
   if (timers_.empty()) {
-    return 0;
+    return kDefaultTimeout;
   }
-  uint64_t current = NowMs();
-  uint64_t res = 0;
+  
+  int res = kDefaultTimeout;
   TimerIdMap::iterator iter = timers_.begin();
-  TimerIdMap::iterator begin = timers_.begin();
   TimerIdMap::iterator end = timers_.end();
+  list<TimerIdMap::iterator> del_timers;
+
   for (; iter != end; ++iter) {
-    if (iter->first > current) {
-      res = iter->first - current;
+    if (iter->first > now_ms_) {
+      res = static_cast<int>(iter->first - now_ms_);
       break;
     }
 
     iter->second->event->Timeout();
+    del_timers.push_back(iter);
   }
-  timers_.erase(begin, iter);
+
+  for (list<TimerIdMap::iterator>::iterator i = del_timers.begin(); i != del_timers.end(); ++i) {
+    TimerIdMap::iterator tmp = *i;
+    TimerEntry *entry = tmp->second;
+    timers_.erase(tmp);
+
+    if (entry->t == kTimerOnce) {
+      timer_ids_.erase(entry->id);
+      delete entry;
+    } else {
+      uint64_t expire = now_ms_ + entry->timeout;
+      timers_.insert(TimerMap::value_type(expire, entry));
+    }
+  }
 
   return res;
 }
 
 void
-Poller::Loop() {
+Poller::Dispatch() {
   int timeout;
 
-  while (true) {
-    timeout = static_cast<int>(executeTimers());
-    if (timeout) {
-      if (getLoad() == 0) {
-        continue;
-      }
-    }
+  now_ms_ = NowMs();
+  timeout = executeTimers();
 
-    Poll(timeout);
-  }
+  Poll(timeout);
+}
+
+Poller::TimerEntry::~TimerEntry() {
+  delete event;
 }
 
 };  // namespace serverkit

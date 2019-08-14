@@ -13,15 +13,19 @@ namespace serverkit {
 
 typedef pthread_t tid_t;
 
+enum ThreadState {
+  kThreadNone,
+  kThreadRunning,
+  kThreadStopped,
+};
+
 class Thread {
 public:
-  Thread(const string& name);
+  Thread(const string& name, void *arg);
 
   virtual ~Thread();
 
-  int Start(void *arg);
-
-  void Join();
+  void Stop();
 
   tid_t GetTid() const {
     return tid_;
@@ -35,8 +39,17 @@ public:
     return tid_;
   }
 
+  ThreadState State() const { 
+    return state_; 
+  }
+
+  bool Running() const { 
+    return state_ == kThreadRunning;
+  }
+
+  int Start();
 protected:
-  virtual void Run(void* arg) = 0;
+  virtual void Run() = 0;
 
 private:
   static void* main(void *arg);
@@ -45,6 +58,7 @@ protected:
   tid_t tid_;
   string name_;
   void *arg_;
+  ThreadState state_;
 };
 
 // max size per log

@@ -29,7 +29,7 @@ uint64_t
 NowMs() {
   struct timeval tv;
   gettimeofday (&tv, NULL);
-  return tv.tv_sec * kMsecsPerSec + tv.tv_usec;
+  return tv.tv_sec * kMsecsPerSec + tv.tv_usec / 1000;
 }
 
 void

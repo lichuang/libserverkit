@@ -48,9 +48,11 @@ private:
   LogThread();
   void updateTime();
   void output(LogMessageData*);
+  void flush();
+  void doInit();
 
 protected:
-  virtual void Run(void* arg);
+  virtual void Run();
 
 private:
   typedef std::list<LogMessageData*> LogList;
@@ -70,7 +72,9 @@ private:
   volatile uint64_t now_ms_;
   // now ms string
   volatile char now_str_[kTimeFormatLength];
-
+  // last flush time
+  uint64_t last_flush_time_;
+  
   // log file
   File* file_;
 };

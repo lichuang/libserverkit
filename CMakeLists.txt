@@ -51,3 +51,9 @@ INCLUDE_DIRECTORIES(src)
 include(libserverkit.cmake)  
 
 install(TARGETS serverkit DESTINATION lib)
+
+add_executable ( echo_server
+  example/echo/echo_server.cc
+)
+
+target_link_libraries (echo_server PRIVATE serverkit pthread)

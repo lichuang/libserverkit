@@ -21,6 +21,7 @@ public:
 private:  
   static void init() {
     value_ = new T();
+    value_->doInit();
   }
 
 private:

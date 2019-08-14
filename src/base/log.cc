@@ -24,7 +24,8 @@ const char* kLogLevelName[NUM_LOG_LEVELS] = {
   "[F ",
 };
 
-static LogLevel initLogLevel() {
+static LogLevel 
+initLogLevel() {
   char *val = ::getenv("SERVERKIT_LOG_LEVEL");
   if (val == NULL) {
     return INFO;
@@ -41,7 +42,8 @@ static LogLevel initLogLevel() {
 LogLevel gLogLevel = initLogLevel();
 static string gLogPath;
 
-void defaultOutput(const char* msg, int len) {
+void 
+defaultOutput(const char* msg, int len) {
   size_t n = fwrite(msg, 1, len, stdout);
   //FIXME check n
   UNUSED(n);

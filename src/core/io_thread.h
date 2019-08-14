@@ -38,7 +38,7 @@ public:
 
   void Send(Message *msg);
 protected:
-  virtual void Run(void *arg);
+  virtual void Run();
 
 protected:
   Poller *poller_;

@@ -71,15 +71,22 @@ private:
 
 template <typename T>
 class ObjectPool {
-public:
-  ObjectPool() {
-  }
+  friend class Singleton<ObjectPool<T> >;
 
+public:
   T* Get() {
     return obj_list_.Get();
   }
   void Free(T *obj) {
     obj_list_.Free(obj);
+  }
+
+private:
+  ObjectPool() {
+  }
+
+  void doInit() {
+    // nothing to do
   }
 
 private:
