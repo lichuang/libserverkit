@@ -16,6 +16,8 @@ namespace serverkit {
 
 struct timespec *MakeTimespec(int64_t ms, struct timespec *ts);
 uint64_t NowMs();
+void TZSet();
+void Localtime(const time_t& unix_sec, struct tm* result);
 
 };  // namespace serverkit
 

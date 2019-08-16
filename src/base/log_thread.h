@@ -13,12 +13,14 @@
 
 namespace serverkit {
 
-//#define TIME_FORMAT_LENGTH sizeof("2018/01/01 00:00:00.123") - 1
 static const int kTimeFormatLength = 84;
 
 struct LogMessageData;
 class File;
 class Poller;
+
+typedef std::list<LogMessageData*> LogList;
+typedef LogList::iterator LogListIter;
 
 // the log thread MUST be singleton
 class LogThread : public Thread, 
@@ -47,6 +49,7 @@ public:
 private:
   LogThread();
   void updateTime();
+  void iterList(LogList*);
   void output(LogMessageData*);
   void flush();
   void doInit();
@@ -55,9 +58,6 @@ protected:
   virtual void Run();
 
 private:
-  typedef std::list<LogMessageData*> LogList;
-  typedef LogList::iterator LogListIter;
-
   // one for write, another for read
   LogList log_list_[2];
   LogList *write_list_;
@@ -80,8 +80,8 @@ private:
 };
 
 extern void SendLog(LogMessageData *data);
-extern uint64_t CurrentMs();
-extern const char* CurrentMsString();
+extern uint64_t CurrentLogTime();
+extern const char* CurrentLogTimeString();
 
 }; // namespace serverkit
 

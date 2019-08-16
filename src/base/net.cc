@@ -68,7 +68,7 @@ Listen(const string& addr, int port, int backlog, int *error) {
 
   memset(&sa,0,sizeof(sa));
   sa.sin_family = AF_INET;
-  sa.sin_port = htons(port);
+  sa.sin_port = htons(static_cast<uint16_t>(port));
   *error = 0;
   if (inet_aton(addr.c_str(), &sa.sin_addr) == 0) {
     *error = errno;

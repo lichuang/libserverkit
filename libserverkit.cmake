@@ -1,4 +1,5 @@
 set(libserverkit_files
+  src/serverkit.cc
   src/base/buffer.cc
   src/base/condition.cc
   src/base/error.cc

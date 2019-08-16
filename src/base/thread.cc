@@ -11,31 +11,21 @@
 
 namespace serverkit {
 
-//#define TIME_FORMAT_LENGTH sizeof("2018/01/01 00:00:00.123") - 1
-#define TIME_FORMAT_LENGTH 84
-
 // per thread info
-struct ThreadInfo {
-  // log file fd
-  int fd;
-  // log buffer
-  char* buffer;
-  // thread name
-  string name;
+struct PerThreadInfo {
   Thread *thread;
+  string name;
 
-  ThreadInfo()
-    : fd(-1),
-      buffer(new char[kLogBufferSize]),
-      name("main"),  // default is main thread
-      thread(NULL) {      
+  PerThreadInfo()
+    : thread(NULL),
+      name("main") {      
   }
 
-  ~ThreadInfo() {
-    delete [] buffer;
+  ~PerThreadInfo() {
   }
 };
-thread_local static ThreadInfo gPerThreadInfo;
+
+thread_local static PerThreadInfo gPerThreadInfo;
 
 struct threadStartEntry {
   Condition *cond;
@@ -86,8 +76,8 @@ Thread::main(void* arg) {
   Thread *thread = entry->thread;
 
   ::prctl(PR_SET_NAME, thread->name_.c_str());
-  gPerThreadInfo.name = thread->name_;
   gPerThreadInfo.thread = thread;
+  gPerThreadInfo.name = thread->name_;
 
   cond->Notify();
 
@@ -102,7 +92,7 @@ CurrentThreadName() {
   return gPerThreadInfo.name;
 }
 
-ThreadInfo*
+PerThreadInfo*
 CurrentThreadInfo() {
   return &gPerThreadInfo;
 }

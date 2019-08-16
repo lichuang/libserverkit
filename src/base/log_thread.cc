@@ -37,6 +37,11 @@ LogThread::LogThread()
 }
 
 LogThread::~LogThread() {
+	// write log to disk
+	iterList(read_list_);
+	iterList(write_list_);
+	flush();
+
 	delete poller_;
 	delete mutex_;
 }
@@ -77,20 +82,25 @@ LogThread::Timeout() {
 
 	// TODO: optimize write log
 	// is there any log to output?
-	if (!read_list_->empty()) {
+	iterList(read_list_);
+
+	// if need to flush file?
+	if (now_ms_ - last_flush_time_ >= kFlushTimeInterval) {
+		flush();
+	}
+}
+
+void 
+LogThread::iterList(LogList* lst) {
+	if (!lst->empty()) {
 		LogListIter iter;
-		for (iter = read_list_->begin(); iter != read_list_->end(); ) {
+		for (iter = lst->begin(); iter != lst->end(); ) {
 			LogMessageData* data = *iter;
 			++iter;
 			output(data);
 			delete data;
 		}
-		read_list_->clear();
-	}
-
-	// if need to flush file?
-	if (now_ms_ - last_flush_time_ >= kFlushTimeInterval) {
-		flush();
+		lst->clear();
 	}
 }
 
@@ -101,7 +111,8 @@ LogThread::updateTime() {
 	
 	now_ms_ = t.tv_sec * 1000 + t.tv_usec / 1000;
   struct tm tim;
-  ::localtime_r(&t.tv_sec, &tim);
+  //::localtime_r(&t.tv_sec, &tim);
+	Localtime(t.tv_sec, &tim);
   int n = kTimeFormatLength;
   n+=1;
   snprintf(const_cast<char *>(now_str_), kTimeFormatLength,
@@ -139,12 +150,12 @@ SendLog(LogMessageData *data) {
 }
 
 uint64_t 
-CurrentMs() {
+CurrentLogTime() {
   return Singleton<LogThread>::Instance()->CurrentMs();
 }
 
 const char* 
-CurrentMsString() {
+CurrentLogTimeString() {
   return Singleton<LogThread>::Instance()->CurrentMsString();
 }
 

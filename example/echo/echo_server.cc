@@ -1,9 +1,7 @@
-#include "base/log.h"
-#include "base/log_thread.h"
-#include "core/server.h"
+#include "serverkit.h"
 
-int main() {
-	serverkit::Singleton<serverkit::LogThread>::Instance();
+int main(int argc, char* args[]) {
+	serverkit::ServerkitInit(argc, args);
 
 	Info() << "hello world";
 

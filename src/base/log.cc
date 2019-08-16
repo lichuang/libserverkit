@@ -60,8 +60,10 @@ LogMessage::LogMessage(const char* file, int line, LogLevel level, const char* f
   : data_(new LogMessageData()),
     level_(level) {
   Stream() << kLogLevelName[level];
-  Stream() << CurrentThreadName() << " " << CurrentMsString() << " " << basename(const_cast<char*>(file)) <<
+
+  Stream() << CurrentThreadName() << " " << CurrentLogTimeString() << " " << basename(const_cast<char*>(file)) <<
     ':' << line << ']';
+  //Stream() << CurrentThreadName() << "]";
 }
 
 LogMessage::~LogMessage() {

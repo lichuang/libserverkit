@@ -61,9 +61,6 @@ protected:
   ThreadState state_;
 };
 
-// max size per log
-static const int kLogBufferSize = 1024 * 1024;
-
 extern const string& CurrentThreadName();
 
 };  // namespace serverkit
