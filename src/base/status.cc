@@ -16,7 +16,8 @@ Status::CopyState(const char* state) {
   return result;
 }
 
-Status::Status(Code code, const Slice& msg, const Slice& msg2) {
+Status::Status(Code code, const Slice& msg, 
+               const Slice& msg2, int err) {
   assert(code != kOk);
   const uint32_t len1 = static_cast<uint32_t>(msg.size());
   const uint32_t len2 = static_cast<uint32_t>(msg2.size());
@@ -31,6 +32,7 @@ Status::Status(Code code, const Slice& msg, const Slice& msg2) {
     memcpy(result + 7 + len1, msg2.data(), len2);
   }
   state_ = result;
+  err_num_ = err;
 }
 
 std::string 
@@ -44,21 +46,12 @@ Status::ToString() const {
       case kOk:
         type = "OK";
         break;
-      case kNotFound:
-        type = "NotFound: ";
-        break;
-      case kCorruption:
-        type = "Corruption: ";
-        break;
-      case kNotSupported:
-        type = "Not implemented: ";
-        break;
-      case kInvalidArgument:
-        type = "Invalid argument: ";
-        break;
       case kIOError:
         type = "IO error: ";
         break;
+      case kSysError:
+        type = "System error: ";
+        break;        
       default:
         snprintf(tmp, sizeof(tmp), "Unknown code(%d): ",
                  static_cast<int>(code()));
@@ -75,6 +68,16 @@ Status::ToString() const {
 
 Status 
 IOError(const Slice& context, int err_number) {
-  return Status::IOError(context, strerror(err_number));
+  return Status::IOError(context, err_number, strerror(err_number));
+}
+
+Status 
+SysError(const Slice& context, int err_number) {
+  return Status::SysError(context, err_number, strerror(err_number));
+}
+
+Status
+TryAgain(const Slice& context, int err_number) {
+  return Status::AgainError(context, err_number, strerror(err_number));
 }
 }; // namespace serverkit

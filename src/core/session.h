@@ -40,7 +40,7 @@ public:
   virtual void OnRead() {
     last_read_time_ = CurrentMs();
   }
-  virtual void OnError(int err) = 0;
+  virtual void OnError(const Status& status) = 0;
 
   Socket* GetSocket() {
     return socket_;

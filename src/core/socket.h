@@ -55,7 +55,6 @@ private:
 
 private:  
   int fd_;
-  int error_;
   DataHandler *handler_;
   Poller* poller_;
   bool is_writable_;

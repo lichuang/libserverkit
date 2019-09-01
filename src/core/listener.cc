@@ -8,6 +8,7 @@
 #include "base/error.h"
 #include "base/errcode.h"
 #include "base/net.h"
+#include "base/status.h"
 #include "base/string.h"
 #include "core/acceptor_handler.h"
 #include "core/config.h"
@@ -23,8 +24,8 @@ Listener::Listener(const string& addr, int port, Poller* poller,
     poller_(poller),
     handler_(h),
     factory_(f) {
-  int error;      
-  fd_ = Listen(addr, port, kBacklog, &error);
+  Status status;      
+  fd_ = Listen(addr, port, kBacklog, &status);
   Assert(fd_ > 0);
   handle_ = poller_->Add(fd_, this, kEventRead);
   Stringf(&string_, "%s:%d", addr.c_str(), port);
@@ -36,18 +37,18 @@ Listener::~Listener() {
 
 void
 Listener::In() {
-  int error;
+  Status status;
   string addr;
 
   while (true) {
-    int fd = Accept(fd_, &addr, &error);
-    if (fd > 0) {
+    int fd = Accept(fd_, &addr, &status);
+    if (status.Ok()) {
       Session *s = factory_->Create(fd, addr);
       handler_->OnAccept(s);
-    } else if (fd == kOK) {
+    } else if (status.IsTryAgain()) {
       break;
     } else {
-      handler_->OnError(error);
+      handler_->OnError(status);
       //Errorf("accept connection error: %s", strerror(error));
     }
   }

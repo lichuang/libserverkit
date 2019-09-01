@@ -19,106 +19,114 @@
 
 namespace serverkit {
 
-static int createListenSocket();
-static int setNonBlocking(int fd);
+static int createListenSocket(Status *status);
+static Status setNonBlocking(int fd);
 
 static int
-createListenSocket() {
+createListenSocket(Status *status) {
   int fd, on;
 
   on = 1;
   if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
-    return kError;
+    *status = SysError("create socket", errno);
+    return -1;
   }
 
   if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
-    return kError;
+    *status = SysError("setsockopt", errno);
+    return -1;
   }
 
   return fd;
 }
 
-static int
+static Status
 setNonBlocking(int fd) {
   int flags;
 
   if ((flags = fcntl(fd, F_GETFL)) == -1) {
-    return kError;
+    return SysError("fcntl F_GETFL", errno);
   }
   if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-    return kError;
+    return SysError("fcntl F_SETFL", errno);
   }
 
-  return kOK;
+  return Status();
 }
 
 int
-Listen(const string& addr, int port, int backlog, int *error) {
+Listen(const string& addr, int port, int backlog, Status *status) {
   int                 fd;
   struct sockaddr_in  sa;
 
-  if ((fd = createListenSocket()) < 0) {
+  fd = createListenSocket(status);
+  if (fd < 0) {
     return kError;
   }
 
-  if (setNonBlocking(fd) < 0) {
-    close(fd);
-    return kError;
+  *status = setNonBlocking(fd);
+  if (!status->Ok()) {
+    goto error;
   }
 
   memset(&sa,0,sizeof(sa));
   sa.sin_family = AF_INET;
   sa.sin_port = htons(static_cast<uint16_t>(port));
-  *error = 0;
+
   if (inet_aton(addr.c_str(), &sa.sin_addr) == 0) {
-    *error = errno;
-    close(fd);
-    return kError;
+    *status = SysError("inet_aton", errno);
+    goto error;
   }
 
   if (bind(fd, reinterpret_cast<struct sockaddr*>(&sa), sizeof(sa)) < 0) {
-    *error =  errno;
-    close(fd);
-    return kError;
+    *status = SysError("bind", errno);
+    goto error;
   }
 
   if (listen(fd, backlog) == -1) {
-    *error =  errno;
-    close(fd);
-    return kError;
+    *status = SysError("listen", errno);
+    goto error;
   }
 
   return fd;
+
+error:
+  close(fd);
+  return kError;
 }
 
 int
-Accept(int listen_fd, string *ret, int *error) {
+Accept(int listen_fd, string *ret, Status *status) {
   struct sockaddr_in addr;
   socklen_t addrlen = sizeof(addr);
   int fd;
 
   while (true) {
-    fd = accept(listen_fd, reinterpret_cast<struct sockaddr *>(&addr), &addrlen);
+    fd = ::accept(listen_fd, reinterpret_cast<struct sockaddr *>(&addr), &addrlen);
     if (fd == -1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        *error = kAgain;
+        *status = TryAgain("accept", errno);
         return kOK;
       }
       if (errno == EINTR) {
         continue;
       }
-      *error = errno;
+      *status = SysError("accept", errno);
+      return kError;
+    }
+    
+    *status = setNonBlocking(fd);
+    if (!status->Ok()) {
       return kError;
     }
     Stringf(ret, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
-    setNonBlocking(fd);
     break;
   }
   return fd;
 }
 
 int
-Recv(int fd, BufferList *buffer, int *error) {
+Recv(int fd, BufferList *buffer, Status *status) {
   ssize_t nbytes;
   int ret;
 
@@ -138,18 +146,18 @@ Recv(int fd, BufferList *buffer, int *error) {
     } else if (nbytes < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
         // there is nothing in the tcp stack,return and wait for the next in event
-        *error = kAgain;
+        *status = TryAgain("read", errno);
         break;        
       } else if (errno == EINTR) {
         continue;
       } else {
         // something wrong has occoured
-        *error = errno;
+        *status = SysError("read", errno);
         return kError;
       }
     } else {
       // socket has been closed
-      *error = kClosed;
+      *status = SysError("read", errno);
       return kError;
     }
   };
@@ -158,10 +166,9 @@ Recv(int fd, BufferList *buffer, int *error) {
 }
 
 int
-Send(int fd, BufferList *buffer, int *error) {
+Send(int fd, BufferList *buffer, Status *status) {
   ssize_t nbytes;
   int ret;
-  int err;
 
   nbytes = 0;
   ret = 0;
@@ -171,24 +178,23 @@ Send(int fd, BufferList *buffer, int *error) {
       break;
     }
     nbytes = ::write(fd, buffer->ReadPoint(), buffer->ReadableSize());
-    err = errno;
 
     if (nbytes > 0) {
       buffer->ReadAdvance(nbytes);
       ret += static_cast<int>(nbytes);
     } else if (nbytes < 0) {
-      if (err == EINTR) {
+      if (errno == EINTR) {
         continue;
-      } else if (err == EAGAIN || errno == EWOULDBLOCK) {
-        *error = kAgain;
+      } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        *status = TryAgain("write", errno);
         break;
       } else {
-        *error = err;
+        *status = SysError("write", errno);
         return kError;
       }
     } else {
       // connection has been closed
-      *error = kClosed;
+      *status = SysError("write", errno);
       return kError;
     }
   }

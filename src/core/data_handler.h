@@ -5,6 +5,8 @@
 #ifndef __SERVERKIT_CORE_DATA_HANDLER_H__
 #define __SERVERKIT_CORE_DATA_HANDLER_H__
 
+#include "base/status.h"
+
 namespace serverkit {
 
 // virtual interface for socket data handler
@@ -15,7 +17,7 @@ public:
 
   virtual void OnWrite() = 0;
   virtual void OnRead() = 0;
-  virtual void OnError(int err) = 0;
+  virtual void OnError(const Status& status) = 0;
 };
 
 };  // namespace serverkit

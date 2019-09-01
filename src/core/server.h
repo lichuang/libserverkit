@@ -26,7 +26,7 @@ public:
   ~Server();
 
   virtual void OnAccept(Session*);
-  virtual void OnError(int err);
+  virtual void OnError(const Status& status);
 
   void Listen(const string& addr, int port, SessionFactory*);
   void Run();

@@ -9,6 +9,7 @@
 #include <sys/socket.h>
 #include <string>
 #include "base/errcode.h"
+#include "base/status.h"
 
 using namespace std;
 
@@ -16,13 +17,13 @@ namespace serverkit {
 
 class BufferList;
 
-int   Listen(const string& addr, int port, int backlog, int *error);
-int   Connect(const string& addr, int port, int *error, int *fd);
+int   Listen(const string& addr, int port, int backlog, Status *status);
+int   Connect(const string& addr, int port, Status *status, int *fd);
 
-int   Accept(int listen_fd, string *addr, int *error);
+int   Accept(int listen_fd, string *addr, Status *status);
 
-int   Recv(int fd, BufferList *buffer, int *error);
-int   Send(int fd, BufferList *buffer, int *error);
+int   Recv(int fd, BufferList *buffer, Status *status);
+int   Send(int fd, BufferList *buffer, Status *status);
 void  Close(int fd);
 
 int   MakeFdPair(int *w, int *r);

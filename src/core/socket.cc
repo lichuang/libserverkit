@@ -3,8 +3,8 @@
  */
 
 #include "base/net.h"
+#include "base/status.h"
 #include "core/data_handler.h"
-//#include "core/log.h"
 #include "core/socket.h"
 
 namespace serverkit {
@@ -36,17 +36,19 @@ Socket::CloseSocket() {
 
 void
 Socket::In() {
+  Status status;
+
   while (true) {
-    int n = Recv(fd_, &read_list_, &error_);
+    int n = Recv(fd_, &read_list_, &status);
     if (n < 0) {
       if (handler_) {
-        handler_->OnError(error_);
+        handler_->OnError(status);
       }
       CloseSocket();
       break;
     } else {
       read_list_.WriteAdvance(n);
-      if (error_ == kAgain) {
+      if (status.IsTryAgain()) {
         break;
       }
     }
@@ -59,6 +61,8 @@ Socket::In() {
 
 void
 Socket::Out() {
+  Status status;
+
   while (true) {
     if (write_list_.Empty()) {
       is_writable_ = true;
@@ -66,16 +70,16 @@ Socket::Out() {
       break;
     }
 
-    int n = Send(fd_, &write_list_, &error_);
+    int n = Send(fd_, &write_list_, &status);
     if (n < 0) {
       CloseSocket();
       if (handler_) {
-        handler_->OnError(error_);
+        handler_->OnError(status);
       }
       return;
     } else {
       write_list_.ReadAdvance(n);
-      if (error_ == kAgain) {
+      if (status.IsTryAgain()) {
         is_writable_ = false;
         break;
       }
