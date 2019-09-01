@@ -18,7 +18,7 @@ static const int kUpdateTimeInterval = 100;
 static const int kFlushTimeInterval = 500;
 
 LogThread::LogThread()
-	: Thread("log_thread", NULL),
+	: Thread("logger", NULL),
 		write_index_(0),
 		mutex_(new Mutex()),
 		poller_(new Epoll()),
@@ -145,6 +145,15 @@ LogThread::Run() {
 }
 
 void
+LogThread::Flush(bool end) {
+	if (end) {
+		iterList(read_list_);
+		iterList(write_list_);
+	}
+	flush();	
+}
+
+void
 SendLog(LogMessageData *data) {
   Singleton<LogThread>::Instance()->Send(data);
 }
@@ -157,6 +166,11 @@ CurrentLogTime() {
 const char* 
 CurrentLogTimeString() {
   return Singleton<LogThread>::Instance()->CurrentMsString();
+}
+
+void 
+Flush(bool end) {
+	Singleton<LogThread>::Instance()->Flush(end);
 }
 
 };  // namespace serverkit

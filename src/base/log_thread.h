@@ -30,6 +30,7 @@ public:
   virtual ~LogThread();
 
   void Send(LogMessageData *);
+  void Flush(bool end);
 
   // virtual interface of Event
   virtual void In();
@@ -82,6 +83,7 @@ private:
 extern void SendLog(LogMessageData *data);
 extern uint64_t CurrentLogTime();
 extern const char* CurrentLogTimeString();
+extern void Flush(bool end);
 
 }; // namespace serverkit
 

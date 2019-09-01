@@ -7,7 +7,7 @@
 
 #include <list>
 #include <pthread.h>
-#include "base/error.h"
+#include "base/log.h"
 #include "base/macros.h"
 #include "base/object_pool.h"
 #include "base/singleton.h"

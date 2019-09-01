@@ -19,7 +19,7 @@ namespace serverkit {
 class BufferList;
 
 int   Listen(const Endpoint&, int backlog, Status *status);
-int   Connect(const string& addr, int port, Status *status, int *fd);
+int   Connect(const Endpoint&, Status *status, int *fd);
 
 int   Accept(int listen_fd, Endpoint* endpoint, Status *status);
 

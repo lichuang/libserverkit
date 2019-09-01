@@ -6,6 +6,7 @@
 #define __SERVERKIT_BASE_LOG_H__
 
 #include <iostream>
+#include "base/likely.h"
 #include "base/macros.h"
 
 namespace serverkit {
@@ -122,16 +123,30 @@ inline LogLevel LogMessage::logLevel() {
 #define Info if (serverkit::LogMessage::logLevel() <= serverkit::INFO) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::INFO, __func__).Stream
 
-#define Warn if (serverkit::LogMessage::logLevel() <= serverkit::INFO) \
+#define Warn if (serverkit::LogMessage::logLevel() <= serverkit::WARN) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::WARN, __func__).Stream
 
-#define Error if (serverkit::LogMessage::logLevel() <= serverkit::INFO) \
+#define Error if (serverkit::LogMessage::logLevel() <= serverkit::ERROR) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::ERROR, __func__).Stream
 
-#define Fatal if (serverkit::LogMessage::logLevel() <= serverkit::INFO) \
+#define Fatal if (serverkit::LogMessage::logLevel() <= serverkit::FATAL) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream
 
+class LogMessageVoidify {
+ public:
+  LogMessageVoidify() { }
 
+	void operator&(std::ostream&) { }
+};
+
+#define LOG_IF(condition) \
+  static_cast<void>(0),             \
+  !(condition) ? (void) 0 : LogMessageVoidify() \
+  & serverkit::LogMessage(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream()
+
+#define Assert(condition) \
+	LOG_IF(unlikely(!(condition))) << "Assertion failed: " #condition << " "
+  
 }  // namespace serverkit
 
 #endif  // __SERVERKIT_BASE_LOG_H__

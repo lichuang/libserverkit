@@ -36,7 +36,7 @@ Status::Status(Code code, const Slice& msg,
 }
 
 std::string 
-Status::ToString() const {
+Status::String() const {
   if (state_ == NULL) {
     return "OK";
   } else {

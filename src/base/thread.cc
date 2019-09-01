@@ -3,7 +3,6 @@
  */
 
 #include <sys/prctl.h>
-#include "base/error.h"
 #include "base/condition.h"
 #include "base/mutex.h"
 #include "base/thread.h"

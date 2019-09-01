@@ -2,7 +2,6 @@
  * Copyright (C) codedump
  */
 
-#include "base/error.h"
 #include "base/log.h"
 #include "base/time.h"
 #include "base/string.h"

@@ -59,11 +59,10 @@ LogMessage::FlushFunc gFlush = defaultFlush;
 LogMessage::LogMessage(const char* file, int line, LogLevel level, const char* func)
   : data_(new LogMessageData()),
     level_(level) {
-  Stream() << kLogLevelName[level];
-
-  Stream() << CurrentThreadName() << " " << CurrentLogTimeString() << " " << basename(const_cast<char*>(file)) <<
-    ':' << line << ']';
-  //Stream() << CurrentThreadName() << "]";
+  Stream() << kLogLevelName[level] << CurrentThreadName() 
+    << " " << CurrentLogTimeString() 
+    << " " << basename(const_cast<char*>(file)) 
+    << ':' << line << ']';
 }
 
 LogMessage::~LogMessage() {
@@ -71,7 +70,7 @@ LogMessage::~LogMessage() {
   
   SendLog(data_);
   if (level_ == FATAL) {
-    //gFlush();
+    Flush(true);
     abort();
   }
 }
