@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include "base/endpoint.h"
 #include "base/error.h"
 #include "base/errcode.h"
 #include "base/net.h"
@@ -17,18 +18,16 @@
 
 namespace serverkit {
 
-Listener::Listener(const string& addr, int port, Poller* poller,
+Listener::Listener(const Endpoint& endpoint, Poller* poller,
                    AcceptorHandler *h, SessionFactory *f)
-  : addr_(addr),
-    port_(port),
+  : endpoint_(endpoint),
     poller_(poller),
     handler_(h),
     factory_(f) {
   Status status;      
-  fd_ = Listen(addr, port, kBacklog, &status);
+  fd_ = Listen(endpoint, kBacklog, &status);
   Assert(fd_ > 0);
   handle_ = poller_->Add(fd_, this, kEventRead);
-  Stringf(&string_, "%s:%d", addr.c_str(), port);
 }
 
 Listener::~Listener() {
@@ -38,12 +37,12 @@ Listener::~Listener() {
 void
 Listener::In() {
   Status status;
-  string addr;
+  Endpoint endpoint;
 
   while (true) {
-    int fd = Accept(fd_, &addr, &status);
+    int fd = Accept(fd_, &endpoint, &status);
     if (status.Ok()) {
-      Session *s = factory_->Create(fd, addr);
+      Session *s = factory_->Create(fd, endpoint);
       handler_->OnAccept(s);
     } else if (status.IsTryAgain()) {
       break;

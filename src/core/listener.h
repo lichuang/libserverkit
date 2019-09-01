@@ -6,6 +6,7 @@
 #define __SERVERKIT_CORE_LISTENER_H__
 
 #include <string>
+#include "base/endpoint.h"
 #include "core/event.h"
 
 using namespace std;
@@ -18,7 +19,7 @@ class SessionFactory;
 
 class Listener : public Event {
 public:
-  Listener(const string& addr, int port, Poller *poller,
+  Listener(const Endpoint& endpoint, Poller *poller,
            AcceptorHandler*, SessionFactory*);
   ~Listener();
 
@@ -33,8 +34,7 @@ public:
   }
 
 private:
-  string addr_;
-  int port_;
+  Endpoint endpoint_;
   int fd_;
   Poller *poller_;
   AcceptorHandler *handler_;

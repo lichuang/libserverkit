@@ -57,8 +57,8 @@ Server::OnError(const Status& status) {
 }
 
 void
-Server::Listen(const string& addr, int port, SessionFactory* f) {
-  Listener *listener = new Listener(addr, port, poller_, this, f);
+Server::Listen(const Endpoint& endpoint, SessionFactory* f) {
+  Listener *listener = new Listener(endpoint, poller_, this, f);
   Assert(listener != NULL);
   listeners_[listener->String()] = listener;
   //Infof("listen at %s", listener->String());

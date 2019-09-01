@@ -8,7 +8,8 @@
 
 namespace serverkit {
 
-void Stringf(string *ret, const char *fmt, ...) {
+void 
+Stringf(string *ret, const char *fmt, ...) {
   va_list args;
   std::stringstream ss;
   char c;

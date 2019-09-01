@@ -6,6 +6,7 @@
 #define __SERVERKIT_CORE_SESSION_H__
 
 #include <string>
+#include "base/endpoint.h"
 #include "core/data_handler.h"
 #include "poller.h"
 #include "socket.h"
@@ -64,7 +65,7 @@ public:
   virtual ~SessionFactory() {
   }
 
-  virtual Session* Create(int fd, const string&) = 0;
+  virtual Session* Create(int fd, const Endpoint&) = 0;
 };
 
 };  // namespace serverkit

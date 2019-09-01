@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "base/endpoint.h"
 #include "core/acceptor_handler.h"
 
 using namespace std;
@@ -28,7 +29,7 @@ public:
   virtual void OnAccept(Session*);
   virtual void OnError(const Status& status);
 
-  void Listen(const string& addr, int port, SessionFactory*);
+  void Listen(const Endpoint&, SessionFactory*);
   void Run();
 
 private:

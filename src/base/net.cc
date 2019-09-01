@@ -55,7 +55,7 @@ setNonBlocking(int fd) {
 }
 
 int
-Listen(const string& addr, int port, int backlog, Status *status) {
+Listen(const Endpoint& endpoint, int backlog, Status *status) {
   int                 fd;
   struct sockaddr_in  sa;
 
@@ -71,9 +71,9 @@ Listen(const string& addr, int port, int backlog, Status *status) {
 
   memset(&sa,0,sizeof(sa));
   sa.sin_family = AF_INET;
-  sa.sin_port = htons(static_cast<uint16_t>(port));
+  sa.sin_port = htons(static_cast<uint16_t>(endpoint.Port()));
 
-  if (inet_aton(addr.c_str(), &sa.sin_addr) == 0) {
+  if (inet_aton(endpoint.Address().c_str(), &sa.sin_addr) == 0) {
     *status = SysError("inet_aton", errno);
     goto error;
   }
@@ -96,7 +96,7 @@ error:
 }
 
 int
-Accept(int listen_fd, string *ret, Status *status) {
+Accept(int listen_fd, Endpoint* endpoint, Status *status) {
   struct sockaddr_in addr;
   socklen_t addrlen = sizeof(addr);
   int fd;
@@ -119,7 +119,8 @@ Accept(int listen_fd, string *ret, Status *status) {
     if (!status->Ok()) {
       return kError;
     }
-    Stringf(ret, "%s:%d", inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+
+    endpoint->Init(inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
     break;
   }
   return fd;
