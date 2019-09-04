@@ -18,6 +18,7 @@ set(CXX_FLAGS
  -Wconversion
  -Wno-unused-parameter
  -Wold-style-cast
+ -Wno-implicit-fallthrough
  -Woverloaded-virtual
  -Wpointer-arith
  -Wshadow

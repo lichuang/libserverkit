@@ -132,6 +132,9 @@ inline LogLevel LogMessage::logLevel() {
 #define Fatal if (serverkit::LogMessage::logLevel() <= serverkit::FATAL) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream
 
+// This class is used to explicitly ignore values in the conditional
+// logging macros.  This avoids compiler warnings like "value computed
+// is not used" and "statement has no effect".
 class LogMessageVoidify {
  public:
   LogMessageVoidify() { }
@@ -140,7 +143,6 @@ class LogMessageVoidify {
 };
 
 #define LOG_IF(condition) \
-  static_cast<void>(0),             \
   !(condition) ? (void) 0 : LogMessageVoidify() \
   & serverkit::LogMessage(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream()
 

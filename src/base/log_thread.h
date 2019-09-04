@@ -78,6 +78,8 @@ private:
   
   // log file
   File* file_;
+  // host name
+  string host_name_;
 };
 
 extern void SendLog(LogMessageData *data);

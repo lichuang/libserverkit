@@ -4,40 +4,39 @@
 
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include "base/hash.h"
 #include "base/string.h"
 
 namespace serverkit {
 
 void 
 Stringf(string *ret, const char *fmt, ...) {
+  // initialize use of the variable argument array
   va_list args;
-  std::stringstream ss;
-  char c;
-  char *s;
-  int i;
-
   va_start(args, fmt);
-  while (*fmt) {
-    c = *fmt++;
-    switch (c) {
-    case 's':
-      s = (char*)va_arg(args, char *);
-      ss << s;
-      break;
-    case 'd':
-      i = (int)va_arg(args, int);
-      ss << i;
-      break;
-    case '%':
-      break;
-    default:
-      ss << c;
-      break;
-    }
-  }
-  va_end(args);
 
-  *ret = ss.str();
+  // reliably acquire the size from a copy of
+  // the variable argument array
+  // and a functionally reliable call
+  // to mock the formatting
+  va_list copy;
+  va_copy(copy, args);
+  const int iLen = std::vsnprintf(NULL, 0, fmt, copy);
+  va_end(copy);
+
+  // return a formatted string without
+  // risking memory mismanagement
+  // and without assuming any compiler
+  // or platform specific behavior
+  std::vector<char> zc(iLen + 1);
+  std::vsnprintf(zc.data(), zc.size(), fmt, args);
+  va_end(args);
+  *ret = std::string(zc.data(), zc.size());
 }
 
+uint64_t 
+HashString(const string& str) {
+  return HashBytes(str.c_str(), static_cast<int>(str.size()));
+}
 };  // namespace serverkit

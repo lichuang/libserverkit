@@ -27,10 +27,16 @@ public:
 	}
 
   void operator=(const Endpoint& ep);
+	bool operator==(const Endpoint& ep);
 
 	void Init(const string& addr, int port) {
 		this->addr_ = addr;
 		this->port_ = port;
+	}
+
+	void GetHostAndPort(string *addr, int *port) const {
+		*addr = this->addr_;
+		*port = this->port_;
 	}
 
 	const string& Address() const {
@@ -40,7 +46,7 @@ public:
 	int Port() const {
 		return port_;
 	}
-
+	
 	const string& String() {
 		if (str_.empty()) {
 			Stringf(&this->str_, "%s:%d", addr_.c_str(), port_);
@@ -59,6 +65,11 @@ Endpoint::operator=(const Endpoint& ep) {
 	this->addr_ = ep.addr_;
 	this->port_ = ep.port_;
 	this->str_ = ep.str_;
+}
+
+inline bool 
+Endpoint::operator==(const Endpoint& ep) {
+	return this->port_ == ep.port_ && this->str_ == ep.str_;
 }
 
 };  // namespace serverkit
