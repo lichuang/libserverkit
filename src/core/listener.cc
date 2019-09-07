@@ -47,7 +47,7 @@ Listener::In() {
     } else if (status.IsTryAgain()) {
       break;
     } else {
-      handler_->OnError(status);
+      handler_->OnError(status.ErrorNum());
       //Errorf("accept connection error: %s", strerror(error));
     }
   }

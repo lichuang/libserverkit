@@ -5,6 +5,7 @@
 #ifndef __SERVERKIT_BASE_ENDPOINT_H__
 #define __SERVERKIT_BASE_ENDPOINT_H__
 
+#include <stdint.h>
 #include <string>
 #include "base/string.h"
 
@@ -14,7 +15,7 @@ namespace serverkit {
 
 class Endpoint {
 public:
-	Endpoint(const string& addr, int port)
+	Endpoint(const string& addr, uint16_t port)
 		: addr_(addr), port_(port), str_("") {
 	}
 
@@ -29,21 +30,16 @@ public:
   void operator=(const Endpoint& ep);
 	bool operator==(const Endpoint& ep);
 
-	void Init(const string& addr, int port) {
+	void Init(const string& addr, uint16_t port) {
 		this->addr_ = addr;
 		this->port_ = port;
-	}
-
-	void GetHostAndPort(string *addr, int *port) const {
-		*addr = this->addr_;
-		*port = this->port_;
 	}
 
 	const string& Address() const {
 		return addr_;
 	}
 
-	int Port() const {
+	uint16_t Port() const {
 		return port_;
 	}
 	
@@ -56,7 +52,7 @@ public:
 
 private:
 	string addr_;
-	int port_;
+	uint16_t port_;
 	string str_;
 };
 

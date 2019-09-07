@@ -19,8 +19,8 @@ class Poller;
 
 class Session : public DataHandler {
 public:
-  Session(int fd, const string& addr)
-    : socket_(new Socket(fd, addr, this)),
+  Session(int fd, const Endpoint& endpoint)
+    : socket_(new Socket(fd, this)),
       last_read_time_(0),
       last_write_time_(0),
       poller_(NULL) {
@@ -38,19 +38,23 @@ public:
   virtual void OnWrite() {
     last_write_time_ = CurrentMs();
   }
+
   virtual void OnRead() {
     last_read_time_ = CurrentMs();
   }
-  virtual void OnError(const Status& status) = 0;
+  
+  virtual void OnError(int error) = 0;
 
   Socket* GetSocket() {
     return socket_;
   }
-  const string& String() const {
-    return socket_->String();
+
+  const Endpoint& GetEndpoint() const {
+    return socket_->GetEndpoint();
   }
-  const char* CString() const {
-    return socket_->String().c_str();
+  
+  const string& String() {
+    return socket_->String();
   }
 
 protected:

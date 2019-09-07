@@ -126,6 +126,34 @@ Accept(int listen_fd, Endpoint* endpoint, Status *status) {
   return fd;
 }
 
+void   
+Connect(const Endpoint& endpoint, Status *status, int fd) {
+  *status = setNonBlocking(fd);
+  if (!status->Ok()) {
+    return;
+  }
+
+  sockaddr_in addr;
+  socklen_t addr_len = sizeof(addr);
+  addr.sin_family = AF_INET;
+  addr.sin_addr.s_addr = inet_addr(endpoint.Address().c_str());
+  addr.sin_port = htons(endpoint.Port());
+
+  int ret = ::connect(fd, reinterpret_cast<struct sockaddr *>(&addr), addr_len);
+
+  // connect success
+  if (ret == 0) {
+    return;
+  }
+
+  if (ret < 0) {
+    if (errno == EINPROGRESS) {
+      *status = TryAgain("connect", errno);
+      return;
+    }
+  }
+}
+
 int
 Recv(int fd, BufferList *buffer, Status *status) {
   ssize_t nbytes;

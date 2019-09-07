@@ -7,6 +7,7 @@
 
 #include <string>
 #include "base/buffer.h"
+#include "base/endpoint.h"
 #include "base/macros.h"
 #include "core/event.h"
 
@@ -17,11 +18,21 @@ namespace serverkit {
 class DataHandler;
 class Poller;
 
+enum SocketStatus {
+  SOCKET_INIT = 0,
+  SOCKET_CONNECTING = 1,
+  SOCKET_CONNECTED = 2,
+  SOCKET_CLOSED = 3,
+};
+
 class Socket : public Event {
 public:
-  Socket(int fd, const string& addr, DataHandler*);
+  Socket(DataHandler*);
+  Socket(int fd, DataHandler*);
 
   virtual ~Socket();
+
+  void Connect(const Endpoint& endpoint);
 
   void SetPoller(Poller *);
 
@@ -47,8 +58,16 @@ public:
   int    ResetOut(); 
   int    SetOut(); 
 
-  const string& String() const {
-    return addr_;
+  const SocketStatus& Status() const {
+    return status_;
+  }
+
+  const Endpoint& GetEndpoint() const {
+    return endpoint_;
+  }
+
+  const string& String() {
+    return endpoint_.String();
   }
 private:
   void CloseSocket();
@@ -60,8 +79,8 @@ private:
   bool is_writable_;
   BufferList read_list_;
   BufferList write_list_;
-  string addr_;
-
+  SocketStatus status_;
+  Endpoint endpoint_;
   DISALLOW_COPY_AND_ASSIGN(Socket);
 };
 

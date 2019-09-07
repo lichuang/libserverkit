@@ -7,8 +7,10 @@
 
 namespace serverkit {
 
-PacketParser::PacketParser(Socket *socket)
-	: socket_(socket), state_(RECV_HEADER_STATE) {
+PacketParser::PacketParser(Socket *socket, DataHandler* handler)
+	: socket_(socket), 
+		state_(RECV_HEADER_STATE),
+		handler_(handler) {
 }
 
 PacketParser::~PacketParser() {
@@ -39,7 +41,7 @@ PacketParser::RecvPacket() {
               << " call_guid: " << packet_.guid
               << " method_id: " << packet_.method_id
               << " size: " << packet_.size
-							<< " address: " << socket_->String()				
+							<< " address: " << socket_->String();			
 					return false;
 				}
 

@@ -20,7 +20,10 @@ set(libserverkit_files
   src/core/server.cc
   src/core/signaler.cc
   src/core/socket.cc
-  src/rpc/packet_parser.cc
+  src/rpc/connection_context.cc
+  src/rpc/packet_parser.cc  
+  src/rpc/rpc_manager.cc
+  src/rpc/rpc_session.cc
 )
 
 add_library(serverkit ${serverkit_SHARED_OR_STATIC}

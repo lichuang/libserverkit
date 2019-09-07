@@ -51,6 +51,10 @@ class Status {
   // Returns the string "OK" for success.
   std::string String() const;
 
+  int ErrorNum() const { 
+    return err_num_;
+  }
+
  private:
   int err_num_;
 
@@ -70,10 +74,6 @@ class Status {
 
   Code code() const {
     return (state_ == NULL) ? kOk : static_cast<Code>(state_[4]);
-  }
-
-  int ErrorNum() const { 
-    return err_num_;
   }
 
   Status(Code code, const Slice& msg, const Slice& msg2, int err);

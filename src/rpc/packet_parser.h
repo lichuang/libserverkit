@@ -17,9 +17,11 @@ enum PacketParserState {
 	RECV_DONE
 };
 
+class DataHandler;
+
 class PacketParser {
 public:
-	PacketParser(Socket *);
+	PacketParser(Socket *, DataHandler*);
 	~PacketParser();
 
 	bool RecvPacket();
@@ -33,6 +35,7 @@ private:
 	Socket *socket_;
 	PacketParserState state_;
 	Packet packet_;
+	DataHandler *handler_;
 
 	DISALLOW_COPY_AND_ASSIGN(PacketParser);
 };

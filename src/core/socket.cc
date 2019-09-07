@@ -9,17 +9,42 @@
 
 namespace serverkit {
 
-Socket::Socket(int fd, const string& addr, DataHandler* h)
+Socket::Socket(DataHandler* h) 
+  : fd_(-1),
+    handler_(h),
+    poller_(NULL),
+    is_writable_(false),
+    status_(SOCKET_INIT) {
+
+}
+
+Socket::Socket(int fd, DataHandler* h)
   : fd_(fd),
     handler_(h),
     poller_(NULL),
     is_writable_(false),
-    addr_(addr) {
+    status_(SOCKET_INIT) {
   //Infof("addr: %s, fd: %d", addr.c_str(), fd);      
 }
 
 Socket::~Socket() {
   CloseSocket();
+}
+
+void 
+Socket::Connect(const Endpoint& endpoint) {
+  status_ = SOCKET_CONNECTING;
+  serverkit::Status status;
+  serverkit::Connect(endpoint, &status, fd_);
+
+  if (status.IsTryAgain()) {
+    poller_->Add(fd_, this, kEventWrite);
+  } else if (!status.Ok()) {
+    handler_->OnConnect(status.ErrorNum());
+    status_ = SOCKET_INIT;
+  } else {
+    status_ = SOCKET_CONNECTED;
+  }
 }
 
 void
@@ -36,13 +61,13 @@ Socket::CloseSocket() {
 
 void
 Socket::In() {
-  Status status;
+  serverkit::Status status;
 
   while (true) {
     int n = Recv(fd_, &read_list_, &status);
     if (n < 0) {
       if (handler_) {
-        handler_->OnError(status);
+        handler_->OnError(status.ErrorNum());
       }
       CloseSocket();
       break;
@@ -61,7 +86,17 @@ Socket::In() {
 
 void
 Socket::Out() {
-  Status status;
+  serverkit::Status status;
+
+  if (status_ == SOCKET_CONNECTING) {
+    handler_->OnConnect(Status());
+    status_ = SOCKET_CONNECTED;
+  }
+
+  if (status_ != SOCKET_CONNECTED) {
+    Error() << "socket is closed, cannot read data" << status_;
+    return;
+  }
 
   while (true) {
     if (write_list_.Empty()) {
@@ -74,7 +109,7 @@ Socket::Out() {
     if (n < 0) {
       CloseSocket();
       if (handler_) {
-        handler_->OnError(status);
+        handler_->OnError(status.ErrorNum());
       }
       return;
     } else {

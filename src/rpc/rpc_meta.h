@@ -5,17 +5,17 @@
 #ifndef __SERVERKIT_RPC_METHOD_META_H__
 #define __SERVERKIT_RPC_METHOD_META_H__
 
-#include "google/protobuf/descriptor.h"
-#include "google/protobuf/service.h"
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/service.h>
 
 namespace serverkit {
 
 namespace gpb = ::google::protobuf;
 
 // RPC Method meta info class
-class MethodMeta {
+class RpcMeta {
 public:
-	MethodMeta(gpb::Service*, const gpb::MethodDescriptor* desp)
+	RpcMeta(gpb::Service* service, const gpb::MethodDescriptor* desp)
 		: service_(service), methodDesp_(desp) {}
 
 	gpb::Service* GetService() {
@@ -36,7 +36,7 @@ public:
 
 private:
 	gpb::Service* service_;
-	gpb::MethodDescriptor methodDesp_;
+	const gpb::MethodDescriptor* methodDesp_;
 };
 
 };  // namespace serverkit

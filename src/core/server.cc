@@ -52,7 +52,7 @@ Server::OnAccept(Session* s) {
 }
 
 void
-Server::OnError(const Status& status) {
+Server::OnError(int error) {
 }
 
 void

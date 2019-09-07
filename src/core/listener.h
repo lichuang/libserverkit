@@ -29,8 +29,8 @@ public:
 
   virtual void Timeout();
 
-  const char* String() const {
-    return string_.c_str();
+  const string String() {
+    return endpoint_.String();
   }
 
 private:
@@ -39,7 +39,6 @@ private:
   Poller *poller_;
   AcceptorHandler *handler_;
   SessionFactory *factory_;
-  string string_;
 };
 
 };  // namespace serverkit
