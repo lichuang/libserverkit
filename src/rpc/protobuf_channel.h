@@ -41,6 +41,7 @@ public:
 
   virtual void OnConnect(int error);
   virtual void OnRead();
+  virtual void OnWrite();
   virtual void OnError(int error);
 
   void Run();
@@ -53,8 +54,15 @@ public:
   const Endpoint& GetEndpoint() const { 
     return socket_->GetEndpoint();
   }
+  
 private:
-  uint64_t allocateGuid();
+  uint64_t allocateGuid() {
+    return ++allocate_guid_;
+  }
+
+  uint64_t GetGuid() const { 
+    return guid_; 
+  }
 
   void pushRequestToQueue(
       const gpb::MethodDescriptor *method,
@@ -69,6 +77,7 @@ private:
   Socket *socket_;  
   ProtobufService *service_;
   uint64_t guid_;
+  uint64_t allocate_guid_;
 
   // Packet buffer queue, when not connected, queue the packet
   queue<Packet*> packet_queue_;

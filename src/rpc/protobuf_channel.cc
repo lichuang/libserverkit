@@ -14,7 +14,8 @@ namespace serverkit {
 ProtobufChannel::ProtobufChannel(Socket* socket, ProtobufService *service) 
 	: socket(socket), 
     service(service),
-    guid_(NewGlobalID()), 
+    guid_(NewGlobalID()),
+    allocate_guid_(0), 
     parser_(new ProtobufParser(socket)) {
 }
 

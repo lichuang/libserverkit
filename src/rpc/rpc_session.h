@@ -14,8 +14,8 @@ namespace gpb = ::google::protobuf;
 namespace serverkit {
 
 class RpcSessionFactory;
+class Packet;
 class PacketParser;
-class ConnectionContext;
 struct RequestContext;
 
 class RpcSession : public Session, gpb::RpcChannel::RpcChannel {
@@ -39,9 +39,19 @@ public:
 			
 private:
 	RpcSession(int fd, const Endpoint& endpoint);
-
+  uint64_t GetGuid() const { 
+    return guid_; 
+  }
+  uint64_t allocateGuid() {
+    return ++allocate_guid_;
+  }
+  void RunService(const Packet& packet, uint64_t channel_guid);
 private:
-	ConnectionContext* context_;
+  PacketParser* parser_;
+  uint64_t guid_;
+  uint64_t allocate_guid_;
+	typedef map<uint64_t, RequestContext*> RequestContextMap;
+	RequestContextMap request_context_;  
 };
 
 class RpcSessionFactory : SessionFactory {

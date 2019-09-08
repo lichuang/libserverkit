@@ -5,11 +5,13 @@
 #ifndef __SERVERKIT_RPC_CONTROLLER_H__
 #define __SERVERKIT_RPC_CONTROLLER_H__
 
+#include <string>
 #include <google/protobuf/service.h>
 
-namespace serverkit {
-
+using namespace std;
 namespace gpb = ::google::protobuf;
+
+namespace serverkit {
 
 class RpcController : public gpb::RpcController {
 public:
