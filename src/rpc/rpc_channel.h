@@ -5,11 +5,14 @@
 #ifndef __SERVERKIT_RPC_CHANNEL_H__
 #define __SERVERKIT_RPC_CHANNEL_H__
 
+#include <map>
+#include <queue>
 #include <google/protobuf/message.h>
 #include <google/protobuf/service.h>
 #include "base/endpoint.h"
 #include "core/data_handler.h"
 
+using namespace std;
 namespace gpb = ::google::protobuf;
 namespace serverkit {
 
@@ -52,7 +55,7 @@ private:
   uint64_t GetGuid() const { 
     return guid_; 
   }
-  
+
 private:
 	Socket *socket_;
 	PacketParser* parser_;

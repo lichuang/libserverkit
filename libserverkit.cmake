@@ -20,7 +20,6 @@ set(libserverkit_files
   src/core/server.cc
   src/core/signaler.cc
   src/core/socket.cc
-  src/rpc/connection_context.cc
   src/rpc/packet_parser.cc  
   src/rpc/rpc_channel.cc
   src/rpc/rpc_manager.cc
