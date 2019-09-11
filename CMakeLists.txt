@@ -15,7 +15,7 @@ set(CXX_FLAGS
  -Wall
  -Wextra
  -Werror
- -Wconversion
+ #-Wconversion
  -Wno-unused-parameter
  -Wold-style-cast
  -Wno-implicit-fallthrough
@@ -58,4 +58,10 @@ add_executable ( echo_server
   example/echo/echo_server.cc
 )
 
+add_executable ( rpc_echo_server
+  example/rpc_echo/echo.pb.cc
+  example/rpc_echo/server.cc
+)
+
 target_link_libraries (echo_server PRIVATE serverkit pthread)
+target_link_libraries (rpc_echo_server PRIVATE serverkit protobuf pthread)

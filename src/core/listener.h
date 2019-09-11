@@ -15,12 +15,12 @@ namespace serverkit {
 
 class AcceptorHandler;
 class Poller;
-class SessionFactory;
+class Server;
 
 class Listener : public Event {
 public:
-  Listener(const Endpoint& endpoint, Poller *poller,
-           AcceptorHandler*, SessionFactory*);
+  Listener(const Endpoint& endpoint, Server *server,
+           AcceptorHandler*);
   ~Listener();
 
   virtual void In();
@@ -33,12 +33,16 @@ public:
     return endpoint_.String();
   }
 
+  AcceptorHandler* GetAcceptorHandler() {
+    return handler_;
+  }
+
 private:
   Endpoint endpoint_;
   int fd_;
+  Server *server_;
   Poller *poller_;
   AcceptorHandler *handler_;
-  SessionFactory *factory_;
 };
 
 };  // namespace serverkit

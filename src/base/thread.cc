@@ -96,4 +96,9 @@ CurrentThreadInfo() {
   return &gPerThreadInfo;
 }
 
+uint64_t 
+CurrentMs() {
+  return 0;
+}
+
 };  // namespace serverkit

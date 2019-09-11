@@ -5,21 +5,22 @@
 #include <google/protobuf/descriptor.h>
 #include "base/log.h"
 #include "base/string.h"
-#include "rpc/rpc_manager.h"
 #include "rpc/rpc_meta.h"
+#include "rpc/rpc_service.h"
+#include "rpc/rpc_session.h"
 
 namespace serverkit {
 
-RpcManager::RpcManager() {
-
+RpcService::RpcService()
+  : AcceptorHandler(new RpcSessionFactory()) {
 }
 
-RpcManager::~RpcManager() {
+RpcService::~RpcService() {
 
 }
 
 RpcMeta* 
-RpcManager::GetService(uint64_t method_id) {
+RpcService::GetService(uint64_t method_id) {
   MethodMetaMap::iterator iter = method_map_.find(method_id);
   if (iter == method_map_.end()) {
     Error() << "not found method for " << method_id;
@@ -30,7 +31,7 @@ RpcManager::GetService(uint64_t method_id) {
 }
 
 void 
-RpcManager::Register(gpb::Service* service) {
+RpcService::Register(gpb::Service* service) {
   const gpb::ServiceDescriptor* serviceDescriptor =
       service->GetDescriptor();
 
@@ -46,13 +47,14 @@ RpcManager::Register(gpb::Service* service) {
   }
 }
 
-void 
-RegisterRpcService(gpb::Service* service) {
-	gRpcManager->Register(service);
+Session* 
+RpcService::OnAccept(int fd) {
+  return NULL;
 }
 
-RpcMeta* 
-GetRpcService(uint64_t method_id) {
-	return gRpcManager->GetService(method_id);
+void 
+RpcService::OnError(int error) {
+
 }
+
 };  // namespace serverkit

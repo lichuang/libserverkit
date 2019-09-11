@@ -19,12 +19,13 @@ namespace serverkit {
 class Socket;
 class Packet;
 class PacketParser;
+class Poller;
 class RpcController;
 struct RequestContext;
 
 class RpcChannel : public gpb::RpcChannel::RpcChannel,public DataHandler {
 public:
-	RpcChannel(const Endpoint& endpoint);
+	RpcChannel(const Endpoint& endpoint, Poller*);
 	virtual ~RpcChannel();
 
 	// gpb::RpcChannel::RpcChannel virtual method

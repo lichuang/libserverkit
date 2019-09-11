@@ -15,15 +15,16 @@
 #include "core/config.h"
 #include "core/listener.h"
 #include "core/session.h"
+#include "core/server.h"
 
 namespace serverkit {
 
-Listener::Listener(const Endpoint& endpoint, Poller* poller,
-                   AcceptorHandler *h, SessionFactory *f)
+Listener::Listener(const Endpoint& endpoint, Server* server,
+                   AcceptorHandler *h)
   : endpoint_(endpoint),
-    poller_(poller),
-    handler_(h),
-    factory_(f) {
+    server_(server),
+    poller_(server->GetPoller()),
+    handler_(h) {
   Status status;      
   fd_ = Listen(endpoint, kBacklog, &status);
   Assert(fd_ > 0) << "status:" << status.String();
@@ -37,13 +38,12 @@ Listener::~Listener() {
 void
 Listener::In() {
   Status status;
-  Endpoint endpoint;
 
   while (true) {
-    int fd = Accept(fd_, &endpoint, &status);
+    int fd = Accept(fd_, &status);
     if (status.Ok()) {
-      Session *s = factory_->Create(fd, endpoint);
-      handler_->OnAccept(s);
+      Session* session = handler_->OnAccept(fd);
+      server_->AcceptNewSession(session);
     } else if (status.IsTryAgain()) {
       break;
     } else {

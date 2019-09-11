@@ -19,7 +19,7 @@ class Poller;
 
 class Session : public DataHandler {
 public:
-  Session(int fd, const Endpoint& endpoint)
+  Session(int fd)
     : socket_(new Socket(fd, this)),
       last_read_time_(0),
       last_write_time_(0),
@@ -66,10 +66,11 @@ protected:
 
 class SessionFactory {
 public:
+  SessionFactory(){}
   virtual ~SessionFactory() {
   }
 
-  virtual Session* Create(int fd, const Endpoint&) = 0;
+  virtual Session* Create(int fd) = 0;
 };
 
 };  // namespace serverkit

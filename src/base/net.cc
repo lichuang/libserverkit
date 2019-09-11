@@ -14,6 +14,7 @@
 #include <sys/socket.h>
 
 #include "base/buffer.h"
+#include "base/log.h"
 #include "base/net.h"
 #include "base/string.h"
 
@@ -96,7 +97,7 @@ error:
 }
 
 int
-Accept(int listen_fd, Endpoint* endpoint, Status *status) {
+Accept(int listen_fd, Status *status) {
   struct sockaddr_in addr;
   socklen_t addrlen = sizeof(addr);
   int fd;
@@ -120,7 +121,7 @@ Accept(int listen_fd, Endpoint* endpoint, Status *status) {
       return kError;
     }
 
-    endpoint->Init(inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
+    //endpoint->Init(inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
     break;
   }
   return fd;
@@ -229,6 +230,18 @@ Send(int fd, BufferList *buffer, Status *status) {
   }
 
   return ret;
+}
+
+void  
+GetEndpointByFd(int fd, Endpoint* endpoint) { 
+  sockaddr_in addr;
+  socklen_t addrlen = sizeof(addr);
+  if (::getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &addrlen) < 0) {
+    Error() << "get peer addr fail, fd: " << fd << " error: " << errno;
+    return;
+  }
+
+  endpoint->Init(inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
 }
 
 void

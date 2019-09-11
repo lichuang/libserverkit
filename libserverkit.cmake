@@ -22,8 +22,8 @@ set(libserverkit_files
   src/core/socket.cc
   src/rpc/packet_parser.cc  
   src/rpc/rpc_channel.cc
-  src/rpc/rpc_manager.cc
   src/rpc/rpc_session.cc
+  src/rpc/rpc_service.cc
 )
 
 add_library(serverkit ${serverkit_SHARED_OR_STATIC}

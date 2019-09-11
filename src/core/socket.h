@@ -27,7 +27,6 @@ enum SocketStatus {
 
 class Socket : public Event {
 public:
-  Socket(DataHandler*);
   Socket(int fd, DataHandler*);
 
   virtual ~Socket();

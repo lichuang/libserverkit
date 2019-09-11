@@ -5,17 +5,27 @@
 #ifndef __SERVERKIT_CORE_ACCEPTOR_HANDLER_H__
 #define __SERVERKIT_CORE_ACCEPTOR_HANDLER_H__
 
-namespace serverkit {
+#include "core/session.h"
 
-class Session;
+namespace serverkit {
 
 class AcceptorHandler {
 public:
+  AcceptorHandler(SessionFactory* factory)
+    : factory_(factory) {
+  }
   virtual ~AcceptorHandler() {
+    delete factory_;
   }
 
-  virtual void OnAccept(Session*) = 0;
+  virtual Session* OnAccept(int) = 0;
   virtual void OnError(int error) = 0;
+
+  SessionFactory* GetFactory() {
+    return factory_;
+  }
+protected:
+  SessionFactory* factory_;  
 };
 
 };  // namespace serverkit

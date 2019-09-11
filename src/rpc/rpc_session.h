@@ -16,6 +16,7 @@ namespace serverkit {
 class RpcSessionFactory;
 class Packet;
 class PacketParser;
+class RpcService;
 struct RequestContext;
 
 class RpcSession : public Session, gpb::RpcChannel::RpcChannel {
@@ -38,7 +39,7 @@ public:
       gpb::Closure *done);
 			
 private:
-	RpcSession(int fd, const Endpoint& endpoint);
+	RpcSession(int fd);
   uint64_t GetGuid() const { 
     return guid_; 
   }
@@ -52,15 +53,19 @@ private:
   uint64_t allocate_guid_;
 	typedef map<uint64_t, RequestContext*> RequestContextMap;
 	RequestContextMap request_context_;  
+  RpcService *service_;
 };
 
-class RpcSessionFactory : SessionFactory {
+class RpcSessionFactory : public SessionFactory {
 public:
+  RpcSessionFactory()
+    : SessionFactory() {}
+
   virtual ~RpcSessionFactory() {
   }
 
-  virtual Session* Create(int fd, const Endpoint& endpoint) {
-		return new RpcSession(fd, endpoint);
+  virtual Session* Create(int fd) {
+		return new RpcSession(fd);
 	}
 };
 

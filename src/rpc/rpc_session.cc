@@ -5,14 +5,14 @@
 #include "rpc/request_context.h"
 #include "rpc/rpc_controller.h"
 #include "rpc/rpc_meta.h"
-#include "rpc/rpc_manager.h"
+#include "rpc/rpc_service.h"
 #include "rpc/rpc_session.h"
 #include "rpc/packet_parser.h"
 
 namespace serverkit {
 
-RpcSession::RpcSession(int fd, const Endpoint& endpoint)
-	: Session(fd, endpoint),
+RpcSession::RpcSession(int fd)
+	: Session(fd),
 		parser_(NULL),
     guid_(0),
     allocate_guid_(0) {
@@ -73,7 +73,7 @@ RpcSession::OnError(int err) {
 
 void 
 RpcSession::RunService(const Packet& packet, uint64_t channel_guid) {  
-  RpcMeta* meta = GetRpcService(packet.method_id);
+  RpcMeta* meta = service_->GetService(packet.method_id);
   if (meta == NULL) {
     Error() << "not found method for " << packet.method_id;
     return;

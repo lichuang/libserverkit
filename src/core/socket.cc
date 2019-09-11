@@ -9,22 +9,14 @@
 
 namespace serverkit {
 
-Socket::Socket(DataHandler* h) 
-  : fd_(-1),
-    handler_(h),
-    poller_(NULL),
-    is_writable_(false),
-    status_(SOCKET_INIT) {
-
-}
-
 Socket::Socket(int fd, DataHandler* h)
   : fd_(fd),
     handler_(h),
     poller_(NULL),
     is_writable_(false),
     status_(SOCKET_INIT) {
-  //Infof("addr: %s, fd: %d", addr.c_str(), fd);      
+  //Infof("addr: %s, fd: %d", addr.c_str(), fd);   
+  GetEndpointByFd(fd, &endpoint_);
 }
 
 Socket::~Socket() {

@@ -13,12 +13,13 @@
 
 namespace serverkit {
 
-RpcChannel::RpcChannel(const Endpoint& endpoint)
+RpcChannel::RpcChannel(const Endpoint& endpoint, Poller* poller)
 	: socket_(NULL),
     parser_(NULL),
     guid_(NewGlobalID()),
     allocate_guid_(0) {
-	socket_ = new Socket(this);
+	socket_ = new Socket(-1, this);
+  socket_->SetPoller(poller);
 	parser_ = new PacketParser(socket_, this);	
 }
 
