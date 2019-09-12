@@ -11,6 +11,7 @@
 #include <google/protobuf/service.h>
 #include "base/endpoint.h"
 #include "core/data_handler.h"
+#include "core/message.h"
 
 using namespace std;
 namespace gpb = ::google::protobuf;
@@ -23,10 +24,17 @@ class Poller;
 class RpcController;
 struct RequestContext;
 
-class RpcChannel : public gpb::RpcChannel::RpcChannel,public DataHandler {
+struct RpcChannelOption {
+
+};
+
+class RpcChannel :  public gpb::RpcChannel::RpcChannel,
+                    public DataHandler {
 public:
-	RpcChannel(const Endpoint& endpoint, Poller*);
+	RpcChannel(const Endpoint& endpoint);
 	virtual ~RpcChannel();
+
+  void SetPoller(Poller *);
 
 	// gpb::RpcChannel::RpcChannel virtual method
   virtual void CallMethod(
@@ -66,6 +74,24 @@ private:
 
 	typedef map<uint64_t, RequestContext*> RequestContextMap;
 	RequestContextMap request_context_;					
+};
+
+class RpcChannelMessage : public Message {
+public:
+  RpcChannelMessage(RpcChannel* channel, tid_t tid, MessageHandler *h)
+    : Message(kRpcChannelMessage, tid, h),
+      channel_(channel) {
+  }
+
+  virtual ~RpcChannelMessage() {
+  }
+
+  RpcChannel* GetRpcChannel() {
+    return channel_;
+  }
+
+private:
+  RpcChannel *channel_;
 };
 
 };  // namespace serverkit

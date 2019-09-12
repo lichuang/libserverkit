@@ -19,7 +19,8 @@ class PacketParser;
 class RpcService;
 struct RequestContext;
 
-class RpcSession : public Session, gpb::RpcChannel::RpcChannel {
+class RpcSession :  public Session, 
+                    public gpb::RpcChannel::RpcChannel {
 	friend class RpcSessionFactory;
 public:
 	virtual ~RpcSession();

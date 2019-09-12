@@ -7,6 +7,7 @@ set(libserverkit_files
   src/base/lock.cc
   src/base/log.cc
   src/base/log_thread.cc
+  src/base/misc.cc
   src/base/net.cc
   src/base/status.cc
   src/base/string.cc
@@ -26,5 +27,7 @@ set(libserverkit_files
   src/rpc/rpc_service.cc
 )
 
-add_library(serverkit ${serverkit_SHARED_OR_STATIC}
-  ${libserverkit_files})
+add_library(serverkit 
+  ${serverkit_SHARED_OR_STATIC}
+  ${libserverkit_files}
+)

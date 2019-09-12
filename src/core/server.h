@@ -23,12 +23,15 @@ class IOThread;
 class Poller;
 class Session;
 class SessionFactory;
+class RpcChannel;
 class RpcService;
 
 struct ServerOption {
   ServerOption();
 
   int worker_num;
+
+  string log_path;
 };
 
 class Server {
@@ -38,12 +41,14 @@ public:
   ~Server();
 
   void AddService(const Endpoint&, AcceptorHandler*);
+
   void AddRpcService(const Endpoint&, gpb::Service* service);
+  RpcChannel* CreateRpcChannel(const Endpoint&);
 
   void Run(const ServerOption&);
 
   void AcceptNewSession(Session*);
-
+  
   Poller* GetPoller() {
     return poller_;
   }
@@ -53,6 +58,8 @@ private:
   void doInit() {
     // nothing to do
   }
+
+  IOThread* selectWorker();
 
 private:
   int index_;

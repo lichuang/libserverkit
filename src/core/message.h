@@ -13,6 +13,7 @@ class Message;
 // add message types here
 enum {
   kAcceptMessage = 1,
+  kRpcChannelMessage = 2,
 };
 
 // virtual interface for Mailbox message handler

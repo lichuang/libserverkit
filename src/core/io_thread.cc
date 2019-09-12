@@ -10,6 +10,7 @@
 #include "core/io_thread.h"
 #include "core/session.h"
 #include "core/socket.h"
+#include "rpc/rpc_channel.h"
 
 namespace serverkit {
 
@@ -54,16 +55,37 @@ IOThread::Timeout() {
   // nothing to do
 }
 
+void 
+IOThread::processAcceptMessage(Message* msg) {
+  AcceptMessage* am = static_cast<AcceptMessage*>(msg);
+  Session* session = am->GetSession();
+  //Infof("process connection from %s", session->String().c_str());  
+  session->SetPoller(poller_);
+}
+
+void 
+IOThread::processRpcChannelMessage(Message* msg) {
+  RpcChannelMessage* am = static_cast<RpcChannelMessage*>(msg);
+  RpcChannel* channel = am->GetRpcChannel();
+  channel->SetPoller(poller_); 
+}
+
 void
 IOThread::Process(Message *msg) {
   int type = msg->Type();
 
-  if (type == kAcceptMessage) {
-    AcceptMessage* am = static_cast<AcceptMessage*>(msg);
-    Session* session = am->GetSession();
-    session->SetPoller(poller_);
-    //Infof("process connection from %s", session->String().c_str());
+  switch (type) {
+  case kAcceptMessage:
+    processAcceptMessage(msg);
+    break;
+  case kRpcChannelMessage:
+    processRpcChannelMessage(msg);
+    break;
+  default:
+    Error() << "wrong message type " << type;
+    break;
   }
+
 }
 
 void

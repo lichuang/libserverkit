@@ -11,6 +11,7 @@
 #include "core/server.h"
 #include "core/poller.h"
 #include "core/epoll.h"
+#include "rpc/rpc_channel.h"
 #include "rpc/rpc_service.h"
 
 namespace serverkit {
@@ -72,28 +73,30 @@ Server::Run(const ServerOption& ) {
   }
 }
 
-void 
-Server::AcceptNewSession(Session* session) {
+IOThread* 
+Server::selectWorker() {
   index_ = (index_ + 1) % static_cast<int>(workers_.size());
 
-  IOThread *worker = workers_[index_];
+  return workers_[index_];
+}
+
+void 
+Server::AcceptNewSession(Session* session) {
+  IOThread* worker = selectWorker();
+
   AcceptMessage *msg = new AcceptMessage(session, worker->GetTid(), worker);
   worker->Send(msg);
 }
 
-void 
-AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
-  gServer->AddService(endpoint, handler);
-}
+RpcChannel* 
+Server::CreateRpcChannel(const Endpoint& endpoint) {
+  IOThread* worker = selectWorker();
 
-void 
-AddRpcService(const Endpoint& endpoint, gpb::Service* service) {
-  gServer->AddRpcService(endpoint, service);
-}
+  RpcChannel* channel = new RpcChannel(endpoint);
+  RpcChannelMessage *msg = new RpcChannelMessage(channel, worker->GetTid(), worker);
+  worker->Send(msg);
 
-void 
-RunServer(const ServerOption& option) {
-  gServer->Run(option);
+  return channel;
 }
 
 };  // namespace serverkit

@@ -40,6 +40,9 @@ public:
 protected:
   virtual void Run();
 
+  void processAcceptMessage(Message*);
+  void processRpcChannelMessage(Message*);
+  
 protected:
   Poller *poller_;
   Mailbox mailbox_;

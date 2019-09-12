@@ -13,19 +13,23 @@
 
 namespace serverkit {
 
-RpcChannel::RpcChannel(const Endpoint& endpoint, Poller* poller)
+RpcChannel::RpcChannel(const Endpoint& endpoint)
 	: socket_(NULL),
     parser_(NULL),
     guid_(NewGlobalID()),
     allocate_guid_(0) {
-	socket_ = new Socket(-1, this);
-  socket_->SetPoller(poller);
 	parser_ = new PacketParser(socket_, this);	
 }
 
 RpcChannel::~RpcChannel() {
 	delete parser_;
 	delete socket_;
+}
+
+void 
+RpcChannel::SetPoller(Poller *poller) {
+	socket_ = new Socket(-1, this);
+  socket_->SetPoller(poller);
 }
 
 void 
@@ -106,6 +110,13 @@ RpcChannel::CallMethod(
   const gpb::Message *request,
   gpb::Message *response,
   gpb::Closure *done) {
+  RpcController *rpc_controller = reinterpret_cast<RpcController*>(controller);
+
+  if (socket_ == NULL) {
+    pushRequestToQueue(method, rpc_controller, request, response, done);
+    return;
+  }
+
   SocketStatus status = socket_->Status();
 
   Debug() << __FUNCTION__ << " status: " 
@@ -114,8 +125,6 @@ RpcChannel::CallMethod(
   if (status == SOCKET_CLOSED) {
     return;
   }
-
-  RpcController *rpc_controller = reinterpret_cast<RpcController*>(controller);
 
   if (status == SOCKET_CONNECTED) {
     uint64_t call_guid = allocateGuid();
