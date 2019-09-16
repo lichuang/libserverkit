@@ -13,11 +13,13 @@
 
 namespace serverkit {
 
-RpcChannel::RpcChannel(const Endpoint& endpoint)
-	: socket_(NULL),
+RpcChannel::RpcChannel(const Endpoint& endpoint, Poller *poller)
+	: socket_(new Socket(poller, this)),
     parser_(NULL),
     guid_(NewGlobalID()),
-    allocate_guid_(0) {
+    allocate_guid_(0),
+    endpoint_(endpoint),
+    poller_(poller) {
 	parser_ = new PacketParser(socket_, this);	
 }
 
@@ -27,18 +29,14 @@ RpcChannel::~RpcChannel() {
 }
 
 void 
-RpcChannel::SetPoller(Poller *poller) {
-	socket_ = new Socket(-1, this);
-  socket_->SetPoller(poller);
-}
-
-void 
 RpcChannel::pushRequestToQueue(
   const gpb::MethodDescriptor *method,
   RpcController *controller,
   const gpb::Message *request,
   gpb::Message *response,
   gpb::Closure *done) {
+  Info() << "pushRequestToQueue";
+
   uint64_t call_guid = allocateGuid();
   controller->Init(GetGuid(), call_guid);
   packet_queue_.push(new Packet(call_guid, method, request));
@@ -112,11 +110,6 @@ RpcChannel::CallMethod(
   gpb::Closure *done) {
   RpcController *rpc_controller = reinterpret_cast<RpcController*>(controller);
 
-  if (socket_ == NULL) {
-    pushRequestToQueue(method, rpc_controller, request, response, done);
-    return;
-  }
-
   SocketStatus status = socket_->Status();
 
   Debug() << __FUNCTION__ << " status: " 
@@ -138,7 +131,16 @@ RpcChannel::CallMethod(
     return;
   }
 
+  if (status == SOCKET_INIT) {
+    Info() << "rpc channel start connect, guid:" << GetGuid()
+      << ", endpoint: " << endpoint_.String();
+
+    pushRequestToQueue(method, rpc_controller, request, response, done);
+    socket_->Connect(endpoint_);
+  }
+
   if (status == SOCKET_CONNECTING) {
+    Debug() << "connecting";
     pushRequestToQueue(method, rpc_controller, request, response, done);
   }
 }

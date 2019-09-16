@@ -14,9 +14,16 @@ Socket::Socket(int fd, DataHandler* h)
     handler_(h),
     poller_(NULL),
     is_writable_(false),
-    status_(SOCKET_INIT) {
-  //Infof("addr: %s, fd: %d", addr.c_str(), fd);   
+    status_(SOCKET_CONNECTED) {  
   GetEndpointByFd(fd, &endpoint_);
+}
+
+Socket::Socket(Poller* poller, DataHandler* h)
+  : fd_(TcpSocket()),
+    handler_(h),
+    poller_(poller),
+    is_writable_(false),
+    status_(SOCKET_INIT) {
 }
 
 Socket::~Socket() {
@@ -25,15 +32,20 @@ Socket::~Socket() {
 
 void 
 Socket::Connect(const Endpoint& endpoint) {
+  if (status_ != SOCKET_INIT) {
+    return;
+  }
+
   status_ = SOCKET_CONNECTING;
   serverkit::Status status;
   serverkit::Connect(endpoint, &status, fd_);
-
+  Error() << "connect:" << status.String();
   if (status.IsTryAgain()) {
     poller_->Add(fd_, this, kEventWrite);
   } else if (!status.Ok()) {
     handler_->OnConnect(status.ErrorNum());
     status_ = SOCKET_INIT;
+    Error() << status.String();
   } else {
     status_ = SOCKET_CONNECTED;
   }

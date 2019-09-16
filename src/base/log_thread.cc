@@ -2,6 +2,7 @@
  * Copyright (C) codedump
  */
 
+#include <libgen.h>
 #include <sys/utsname.h>
 #include "base/errcode.h"
 #include "base/file.h"
@@ -66,6 +67,12 @@ LogThread::doInit() {
 	Start();
 }
 
+void 
+LogThread::Init(int argc, char *argv[], const ServerkitOption& option) {
+	app_name_ = basename(argv[0]);
+	log_path_ = option.log_path;
+}
+
 void
 LogThread::Send(LogMessageData *data) {
 	MutexGuard guard(mutex_);
@@ -125,7 +132,6 @@ LogThread::updateTime() {
 	
 	now_ms_ = t.tv_sec * 1000 + t.tv_usec / 1000;
   struct tm tim;
-  //::localtime_r(&t.tv_sec, &tim);
 	Localtime(t.tv_sec, &tim);
   int n = kTimeFormatLength;
   n+=1;
@@ -138,8 +144,8 @@ LogThread::updateTime() {
 void 
 LogThread::output(LogMessageData* data) {
 	if (file_ == NULL) {
-		string file_name;
-		Stringf(&file_name, "/tmp/serverkit-%s.log", host_name_.c_str());
+		string file_name = Stringf("%s/%s-%s.log", log_path_.c_str(),
+															 app_name_.c_str(), host_name_.c_str());
 		file_ = new File(file_name);
 	}
 	file_->Append(Slice(data->text_, data->stream_.pcount()));

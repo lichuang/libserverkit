@@ -16,10 +16,6 @@
 
 namespace serverkit {
 
-ServerOption::ServerOption() {
-
-}
-
 Server::Server()
   : index_(0),
     poller_(new Epoll()) {
@@ -64,8 +60,18 @@ Server::AddRpcService(const Endpoint& endpoint, gpb::Service* s) {
   service->Register(s);
 }
 
+void 
+Server::Init(const ServerkitOption& options) {
+  int i;
+  for (i = 0; i < options.worker_num; ++i) {
+    IOThread* thread = new IOThread(Stringf("worker-%d", i));
+    thread->Start();
+    workers_.push_back(thread);
+  }
+}
+
 void
-Server::Run(const ServerOption& ) {
+Server::Run() {
   Info() << "server running...";
 
   while (true) {
@@ -88,15 +94,12 @@ Server::AcceptNewSession(Session* session) {
   worker->Send(msg);
 }
 
-RpcChannel* 
-Server::CreateRpcChannel(const Endpoint& endpoint) {
+void
+Server::CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
   IOThread* worker = selectWorker();
 
-  RpcChannel* channel = new RpcChannel(endpoint);
-  RpcChannelMessage *msg = new RpcChannelMessage(channel, worker->GetTid(), worker);
+  RpcChannelMessage *msg = new RpcChannelMessage(endpoint, worker->GetTid(), worker, done);
   worker->Send(msg);
-
-  return channel;
 }
 
 };  // namespace serverkit

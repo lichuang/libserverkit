@@ -4,14 +4,11 @@
 using namespace serverkit;
 
 int main(int argc, char* args[]) {
-	serverkit::ServerkitInit(argc, args);
+	serverkit::ServerkitInit(argc, args, ServerkitOption());
 
 	Info() << "hello world";
 
-	Assert(1 == 0) << "hahahahh";
-
-	//serverkit::Server s(1);
-	//s.Run();
+	RunServer();
 
 	return 0;
 }

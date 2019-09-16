@@ -13,6 +13,7 @@ set(libserverkit_files
   src/base/string.cc
   src/base/thread.cc
   src/base/time.cc
+  src/base/wait.cc
   src/core/epoll.cc
   src/core/io_thread.cc
   src/core/listener.cc

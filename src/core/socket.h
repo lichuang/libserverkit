@@ -25,9 +25,12 @@ enum SocketStatus {
   SOCKET_CLOSED = 3,
 };
 
+const Endpoint gUnconnectedEndpoint = Endpoint("unknown address", -1);
+
 class Socket : public Event {
 public:
   Socket(int fd, DataHandler*);
+  Socket(Poller*, DataHandler*);
 
   virtual ~Socket();
 
@@ -62,7 +65,10 @@ public:
   }
 
   const Endpoint& GetEndpoint() const {
-    return endpoint_;
+    if (status_ == SOCKET_CONNECTED) {
+      return endpoint_;
+    }
+    return gUnconnectedEndpoint;
   }
 
   const string& String() {

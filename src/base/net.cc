@@ -120,18 +120,18 @@ Accept(int listen_fd, Status *status) {
     if (!status->Ok()) {
       return kError;
     }
-
-    //endpoint->Init(inet_ntoa(addr.sin_addr), ntohs(addr.sin_port));
     break;
   }
   return fd;
 }
 
-void   
-Connect(const Endpoint& endpoint, Status *status, int fd) {
-  *status = setNonBlocking(fd);
-  if (!status->Ok()) {
-    return;
+int   
+Connect(const Endpoint& endpoint) {
+  int ret;
+
+  int fd = TcpSocket();
+  if (fd < 0) {
+    return -1;
   }
 
   sockaddr_in addr;
@@ -140,19 +140,24 @@ Connect(const Endpoint& endpoint, Status *status, int fd) {
   addr.sin_addr.s_addr = inet_addr(endpoint.Address().c_str());
   addr.sin_port = htons(endpoint.Port());
 
-  int ret = ::connect(fd, reinterpret_cast<struct sockaddr *>(&addr), addr_len);
+  do {
+    errno = 0;
+    ret = ::connect(fd, reinterpret_cast<struct sockaddr *>(&addr), addr_len);
+  } while (ret == -1 && errno == EINTR);
 
-  // connect success
-  if (ret == 0) {
-    return;
-  }
+  Debug() << "connect result: " << ret;
 
-  if (ret < 0) {
+  if (ret < 0 && errno != 0) {
     if (errno == EINPROGRESS) {
-      *status = TryAgain("connect", errno);
-      return;
+      return fd;
+    } else if (errno == ECONNREFUSED || errno == EINVAL) {
+
+    } else {
+      return errno;
     }
   }
+
+  return fd;
 }
 
 int
@@ -261,4 +266,10 @@ MakeFdPair(int *w, int *r) {
   return kOK;
 }
 
+int
+TcpSocket() {
+  int fd = socket(PF_INET, SOCK_STREAM, 0);
+  setNonBlocking(fd);
+  return fd;
+}
 };  // namespace serverkit

@@ -8,8 +8,10 @@
 namespace serverkit {
 
 Status 
-ServerkitInit(int argc, char *args[]) {
-	serverkit::Singleton<serverkit::LogThread>::Instance();
+ServerkitInit(int argc, char *args[], const ServerkitOption& options) {
+	gLogThread->Init(argc, args, options);
+	gServer->Init(options);
+
 	TZSet();
 	
 	return Status::OK();
@@ -26,13 +28,13 @@ AddRpcService(const Endpoint& endpoint, gpb::Service* service) {
 }
 
 void 
-RunServer(const ServerOption& option) {
-  gServer->Run(option);
+RunServer() {
+  gServer->Run();
 }
 
-RpcChannel* 
-CreateRpcChannel(const Endpoint& endpoint) {
-	return gServer->CreateRpcChannel(endpoint);
+void 
+CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
+	gServer->CreateRpcChannel(endpoint, done);
 }
 
 };  // namespace serverkit

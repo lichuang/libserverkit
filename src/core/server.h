@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <google/protobuf/service.h>
+#include "serverkit_types.h"
 #include "base/endpoint.h"
 #include "base/singleton.h"
 
@@ -26,14 +27,6 @@ class SessionFactory;
 class RpcChannel;
 class RpcService;
 
-struct ServerOption {
-  ServerOption();
-
-  int worker_num;
-
-  string log_path;
-};
-
 class Server {
   friend class Singleton<Server>;
 
@@ -43,9 +36,10 @@ public:
   void AddService(const Endpoint&, AcceptorHandler*);
 
   void AddRpcService(const Endpoint&, gpb::Service* service);
-  RpcChannel* CreateRpcChannel(const Endpoint&);
+  void CreateRpcChannel(const Endpoint&, CreateChannelDone);
 
-  void Run(const ServerOption&);
+  void Init(const ServerkitOption&);
+  void Run();
 
   void AcceptNewSession(Session*);
   

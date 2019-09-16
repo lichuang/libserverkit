@@ -12,7 +12,7 @@ using namespace std;
 
 namespace serverkit {
 
-extern void Stringf(string *ret, const char *fmt, ...);
+extern string Stringf(const char *fmt, ...);
 extern uint64_t HashString(const string& str);
 
 };  // namespace serverkit

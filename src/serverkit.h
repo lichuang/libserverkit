@@ -7,6 +7,7 @@
 #ifndef __SERVERKIT_H__
 #define __SERVERKIT_H__
 
+#include "serverkit_types.h"
 #include "base/endpoint.h"
 #include "base/log.h"
 #include "base/log_thread.h"
@@ -19,15 +20,16 @@ namespace serverkit {
 
 class Poller;
 
-extern Status ServerkitInit(int argc, char *args[]);
+extern Status ServerkitInit(int argc, char *args[], const ServerkitOption&);
 
 extern void AddService(const Endpoint&, AcceptorHandler*);
 
 // rpc methods
 extern void AddRpcService(const Endpoint&, gpb::Service* service);
-extern RpcChannel* CreateRpcChannel(const Endpoint& endpoint);
 
-extern void RunServer(const ServerOption&);
+extern void CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done);
+
+extern void RunServer();
 
 };  // namespace serverkit
 

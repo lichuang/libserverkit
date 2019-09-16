@@ -49,7 +49,8 @@ RpcService::Register(gpb::Service* service) {
 
 Session* 
 RpcService::OnAccept(int fd) {
-  return NULL;
+  Info() << "accept a rpc connection";
+  return factory_->NewSession(fd);
 }
 
 void 

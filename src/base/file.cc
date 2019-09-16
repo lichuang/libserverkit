@@ -15,7 +15,7 @@ namespace serverkit {
 File::File(const Slice& file)
 	: filename_(file),
 		status_(Status::OK()) {
-	fd_ = open(file.data(), O_CREAT | O_RDWR | O_TRUNC, 0644);
+	fd_ = open(file.data(), O_CREAT | O_RDWR | O_APPEND, 0644);
 	if (fd_ < 0) {
 		status_ = IOError(filename_, errno);
 	}

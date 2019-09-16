@@ -16,7 +16,6 @@
 namespace serverkit {
 
 const char* kLogLevelName[NUM_LOG_LEVELS] = {
-  "[T ",
   "[D ",
   "[I ",
   "[W ",
@@ -28,15 +27,15 @@ static LogLevel
 initLogLevel() {
   char *val = ::getenv("SERVERKIT_LOG_LEVEL");
   if (val == NULL) {
-    return INFO;
+    return DEBUG;
   }
   int i;
-  for (i = TRACE; i < NUM_LOG_LEVELS; ++i) {
+  for (i = DEBUG; i < NUM_LOG_LEVELS; ++i) {
     if (!strcmp(kLogLevelName[i], val)) {
       return static_cast<LogLevel>(i);
     }
   }
-  return INFO;
+  return DEBUG;
 }
 
 LogLevel gLogLevel = initLogLevel();

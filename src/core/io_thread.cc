@@ -8,6 +8,7 @@
 #include "core/accept_message.h"
 #include "core/epoll.h"
 #include "core/io_thread.h"
+#include "core/server.h"
 #include "core/session.h"
 #include "core/socket.h"
 #include "rpc/rpc_channel.h"
@@ -65,15 +66,18 @@ IOThread::processAcceptMessage(Message* msg) {
 
 void 
 IOThread::processRpcChannelMessage(Message* msg) {
+  Info() << "processRpcChannelMessage";
   RpcChannelMessage* am = static_cast<RpcChannelMessage*>(msg);
-  RpcChannel* channel = am->GetRpcChannel();
-  channel->SetPoller(poller_); 
+  RpcChannel* channel = new RpcChannel(am->endpoint_, poller_);
+  am->done_(channel);
 }
 
 void
 IOThread::Process(Message *msg) {
   int type = msg->Type();
 
+  Info() << "Process message " << type;
+  
   switch (type) {
   case kAcceptMessage:
     processAcceptMessage(msg);

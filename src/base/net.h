@@ -19,7 +19,7 @@ namespace serverkit {
 class BufferList;
 
 int   Listen(const Endpoint&, int backlog, Status *status);
-void  Connect(const Endpoint&, Status *status, int fd);
+void  Connect(const Endpoint&);
 
 int   Accept(int listen_fd, Status *status);
 
@@ -28,6 +28,8 @@ int   Send(int fd, BufferList *buffer, Status *status);
 void  Close(int fd);
 void  GetEndpointByFd(int fd, Endpoint*);
 int   MakeFdPair(int *w, int *r);
+
+int   TcpSocket();
 
 };  // namespace serverkit
 

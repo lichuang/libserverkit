@@ -10,8 +10,8 @@
 
 namespace serverkit {
 
-void 
-Stringf(string *ret, const char *fmt, ...) {
+string 
+Stringf(const char *fmt, ...) {
   // initialize use of the variable argument array
   va_list args;
   va_start(args, fmt);
@@ -32,7 +32,8 @@ Stringf(string *ret, const char *fmt, ...) {
   std::vector<char> zc(iLen + 1);
   std::vsnprintf(zc.data(), zc.size(), fmt, args);
   va_end(args);
-  *ret = std::string(zc.data(), zc.size());
+
+  return std::string(zc.data(), zc.size());
 }
 
 uint64_t 

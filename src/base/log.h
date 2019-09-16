@@ -12,7 +12,6 @@
 namespace serverkit {
 
 enum LogLevel {
-  TRACE,
   DEBUG,
   INFO,
   WARN,
@@ -113,9 +112,6 @@ extern LogLevel gLogLevel;
 inline LogLevel LogMessage::logLevel() {
   return gLogLevel;
 }
-
-#define Trace if (serverkit::LogMessage::logLevel() <= serverkit::TRACE) \
-  serverkit::LogMessage(__FILE__, __LINE__, serverkit::TRACE, __FUNCTION__).Stream
 
 #define Debug if (serverkit::LogMessage::logLevel() <= serverkit::DEBUG) \
   serverkit::LogMessage(__FILE__, __LINE__, serverkit::DEBUG, __func__).Stream

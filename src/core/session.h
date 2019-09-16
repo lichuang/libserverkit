@@ -70,7 +70,7 @@ public:
   virtual ~SessionFactory() {
   }
 
-  virtual Session* Create(int fd) = 0;
+  virtual Session* NewSession(int fd) = 0;
 };
 
 };  // namespace serverkit

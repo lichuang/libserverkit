@@ -6,6 +6,7 @@
 #define __SERVERKIT_BASE_LOG_THREAD__
 
 #include <list>
+#include "serverkit_types.h"
 #include "base/mutex.h"
 #include "base/singleton.h"
 #include "base/thread.h"
@@ -28,6 +29,8 @@ class LogThread : public Thread,
   friend class Singleton<LogThread>;
 public:
   virtual ~LogThread();
+
+  void Init(int argc, char *argv[], const ServerkitOption&);
 
   void Send(LogMessageData *);
   void Flush(bool end);
@@ -80,7 +83,13 @@ private:
   File* file_;
   // host name
   string host_name_;
+  // application name
+  string app_name_;
+  // log path
+  string log_path_;
 };
+
+#define gLogThread serverkit::Singleton<serverkit::LogThread>::Instance()
 
 extern void SendLog(LogMessageData *data);
 extern uint64_t CurrentLogTime();

@@ -65,7 +65,7 @@ public:
   virtual ~RpcSessionFactory() {
   }
 
-  virtual Session* Create(int fd) {
+  virtual Session* NewSession(int fd) {
 		return new RpcSession(fd);
 	}
 };
