@@ -16,7 +16,17 @@ RpcService::RpcService()
 }
 
 RpcService::~RpcService() {
+}
 
+void
+RpcService::printMethod() {
+  Info() << "printMethod in " << this;
+
+  MethodMetaMap::iterator iter = method_map_.begin();
+  for (; iter != method_map_.end(); iter++) {
+    Info() << "method_id: " << iter->first
+      << ", method name: " << iter->second->GetMethodName();
+  }
 }
 
 RpcMeta* 
@@ -24,6 +34,7 @@ RpcService::GetService(uint64_t method_id) {
   MethodMetaMap::iterator iter = method_map_.find(method_id);
   if (iter == method_map_.end()) {
     Error() << "not found method for " << method_id;
+    //printMethod();
     return NULL;
   }
 
@@ -39,18 +50,25 @@ RpcService::Register(gpb::Service* service) {
     const gpb::MethodDescriptor* methodDescriptor =
         serviceDescriptor->method(i);    
 		uint64_t method_id = HashString(methodDescriptor->full_name());
-		Assert(method_map_.find(method_id) == method_map_.end()) 
+		
+    Assert(method_map_.find(method_id) == method_map_.end()) 
 			<< "register duplicate method " << methodDescriptor->full_name();
     
+    Info() << "register method " << methodDescriptor->full_name()
+      << " with id " << method_id;
+
     RpcMeta* meta = new RpcMeta(service, methodDescriptor);
     method_map_[method_id] = meta;
   }
+  printMethod();
 }
 
 Session* 
 RpcService::OnAccept(int fd) {
   Info() << "accept a rpc connection";
-  return factory_->NewSession(fd);
+  RpcSession *session = static_cast<RpcSession*>(factory_->NewSession(fd));
+  session->SetService(this);
+  return session;
 }
 
 void 

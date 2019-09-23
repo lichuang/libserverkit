@@ -32,22 +32,21 @@ Socket::~Socket() {
 
 void 
 Socket::Connect(const Endpoint& endpoint) {
+  endpoint_ = endpoint;
+  Info() << "try connect to " << String();
+
   if (status_ != SOCKET_INIT) {
     return;
   }
 
   status_ = SOCKET_CONNECTING;
-  serverkit::Status status;
-  serverkit::Connect(endpoint, &status, fd_);
-  Error() << "connect:" << status.String();
-  if (status.IsTryAgain()) {
-    poller_->Add(fd_, this, kEventWrite);
-  } else if (!status.Ok()) {
-    handler_->OnConnect(status.ErrorNum());
-    status_ = SOCKET_INIT;
-    Error() << status.String();
+  int err = serverkit::ConnectAsync(endpoint, fd_);
+  
+  if (err == kOK) {
+    poller_->Add(fd_, this, kEventWrite | kEventRead);
   } else {
-    status_ = SOCKET_CONNECTED;
+    handler_->OnConnect(err);
+    status_ = SOCKET_CLOSED;
   }
 }
 
@@ -65,40 +64,48 @@ Socket::CloseSocket() {
 
 void
 Socket::In() {
-  serverkit::Status status;
+  Debug() << "socket " << String() << " in";
+  if (status_ != SOCKET_CONNECTED) {
+    return;
+  }
+  int err;
 
   while (true) {
-    int n = Recv(fd_, &read_list_, &status);
-    if (n < 0) {
+    int n = Recv(this, &read_list_, &err);
+    if (err != kOK && !IsIOTryAgain(err)) {
       if (handler_) {
-        handler_->OnError(status.ErrorNum());
+        handler_->OnError(err);
       }
       CloseSocket();
-      break;
+      return;
     } else {
       read_list_.WriteAdvance(n);
-      if (status.IsTryAgain()) {
+      if (IsIOTryAgain(err)) {
         break;
       }
     }
   }
 
-  if (handler_) {
+  if (!read_list_.Empty() && handler_) {
     handler_->OnRead();
   }
 }
 
 void
 Socket::Out() {
+  Info() << "socket " << endpoint_.String() << " out";
   serverkit::Status status;
+  int err;
 
   if (status_ == SOCKET_CONNECTING) {
-    handler_->OnConnect(Status());
     status_ = SOCKET_CONNECTED;
+    handler_->OnConnect(kOK);
+    Info() << "connected to " << endpoint_.String();
+    return;
   }
 
   if (status_ != SOCKET_CONNECTED) {
-    Error() << "socket is closed, cannot read data" << status_;
+    Error() << "socket is closed, cannot write data" << status_;
     return;
   }
 
@@ -109,16 +116,16 @@ Socket::Out() {
       break;
     }
 
-    int n = Send(fd_, &write_list_, &status);
+    int n = Send(fd_, &write_list_, &err);
     if (n < 0) {
       CloseSocket();
       if (handler_) {
-        handler_->OnError(status.ErrorNum());
+        handler_->OnError(err);
       }
       return;
     } else {
       write_list_.ReadAdvance(n);
-      if (status.IsTryAgain()) {
+      if (IsIOTryAgain(err)) {
         is_writable_ = false;
         break;
       }

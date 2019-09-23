@@ -66,7 +66,6 @@ IOThread::processAcceptMessage(Message* msg) {
 
 void 
 IOThread::processRpcChannelMessage(Message* msg) {
-  Info() << "processRpcChannelMessage";
   RpcChannelMessage* am = static_cast<RpcChannelMessage*>(msg);
   RpcChannel* channel = new RpcChannel(am->endpoint_, poller_);
   am->done_(channel);

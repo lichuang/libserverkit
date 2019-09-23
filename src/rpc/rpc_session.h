@@ -19,6 +19,8 @@ class PacketParser;
 class RpcService;
 struct RequestContext;
 
+struct responseContext;
+
 class RpcSession :  public Session, 
                     public gpb::RpcChannel::RpcChannel {
 	friend class RpcSessionFactory;
@@ -39,6 +41,10 @@ public:
       gpb::Message *response,
       gpb::Closure *done);
 			
+  void SetService(RpcService *service) {
+    service_ = service;
+  }
+  
 private:
 	RpcSession(int fd);
   uint64_t GetGuid() const { 
@@ -48,6 +54,8 @@ private:
     return ++allocate_guid_;
   }
   void RunService(const Packet& packet, uint64_t channel_guid);
+  void onResponse(responseContext*);
+
 private:
   PacketParser* parser_;
   uint64_t guid_;

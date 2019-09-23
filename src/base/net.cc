@@ -17,6 +17,7 @@
 #include "base/log.h"
 #include "base/net.h"
 #include "base/string.h"
+#include "core/socket.h"
 
 namespace serverkit {
 
@@ -126,13 +127,8 @@ Accept(int listen_fd, Status *status) {
 }
 
 int   
-Connect(const Endpoint& endpoint) {
-  int ret;
-
-  int fd = TcpSocket();
-  if (fd < 0) {
-    return -1;
-  }
+ConnectAsync(const Endpoint& endpoint, int fd) {
+  int ret, err;
 
   sockaddr_in addr;
   socklen_t addr_len = sizeof(addr);
@@ -141,29 +137,29 @@ Connect(const Endpoint& endpoint) {
   addr.sin_port = htons(endpoint.Port());
 
   do {
-    errno = 0;
+    gErrno = 0;
     ret = ::connect(fd, reinterpret_cast<struct sockaddr *>(&addr), addr_len);
-  } while (ret == -1 && errno == EINTR);
+  } while (ret == -1 && gErrno == EINTR);
 
-  Debug() << "connect result: " << ret;
-
-  if (ret < 0 && errno != 0) {
-    if (errno == EINPROGRESS) {
-      return fd;
-    } else if (errno == ECONNREFUSED || errno == EINVAL) {
-
-    } else {
-      return errno;
+  if (ret == -1) {
+    err = gErrno;
+    if (err == EINPROGRESS) {
+      return kOK;
     }
+
+    Error() << "connect to " << endpoint.String() << " failed: "
+      << StrError(gErrno);
+    return gErrno;
   }
 
-  return fd;
+  return kOK;
 }
 
 int
-Recv(int fd, BufferList *buffer, Status *status) {
+Recv(Socket *socket, BufferList *buffer, int *err) {
   ssize_t nbytes;
   int ret;
+  int fd = socket->Fd();
 
 	/*
 	 * recv data from tcp socket until:
@@ -173,26 +169,30 @@ Recv(int fd, BufferList *buffer, Status *status) {
 	 */
   nbytes = 0;
   ret = 0;
+  *err = kOK;
+
   while(true) {
     nbytes = ::read(fd, buffer->WritePoint(), buffer->WriteableSize());
     if (nbytes > 0) {
       buffer->WriteAdvance(nbytes);
       ret += static_cast<int>(nbytes);
     } else if (nbytes < 0) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      if (IsIOTryAgain(errno)) {
         // there is nothing in the tcp stack,return and wait for the next in event
-        *status = TryAgain("read", errno);
+        *err = gErrno;
         break;        
       } else if (errno == EINTR) {
         continue;
       } else {
         // something wrong has occoured
-        *status = SysError("read", errno);
+        *err = gErrno;
+        Error() << "recv from " << socket->String() 
+          << "failed: " << strerror(errno);
         return kError;
       }
     } else {
       // socket has been closed
-      *status = SysError("read", errno);
+      *err = gErrno;
       return kError;
     }
   };
@@ -201,7 +201,7 @@ Recv(int fd, BufferList *buffer, Status *status) {
 }
 
 int
-Send(int fd, BufferList *buffer, Status *status) {
+Send(int fd, BufferList *buffer, int *err) {
   ssize_t nbytes;
   int ret;
 
@@ -220,16 +220,16 @@ Send(int fd, BufferList *buffer, Status *status) {
     } else if (nbytes < 0) {
       if (errno == EINTR) {
         continue;
-      } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        *status = TryAgain("write", errno);
+      } else if (IsIOTryAgain(errno)) {
+        *err = gErrno;
         break;
       } else {
-        *status = SysError("write", errno);
+        *err = gErrno;
         return kError;
       }
     } else {
       // connection has been closed
-      *status = SysError("write", errno);
+      *err = gErrno;
       return kError;
     }
   }

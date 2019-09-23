@@ -29,7 +29,7 @@ public:
 
   virtual void Timeout();
 
-  const string String() {
+  inline const string& String() {
     return endpoint_.String();
   }
 

@@ -31,12 +31,14 @@ public:
 		: magic(0), guid(0), method_id(0), size(0), content(""){
 	}
 	
-	Packet(uint64_t id, const gpb::MethodDescriptor *method, const gpb::Message *req) 
+	Packet(uint64_t id, const gpb::MethodDescriptor *method, 
+				 const gpb::Message *req) 
 		: magic(kPacketMagicNum), guid(id), method_id(0) {
 			content = req->SerializeAsString();
 			if (method) {
 				method_id = HashString(method->full_name());
-			} 
+			}
+			size = content.size();
 	}
 };
 };  // namespace serverkit

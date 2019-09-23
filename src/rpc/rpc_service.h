@@ -28,6 +28,9 @@ public:
   virtual void OnError(int error);
 
 private:
+	void printMethod();
+	
+private:
 	typedef map<uint64_t, RpcMeta*> MethodMetaMap;
 	MethodMetaMap method_map_;
 };

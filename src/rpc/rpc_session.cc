@@ -11,6 +11,24 @@
 
 namespace serverkit {
 
+struct responseContext {
+  uint64_t channel_guid;
+  uint64_t guid;
+  const gpb::Message *request;
+  gpb::Message *response;
+
+  responseContext(uint64_t cguid, uint64_t g,
+    const gpb::Message *req, gpb::Message *resp)
+      : channel_guid(cguid), guid(g),
+        request(req), response(resp) { 
+  }
+
+  ~responseContext() {
+    delete request;
+    delete response;
+  }
+};
+
 RpcSession::RpcSession(int fd)
 	: Session(fd),
 		parser_(NULL),
@@ -26,7 +44,6 @@ RpcSession::~RpcSession() {
 void 
 RpcSession::OnWrite() {
 	Session::OnWrite();
-  
 }
 
 void 
@@ -91,7 +108,9 @@ RpcSession::RunService(const Packet& packet, uint64_t channel_guid) {
     &meta->GetMethodDescriptor(), 
     reinterpret_cast<gpb::RpcController*>(NULL),
     request, response,
-    NULL);
+    gpb::NewCallback(this, &RpcSession::onResponse,
+                     new responseContext(channel_guid, packet.guid,
+                     request, response)));
 }
 
 void 
@@ -120,6 +139,15 @@ RpcSession::CallMethod(
 
   request_context_[call_guid] = new RequestContext(rpc_controller, response, done);
   parser_->SendPacket(packet);
+}
+
+void 
+RpcSession::onResponse(responseContext* context) {
+  gpb::Message* response = context->response;
+  Packet *packet = new Packet(context->guid, NULL, response);
+  parser_->SendPacket(packet);
+
+  delete context;
 }
 
 };  // namespace serverkit

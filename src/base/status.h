@@ -44,9 +44,6 @@ class Status {
   // Returns true iff the status indicates an kSysError.
   bool IsSysError() const { return code() == kSysError; }
 
-  // Returns true iff the status indicates an kTryAgain.
-  bool IsTryAgain() const { return code() == kTryAgain; }
-
   // Return a string representation of this status suitable for printing.
   // Returns the string "OK" for success.
   std::string String() const;

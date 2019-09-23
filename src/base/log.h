@@ -138,13 +138,16 @@ class LogMessageVoidify {
 	void operator&(std::ostream&) { }
 };
 
-#define LOG_IF(condition) \
+#define FATAL_IF(condition) \
   !(condition) ? (void) 0 : LogMessageVoidify() \
   & serverkit::LogMessage(__FILE__, __LINE__, serverkit::FATAL, __func__).Stream()
 
+#define ERROR_IF(condition) \
+  !(condition) ? (void) 0 : LogMessageVoidify() \
+  & serverkit::LogMessage(__FILE__, __LINE__, serverkit::ERROR, __func__).Stream()
+
 #define Assert(condition) \
-	LOG_IF(unlikely(!(condition))) << "Assertion failed: " #condition << " "
-  
+	FATAL_IF(unlikely(!(condition))) << "Assertion failed: " #condition << " "
 }  // namespace serverkit
 
 #endif  // __SERVERKIT_BASE_LOG_H__

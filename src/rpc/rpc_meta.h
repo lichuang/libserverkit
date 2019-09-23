@@ -34,6 +34,10 @@ public:
   	return service_->GetResponsePrototype(methodDesp_);
 	}
 
+	const string GetMethodName() const {
+		return methodDesp_->full_name();
+	}
+
 private:
 	gpb::Service* service_;
 	const gpb::MethodDescriptor* methodDesp_;

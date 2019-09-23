@@ -44,8 +44,8 @@ Listener::In() {
     if (status.Ok()) {
       Session* session = handler_->OnAccept(fd);
       server_->AcceptNewSession(session);
-    } else if (status.IsTryAgain()) {
-      break;
+    //} else if (status.IsTryAgain()) {
+    //  break;
     } else {
       handler_->OnError(status.ErrorNum());
       //Errorf("accept connection error: %s", strerror(error));

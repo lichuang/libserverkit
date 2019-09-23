@@ -17,14 +17,21 @@ using namespace std;
 namespace serverkit {
 
 class BufferList;
+class Socket;
 
 int   Listen(const Endpoint&, int backlog, Status *status);
-void  Connect(const Endpoint&);
+int   ConnectAsync(const Endpoint&, int);
 
 int   Accept(int listen_fd, Status *status);
 
-int   Recv(int fd, BufferList *buffer, Status *status);
-int   Send(int fd, BufferList *buffer, Status *status);
+// recv data from socket, put it into buffer,
+// if some error occurred, save error in err param
+int   Recv(Socket *, BufferList *buffer, int *err);
+
+// send data to fd from buffer,
+// if some error occurred, save error in err param
+int   Send(int fd, BufferList *buffer, int *err);
+
 void  Close(int fd);
 void  GetEndpointByFd(int fd, Endpoint*);
 int   MakeFdPair(int *w, int *r);

@@ -71,8 +71,12 @@ public:
     return gUnconnectedEndpoint;
   }
 
-  const string& String() {
+  inline const string& String() {
     return endpoint_.String();
+  }
+  
+  int Fd() const { 
+    return fd_;
   }
 private:
   void CloseSocket();

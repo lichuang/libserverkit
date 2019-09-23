@@ -2,8 +2,10 @@
  * Copyright (C) codedump
  */
 
-#ifndef __SERVERKIT_BASE_ERRCODE_H__
-#define __SERVERKIT_BASE_ERRCODE_H__
+#ifndef __kBASE_ERRCODE_H__
+#define __kBASE_ERRCODE_H__
+
+#include <errno.h>
 
 namespace serverkit {
 
@@ -19,5 +21,10 @@ static const int kRpcExistedSameChannel = -5;
 static const int kOK    = 0;
 static const int kAgain = 1;
 
+#define IsIOTryAgain(err) (((err) == EAGAIN) || ((err) == EWOULDBLOCK))
+
+#define gErrno         errno
+#define StrError       strerror
+
 };  // namespace serverkit
-#endif  // __SERVERKIT_BASE_ERRCODE_H__
+#endif  // __kBASE_ERRCODE_H__

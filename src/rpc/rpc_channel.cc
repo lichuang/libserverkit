@@ -50,7 +50,8 @@ RpcChannel::OnWrite() {
 }
 
 void 
-RpcChannel::OnRead() { 
+RpcChannel::OnRead() {
+  Info() << "RpcChannel::OnRead";
   while (parser_->RecvPacket()) {
     const Packet& packet = parser_->GetPacket();
 

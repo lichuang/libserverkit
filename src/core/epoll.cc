@@ -76,6 +76,9 @@ Epoll::Add(fd_t fd, Event *event, int flags) {
 int
 Epoll::Del(handle_t handle) {
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
+  if (ee == NULL) {
+    return kOK;
+  }
   int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, ee->fd, &ee->ev);
   ee->fd = kInvalidFd;
   retired_list_.push_back(ee);
