@@ -6,17 +6,19 @@
 #define __QNODE_BASE_BUFFER_H__
 
 #include <string.h>
-#include <list>
 #include "base/macros.h"
 #include "base/object_pool.h"
 
 namespace serverkit {
 
 static const int kBufferSize = 4096;
+class BufferList;
 
 class Buffer {
+  friend class BufferList;
 public:
-  Buffer() {
+  Buffer()
+    : next_(NULL) {
     Reset();
   }
 
@@ -42,27 +44,28 @@ public:
   char* Current() { return cur_; }
 
   // return available size of the data
-  int Avail() const { return static_cast<int>(End() - cur_); }
+  int Available() const { return static_cast<int>(End() - cur_); }
 
-  // advance the current point
-  void Add(size_t len) { cur_ += len; }
+  // append string to the buffer
+  void AppendString(const string& str) {
+    AppendData(str.c_str(), str.length());
+  }
 
   // append the data to the buffer
-  void Append(const char* buf, size_t len) {
-    if (static_cast<size_t>(Avail()) > len) {
+  void AppendData(const char* buf, size_t len) {
+    if (static_cast<size_t>(Available()) > len) {
       memcpy(cur_, buf, len);
       cur_ += len;
     }
   }
-
-  // zero the buffer
-  void BZero() { memset(data_, '0', sizeof(data_)); }
 
   const char* End() const { return data_ + sizeof(data_); }
 
 private:
   char data_[kBufferSize];
   char *cur_;
+
+  Buffer *next_;
 
   DISALLOW_COPY_AND_ASSIGN(Buffer);
 };
@@ -71,28 +74,36 @@ class BufferList {
 public:
   BufferList()
     : read_inx_(0),
-      write_inx_(0) {
-    buffer_list_.push_back(GetObject<Buffer>());
+      write_inx_(0),
+      write_size_(0),
+      read_size_(0) {
+    head_ = GetObject<Buffer>();
+    read_ = write_ = head_;
   }
 
-  void Append(const char* buf, size_t len);
+  ~BufferList();
 
   // read at most n bytes into to, return bytes actual read
   size_t Read(char* to, size_t n);
 
+  // write string into buffer list
+  void WriteString(const string& str) {
+    Write(str.c_str(), str.length());
+  }
+
   // write n bytes into buffer list
-  void Write(const char* from, size_t n);
+  size_t Write(const char* from, size_t n);
 
   bool Empty() const {
-    return TotalSize() == 0;
+    return ReadableSize() == 0;
   }
 
   char* ReadPoint() {
-    return buffer_list_.front()->Data() + read_inx_;
+    return read_->Data() + read_inx_;
   }
 
   char* WritePoint() {
-    return buffer_list_.back()->Data() + write_inx_;
+    return write_->Data() + write_inx_;
   }
 
   size_t ReadableSize() const;
@@ -102,22 +113,34 @@ public:
 
   void WriteAdvance(size_t n);
 
-  Buffer* CurrentWrite() {
-    return buffer_list_.back();
-  }
-
   // return total size of the buffer list
   inline size_t TotalSize() const {
-    return (buffer_list_.size() - 1) * kBufferSize
-      + write_inx_ - read_inx_;
+    return write_size_;
   }
+
+  // return write size of the buffer list
+  inline size_t WriteSize() const {
+    return write_size_;
+  }
+
+  // return read size of the buffer list
+  inline size_t ReadSize() const {
+    return read_size_;
+  }
+
+private:
+  size_t currentBufferReadSize();
 
 private:
   // write and read index in current Buffer
   size_t read_inx_;
   size_t write_inx_;
 
-  std::list<Buffer*> buffer_list_;
+  Buffer *head_;
+  Buffer *read_;
+  Buffer *write_;
+
+  size_t write_size_, read_size_;
 
   DISALLOW_COPY_AND_ASSIGN(BufferList);
 };
