@@ -28,15 +28,14 @@ public:
 
   virtual ~Epoll();
 
-  virtual int    Init(int size);
-  virtual handle_t Add(fd_t fd, Event *event, int);
-  virtual int    Del(handle_t);
-  virtual int    ResetIn(handle_t); 
-  virtual int    SetIn(handle_t); 
-  virtual int    ResetOut(handle_t); 
-  virtual int    SetOut(handle_t); 
-  virtual int    Poll(int timeout);
+  virtual int       Init(int size);
+  virtual handle_t  Add(fd_t fd, Event *event);
+  virtual int       Del(handle_t handle); 
+  virtual void      MarkWriteable(handle_t handle);
 
+protected:
+  virtual int    Poll(int timeout);
+  
 private:  
   void   processRetired();
 
@@ -48,6 +47,7 @@ private:
   typedef list<EpollEntry*> EntryList;
   typedef list<EpollEntry*>::iterator EntryListIter;
   EntryList retired_list_;
+  EntryList writeable_list_;
 };
 
 };  // namespace serverkit

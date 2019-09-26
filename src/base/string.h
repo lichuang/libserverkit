@@ -14,6 +14,7 @@ namespace serverkit {
 
 extern string Stringf(const char *fmt, ...);
 extern uint64_t HashString(const string& str);
+extern string StringToHex(const string& str);
 
 };  // namespace serverkit
 

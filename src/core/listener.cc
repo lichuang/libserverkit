@@ -28,7 +28,7 @@ Listener::Listener(const Endpoint& endpoint, Server* server,
   Status status;      
   fd_ = Listen(endpoint, kBacklog, &status);
   Assert(fd_ > 0) << "status:" << status.String();
-  handle_ = poller_->Add(fd_, this, kEventRead);
+  handle_ = poller_->Add(fd_, this);
 }
 
 Listener::~Listener() {

@@ -34,7 +34,7 @@ public:
 	Packet(uint64_t id, const gpb::MethodDescriptor *method, 
 				 const gpb::Message *req) 
 		: magic(kPacketMagicNum), guid(id), method_id(0) {
-			content = req->SerializeAsString();
+			req->SerializeToString(&content);
 			if (method) {
 				method_id = HashString(method->full_name());
 			}

@@ -28,9 +28,9 @@ int   Accept(int listen_fd, Status *status);
 // if some error occurred, save error in err param
 int   Recv(Socket *, BufferList *buffer, int *err);
 
-// send data to fd from buffer,
+// send data to socket from buffer,
 // if some error occurred, save error in err param
-int   Send(int fd, BufferList *buffer, int *err);
+int   Send(Socket *, BufferList *buffer, int *err);
 
 void  Close(int fd);
 void  GetEndpointByFd(int fd, Endpoint*);

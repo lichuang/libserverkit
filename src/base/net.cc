@@ -169,7 +169,7 @@ Recv(Socket *socket, BufferList *buffer, int *err) {
 	 */
   nbytes = 0;
   ret = 0;
-  *err = kOK;
+  *err = 0;
 
   while(true) {
     nbytes = ::read(fd, buffer->WritePoint(), buffer->WriteableSize());
@@ -187,11 +187,13 @@ Recv(Socket *socket, BufferList *buffer, int *err) {
         // something wrong has occoured
         *err = gErrno;
         Error() << "recv from " << socket->String() 
-          << "failed: " << strerror(errno);
+          << " failed: " << strerror(gErrno);
         return kError;
       }
     } else {
       // socket has been closed
+      Error() << "socket from " << socket->String() 
+        << " has been closed: " << strerror(gErrno);      
       *err = gErrno;
       return kError;
     }
@@ -201,14 +203,16 @@ Recv(Socket *socket, BufferList *buffer, int *err) {
 }
 
 int
-Send(int fd, BufferList *buffer, int *err) {
+Send(Socket *socket, BufferList *buffer, int *err) {
   ssize_t nbytes;
   int ret;
+  int fd = socket->Fd();
 
   nbytes = 0;
   ret = 0;
+  *err = 0;
   while (true) {
-    if (buffer->Empty())  {
+    if (buffer->ReadableSize() == 0)  {
       // there is nothing in user-space stack to send
       break;
     }
@@ -225,11 +229,15 @@ Send(int fd, BufferList *buffer, int *err) {
         break;
       } else {
         *err = gErrno;
+        Error() << "send to " << socket->String() 
+          << " failed: " << strerror(gErrno);        
         return kError;
       }
     } else {
       // connection has been closed
       *err = gErrno;
+      Error() << "socket from " << socket->String() 
+        << " has been closed: " << strerror(gErrno);       
       return kError;
     }
   }

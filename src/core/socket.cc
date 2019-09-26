@@ -2,6 +2,8 @@
  * Copyright (C) codedump
  */
 
+#include <error.h>
+#include <string.h>
 #include "base/net.h"
 #include "base/status.h"
 #include "core/data_handler.h"
@@ -43,7 +45,7 @@ Socket::Connect(const Endpoint& endpoint) {
   int err = serverkit::ConnectAsync(endpoint, fd_);
   
   if (err == kOK) {
-    poller_->Add(fd_, this, kEventWrite | kEventRead);
+    poller_->Add(fd_, this);
   } else {
     handler_->OnConnect(err);
     status_ = SOCKET_CLOSED;
@@ -53,7 +55,7 @@ Socket::Connect(const Endpoint& endpoint) {
 void
 Socket::SetPoller(Poller *poller) {
   poller_ = poller;
-  handle_ = poller->Add(fd_, this, kEventRead);
+  handle_ = poller->Add(fd_, this);
 }
 
 void
@@ -71,15 +73,17 @@ Socket::In() {
   int err;
 
   while (true) {
-    int n = Recv(this, &read_list_, &err);
+    Recv(this, &read_list_, &err);
+    Info() << "read_list size:" << read_list_.TotalSize()
+      << ", readable size:" << read_list_.ReadableSize();
     if (err != kOK && !IsIOTryAgain(err)) {
       if (handler_) {
         handler_->OnError(err);
       }
+      Error() << String() <<" recv error: " << strerror(err);
       CloseSocket();
       return;
     } else {
-      read_list_.WriteAdvance(n);
       if (IsIOTryAgain(err)) {
         break;
       }
@@ -95,13 +99,12 @@ void
 Socket::Out() {
   Info() << "socket " << endpoint_.String() << " out";
   serverkit::Status status;
-  int err;
+  int err, n;
 
   if (status_ == SOCKET_CONNECTING) {
     status_ = SOCKET_CONNECTED;
     handler_->OnConnect(kOK);
-    Info() << "connected to " << endpoint_.String();
-    return;
+    Info() << "connected to " << endpoint_.String() << " success";
   }
 
   if (status_ != SOCKET_CONNECTED) {
@@ -111,28 +114,25 @@ Socket::Out() {
 
   while (true) {
     if (write_list_.Empty()) {
-      is_writable_ = true;
-      poller_->ResetOut(handle_);
+      is_writable_ = false;
       break;
     }
 
-    int n = Send(fd_, &write_list_, &err);
-    if (n < 0) {
-      CloseSocket();
+    n = Send(this, &write_list_, &err);
+    if (err != kOK && !IsIOTryAgain(err)) {
       if (handler_) {
         handler_->OnError(err);
       }
+      CloseSocket();
       return;
     } else {
-      write_list_.ReadAdvance(n);
       if (IsIOTryAgain(err)) {
-        is_writable_ = false;
         break;
       }
     }
   }
 
-  if (handler_) {
+  if (n > 0 && handler_) {
     handler_->OnWrite();
   }
 }
@@ -144,32 +144,15 @@ Socket::Timeout() {
 void
 Socket::Write(const char* from, size_t n) {
   write_list_.Write(from, n);
-  poller_->SetOut(handle_);
+  if (!is_writable_) {
+    is_writable_ = true;
+    poller_->MarkWriteable(handle_);
+  }
 }
 
 size_t
 Socket::Read(char* to, size_t n) {
   return read_list_.Read(to, n);
-}
-
-int
-Socket::ResetIn() {
-  return poller_->ResetIn(handle_);
-}
-
-int
-Socket::SetIn() {
-  return poller_->SetIn(handle_);
-}
-
-int
-Socket::ResetOut() {
-  return poller_->ResetOut(handle_);
-}
-
-int
-Socket::SetOut() {
-  return poller_->SetOut(handle_);
 }
 
 };  // namespace serverkit

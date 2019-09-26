@@ -40,4 +40,14 @@ uint64_t
 HashString(const string& str) {
   return HashBytes(str.c_str(), static_cast<int>(str.size()));
 }
+
+string 
+StringToHex(const string& str) {
+  string hex = "0x";
+  for (size_t i = 0; i < str.size(); ++i) {
+    hex += Stringf("%x", static_cast<uint8_t>(str[i]));
+  }
+  return hex;
+}
+
 };  // namespace serverkit

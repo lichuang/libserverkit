@@ -1,4 +1,5 @@
 #include "serverkit.h"
+#include "base/string.h"
 #include "echo.pb.h"
 
 using namespace serverkit;
@@ -11,8 +12,16 @@ public:
                       const EchoRequest* request,
                       EchoResponse* response,
                       google::protobuf::Closure* done) {
-        Info() << "in EchoService::Echo";
+        
         response->set_echo_msg("world");
+        string content;
+        response->SerializeToString(&content);
+
+        EchoResponse msg;
+        msg.ParseFromString(content);
+        string str = StringToHex(content);
+        Info() << "in EchoService::Echo:" << str;
+
         done->Run();
     }
 };

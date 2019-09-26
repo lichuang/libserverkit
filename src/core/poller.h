@@ -35,13 +35,10 @@ public:
 
   virtual ~Poller();
 
-  virtual int    Init(int size) = 0;
-  virtual handle_t Add(fd_t fd, Event *event, int) = 0;
-  virtual int    Del(handle_t) = 0;
-  virtual int    ResetIn(handle_t) = 0; 
-  virtual int    SetIn(handle_t) = 0; 
-  virtual int    ResetOut(handle_t) = 0; 
-  virtual int    SetOut(handle_t) = 0; 
+  virtual int       Init(int size) = 0;
+  virtual handle_t  Add(fd_t fd, Event *event) = 0;
+  virtual int       Del(handle_t handle) = 0;
+  virtual void      MarkWriteable(handle_t handle) = 0;
 
   timer_id_t AddTimer(int timeout, Event *, TimerType);
   void CancelTimer(timer_id_t);

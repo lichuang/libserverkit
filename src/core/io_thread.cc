@@ -25,7 +25,7 @@ IOThread::IOThread(const string &name)
 
   // add mailbox signal fd into poller
   fd_t fd = mailbox_.Fd();
-  handle_ = poller_->Add(fd, this, kEventRead);
+  handle_ = poller_->Add(fd, this);
 }
 
 IOThread::~IOThread() {

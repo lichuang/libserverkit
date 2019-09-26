@@ -53,7 +53,7 @@ PacketParser::RecvPacket() {
 			case RECV_PACKET_STATE:
 				read_size = packet_.size;
 				Debug() << "packet content size: " << read_size
-					<< "current socket read buffer size: " << socket_->ReadBufferSize();
+					<< ", current socket read buffer size: " << socket_->ReadBufferSize();
 				if (read_size > socket_->ReadBufferSize()) {
 					return false;
 				}
@@ -87,5 +87,7 @@ PacketParser::SendPacket(Packet* packet) {
 			<< ", size: " << packet->size
       << ", content: " << packet->content
 			<< ", write buffer size: " << socket_->WriteBufferSize();	
+
+	delete packet;
 }
 };  // namespace serverkit

@@ -1,5 +1,6 @@
 set(libserverkit_test_files
   tests/buffer_test.cc
+  tests/echo_service_test.cc
   tests/main.cc
 )
 

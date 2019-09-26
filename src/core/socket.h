@@ -39,11 +39,11 @@ public:
   void SetPoller(Poller *);
 
   size_t ReadBufferSize() const {
-    return read_list_.TotalSize();
+    return read_list_.ReadableSize();
   }
 
   size_t WriteBufferSize() const {
-    return write_list_.TotalSize();
+    return write_list_.ReadableSize();
   }
 
   void Write(const char* from, size_t n);
@@ -54,11 +54,6 @@ public:
   virtual void Out();
 
   virtual void Timeout();
-
-  int    ResetIn(); 
-  int    SetIn(); 
-  int    ResetOut(); 
-  int    SetOut(); 
 
   const SocketStatus& Status() const {
     return status_;

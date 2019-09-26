@@ -15,7 +15,7 @@ void create_channel_done(RpcChannel* channel) {
 	RpcController controller;
 	WaitGroup wait;
 
-	request.set_msg("hello");
+	request.set_msg("hello world");
 	
 	EchoService_Stub stub(channel);
 
@@ -26,13 +26,13 @@ void create_channel_done(RpcChannel* channel) {
 
 	Info() << "client waiting";
 
-	wait.Wait();
+	//wait.Wait();
 
   if (controller.Failed()) {
     Error() << "rpc fail: " << controller.ErrorText();
   }
 
-	delete channel;
+	//delete channel;
 }
 
 int main(int argc, char *args[]) {

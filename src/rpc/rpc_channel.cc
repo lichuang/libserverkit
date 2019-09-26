@@ -73,15 +73,20 @@ RpcChannel::OnRead() {
     }
 
     RequestContext* context = request_context_[packet.guid];
-
-    bool ret = context->response->ParseFromString(packet.content);
-    if (!ret) {
-      Error() << "parse response fail: "
-          << packet.content
-          << " from " << socket_->String();
+    if (!context) {
+      return;
     }
+    bool ret = context->response->ParseFromString(packet.content);
+
     request_context_.erase(packet.guid);
-    context->Run();
+    if (!ret) {
+      Error() << "parse response "
+          << StringToHex(packet.content)
+          << " from " << socket_->String() << " failed";
+    } else {
+      context->Run();
+    }
+    delete context;  
   }
 }
   

@@ -40,24 +40,18 @@ Epoll::Init(int size) {
 }
 
 handle_t
-Epoll::Add(fd_t fd, Event *event, int flags) {
+Epoll::Add(fd_t fd, Event *event) {
   int ev = 0;
 
   EpollEntry *ee = new(std::nothrow)EpollEntry;
   memset(ee, 0, sizeof(EpollEntry));
 
-  if (flags & kEventRead) {
-    ev |= EPOLLIN;
-  }
-  if (flags & kEventWrite) {
-    ev |= EPOLLOUT;
-  }
+  ev |= EPOLLOUT | EPOLLIN | EPOLLET;
 
   ee->fd = fd;
   ee->event = event;
   ee->ev.data.ptr = ee;
   ee->ev.events = ev;
-  ee->flags = flags;
   int ret = epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ee->ev);
   if (ret != 0) {
     delete ee;
@@ -86,48 +80,13 @@ Epoll::Del(handle_t handle) {
   return rc;
 }
 
-int
-Epoll::ResetIn(handle_t handle) {
+void      
+Epoll::MarkWriteable(handle_t handle) { 
   EpollEntry *ee = static_cast<EpollEntry *>(handle);
-  if (!(ee->flags | kEventRead)) {
-    return kOK;
+  if (ee == NULL) {
+    return;
   }
-  ee->ev.events &= ~EPOLLIN;
-  ee->flags &= ~kEventRead;
-  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-}
-
-int
-Epoll::SetIn(handle_t handle) {
-  EpollEntry *ee = static_cast<EpollEntry *>(handle);
-  if (ee->flags | kEventRead) {
-    return kOK;
-  }
-  ee->ev.events |= EPOLLIN;
-  ee->flags |= kEventRead;
-  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-}
-
-int
-Epoll::ResetOut(handle_t handle) {
-  EpollEntry *ee = static_cast<EpollEntry *>(handle);
-  if (!(ee->flags | kEventWrite)) {
-    return kOK;
-  }
-  ee->ev.events &= ~EPOLLOUT;
-  ee->flags &= ~kEventWrite;
-  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
-}
-
-int
-Epoll::SetOut(handle_t handle) {
-  EpollEntry *ee = static_cast<EpollEntry *>(handle);
-  if (ee->flags | kEventWrite) {
-    return kOK;
-  }
-  ee->ev.events |= EPOLLOUT;
-  ee->flags |= kEventWrite;
-  return epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, ee->fd, &ee->ev);
+  writeable_list_.push_back(ee);
 }
 
 int
@@ -137,6 +96,13 @@ Epoll::Poll(int timeout) {
   EpollEntry *ee;
   Event* event;
 
+  EntryListIter iter = writeable_list_.begin();
+  for (; iter != writeable_list_.end(); ++iter) {
+    ee = *iter;
+    ee->event->Out();
+  }
+  writeable_list_.clear();
+  
   num = epoll_wait(epoll_fd_, ep_events_.data(), size_, timeout);
 
   if (num <= 0) {
