@@ -11,7 +11,7 @@ void echo_done(EchoResponse* resp, WaitGroup* wait) {
 
 void create_channel_done(RpcChannel* channel) {
 	EchoRequest request;
-	EchoResponse response;
+	EchoResponse* response = new EchoResponse();
 	RpcController controller;
 	WaitGroup wait;
 
@@ -21,8 +21,8 @@ void create_channel_done(RpcChannel* channel) {
 
 	wait.Add(1);
 
-	stub.Echo(&controller, &request, &response, 
-		gpb::NewCallback(::echo_done, &response, &wait));
+	stub.Echo(&controller, &request, response, 
+		gpb::NewCallback(::echo_done, response, &wait));
 
 	Info() << "client waiting";
 
