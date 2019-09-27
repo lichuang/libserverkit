@@ -2,18 +2,28 @@
 
 pwd=`pwd`
 third_party=${pwd}/third_party
-pb=protobuf-3.9.0
+protobuf=protobuf-3.9.0
 gtest=googletest-release-1.8.0
-
-echo "$pwd"
-echo "${third_party}"
+gflags=gflags-2.2.2
 
 mkdir ${third_party}/include -p
 mkdir ${third_party}/lib -p
 
 cd $pwd/deps
+echo "compile ${gflags}..."
+rm -fr ${gflags}
+tar xvf ${gflags}.tar.gz
+cd ${gflags}
+cmake .
+make -j8
+cp -r include/gflags ${third_party}/include/
+cp -r lib/* ${third_party}/lib/
+cd ../
+rm -fr ${gflags}
+echo "compile ${gflags} done"
 
-echo "compile gtest..."
+cd $pwd/deps
+echo "compile ${gtest}..."
 rm -fr ${gtest}
 tar xvf ${gtest}.tar.gz
 cd ${gtest}
@@ -25,17 +35,19 @@ cp -r googlemock/include/gmock ${third_party}/include/
 cp -r googletest/include/gtest ${third_party}/include/
 cd ../
 rm -fr ${gtest}
-echo "compile gtest done"
+echo "compile ${gtest} done"
 
 cd $pwd/deps
-echo "compile protobuf..."
-rm -fr ${pb}
-tar xvf ${pb}.tar.gz
-cd ${pb}
+echo "compile ${protobuf}..."
+rm -fr ${protobuf}
+tar xvf ${protobuf}.tar.gz
+cd ${protobuf}
 ./autogen.sh
 ./configure --prefix=${third_party}
 make -j6
 make install
 cd ..
-rm -fr ${pb}
-echo "compile protobuf done"
+rm -fr ${protobuf}
+echo "compile ${protobuf} done"
+
+cd ${pwd}
