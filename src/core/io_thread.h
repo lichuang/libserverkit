@@ -17,7 +17,7 @@ using namespace std;
 namespace serverkit {
 
 class IOThread 
-  : public Thread,
+  : public Runnable,
     public Event,
     public MessageHandler {
 public:
@@ -32,13 +32,17 @@ public:
 
   virtual void Process(Message*);
 
+  virtual void Run();
+
   Poller* GetPoller() {
     return poller_;
   }
 
   void Send(Message *msg);
+
+  void Start();
+  
 protected:
-  virtual void Run();
 
   void processAcceptMessage(Message*);
   void processRpcChannelMessage(Message*);
@@ -46,6 +50,7 @@ protected:
 protected:
   Poller *poller_;
   Mailbox mailbox_;
+  Thread *thread_;
 
   DISALLOW_COPY_AND_ASSIGN(IOThread);
 };

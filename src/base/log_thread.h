@@ -24,7 +24,7 @@ typedef std::list<LogMessageData*> LogList;
 typedef LogList::iterator LogListIter;
 
 // the log thread MUST be singleton
-class LogThread : public Thread, 
+class LogThread : public Runnable, 
                   public Event {
   friend class Singleton<LogThread>;
 public:
@@ -50,6 +50,7 @@ public:
     return const_cast<char*>(&(now_str_[0]));
   }
 
+  virtual void Run();
 private:
   LogThread();
   void updateTime();
@@ -57,9 +58,6 @@ private:
   void output(LogMessageData*);
   void flush();
   void doInit();
-
-protected:
-  virtual void Run();
 
 private:
   // one for write, another for read

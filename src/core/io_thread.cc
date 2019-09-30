@@ -16,8 +16,7 @@
 namespace serverkit {
 
 IOThread::IOThread(const string &name)
-  : Thread(name, NULL),
-    poller_(new Epoll()) {
+  : poller_(new Epoll()) {
   int rc = poller_->Init(1024);
   if (rc != kOK) {
     return;
@@ -26,6 +25,8 @@ IOThread::IOThread(const string &name)
   // add mailbox signal fd into poller
   fd_t fd = mailbox_.Fd();
   handle_ = poller_->Add(fd, this);
+
+  thread_ = new Thread(name, this);
 }
 
 IOThread::~IOThread() {
@@ -96,9 +97,14 @@ IOThread::Send(Message *msg) {
   mailbox_.Send(msg);
 }
 
+void 
+IOThread::Start() {
+  thread_->Start();
+}
+
 void
 IOThread::Run() {
-  while (Running()) {
+  while (thread_->Running()) {
     poller_->Dispatch();
   }
 }

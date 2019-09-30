@@ -25,9 +25,9 @@ Listener::Listener(const Endpoint& endpoint, Server* server,
     server_(server),
     poller_(server->GetPoller()),
     handler_(h) {
-  Status status;      
-  fd_ = Listen(endpoint, kBacklog, &status);
-  Assert(fd_ > 0) << "status:" << status.String();
+  int ret;
+  fd_ = Listen(endpoint, kBacklog, &ret);
+  Assert(ret == kOK);
   handle_ = poller_->Add(fd_, this);
 }
 
@@ -37,17 +37,17 @@ Listener::~Listener() {
 
 void
 Listener::In() {
-  Status status;
+  int err;
 
   while (true) {
-    int fd = Accept(fd_, &status);
-    if (status.Ok()) {
+    int fd = Accept(fd_, &err);
+    if (err == kOK) {
       Session* session = handler_->OnAccept(fd);
       server_->AcceptNewSession(session);
     //} else if (status.IsTryAgain()) {
     //  break;
     } else {
-      handler_->OnError(status.ErrorNum());
+      handler_->OnError(err);
       //Errorf("accept connection error: %s", strerror(error));
     }
   }

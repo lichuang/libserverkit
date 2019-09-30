@@ -16,8 +16,8 @@ TEST(BufferTest, BufferTest) {
 
   string str = "hello";
   buf.AppendString(str);
-  EXPECT_EQ(buf.Length(), str.length());
-  EXPECT_EQ(buf.Available(), kBufferSize - str.length());
+  EXPECT_EQ(buf.Length(), static_cast<int>(str.length()));
+  EXPECT_EQ(buf.Available(), static_cast<int>(kBufferSize - str.length()));
 
   buf.Reset();
   EXPECT_EQ(buf.Length(), 0);
@@ -27,8 +27,8 @@ TEST(BufferTest, BufferTest) {
 TEST(BufferListTest, testBufferList) {
   BufferList buf;
 
-  EXPECT_EQ(buf.ReadableSize(), 0);
-  EXPECT_EQ(buf.WriteableSize(), kBufferSize);
+  EXPECT_EQ(static_cast<int>(buf.ReadableSize()), 0);
+  EXPECT_EQ(static_cast<int>(buf.WriteableSize()), kBufferSize);
   EXPECT_TRUE(buf.Empty());
 
   string str = "hello";
@@ -56,11 +56,16 @@ TEST(BufferListTest, testLargeBuffer) {
   }
 
   EXPECT_EQ(buf.WriteSize(), n);
-  EXPECT_EQ(buf.ReadSize(), 0);
+  EXPECT_EQ(static_cast<int>(buf.ReadSize()), 0);
   EXPECT_EQ(buf.ReadableSize(), n);
 
   size_t read = buf.Read(data, sizeof(data));
   EXPECT_EQ(read, n);
   data[read] = '\0';
   EXPECT_EQ(tmp, data);
+}
+
+int main(int argc, char* argv[]) {
+    testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

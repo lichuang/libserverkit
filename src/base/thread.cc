@@ -31,11 +31,11 @@ struct threadStartEntry {
   Thread *thread;
 };
 
-Thread::Thread(const string& name, void *arg)
+Thread::Thread(const string& name, Runnable* runnable)
   : tid_(0),
     name_(name),
-    arg_(arg),
-    state_(kThreadNone) {
+    state_(kThreadNone),
+    runnable_(runnable) {
 }
 
 Thread::~Thread() {
@@ -81,7 +81,7 @@ Thread::main(void* arg) {
   cond->Notify();
 
   thread->state_ = kThreadRunning;
-  thread->Run();
+  thread->runnable_->Run();
 
   return NULL;
 }

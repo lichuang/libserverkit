@@ -21,53 +21,57 @@
 
 namespace serverkit {
 
-static int createListenSocket(Status *status);
-static Status setNonBlocking(int fd);
+static int createListenSocket(int*);
+static int setNonBlocking(int fd);
 
 static int
-createListenSocket(Status *status) {
+createListenSocket(int* err) {
   int fd, on;
 
   on = 1;
   if ((fd = socket(PF_INET, SOCK_STREAM, 0)) == -1) {
-    *status = SysError("create socket", errno);
+    Error() << "create socket fail:" << strerror(errno);
+    *err = errno;
     return -1;
   }
 
   if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) == -1) {
-    *status = SysError("setsockopt", errno);
+    Error() << "setsockopt fail:" << strerror(errno);
+    *err = errno;
     return -1;
   }
 
   return fd;
 }
 
-static Status
+int
 setNonBlocking(int fd) {
   int flags;
 
   if ((flags = fcntl(fd, F_GETFL)) == -1) {
-    return SysError("fcntl F_GETFL", errno);
+    return errno;
   }
   if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-    return SysError("fcntl F_SETFL", errno);
+    return errno;
   }
 
-  return Status();
+  return kOK;
 }
 
 int
-Listen(const Endpoint& endpoint, int backlog, Status *status) {
+Listen(const Endpoint& endpoint, int backlog, int *err) {
   int                 fd;
   struct sockaddr_in  sa;
+  int                 ret;
 
-  fd = createListenSocket(status);
-  if (fd < 0) {
+  *err = kOK;
+  fd = createListenSocket(err);
+  if (*err != kOK) {
     return kError;
   }
 
-  *status = setNonBlocking(fd);
-  if (!status->Ok()) {
+  ret = setNonBlocking(fd);
+  if (ret != kOK) {
     goto error;
   }
 
@@ -76,17 +80,20 @@ Listen(const Endpoint& endpoint, int backlog, Status *status) {
   sa.sin_port = htons(static_cast<uint16_t>(endpoint.Port()));
 
   if (inet_aton(endpoint.Address().c_str(), &sa.sin_addr) == 0) {
-    *status = SysError("inet_aton", errno);
+    *err = errno;
+    Error() << "inet_aton fail:" << strerror(errno);
     goto error;
   }
 
   if (bind(fd, reinterpret_cast<struct sockaddr*>(&sa), sizeof(sa)) < 0) {
-    *status = SysError("bind", errno);
+    *err = errno;
+    Error() << "bind fail:" << strerror(errno);
     goto error;
   }
 
   if (listen(fd, backlog) == -1) {
-    *status = SysError("listen", errno);
+    *err = errno;
+    Error() << "listen to " <<  endpoint.String() << " fail:" << strerror(errno);
     goto error;
   }
 
@@ -98,27 +105,28 @@ error:
 }
 
 int
-Accept(int listen_fd, Status *status) {
+Accept(int listen_fd, int* err) {
   struct sockaddr_in addr;
   socklen_t addrlen = sizeof(addr);
-  int fd;
+  int fd, ret;
 
+  *err = kOK;
   while (true) {
     fd = ::accept(listen_fd, reinterpret_cast<struct sockaddr *>(&addr), &addrlen);
     if (fd == -1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        *status = TryAgain("accept", errno);
+        *err = errno;
         return kOK;
       }
       if (errno == EINTR) {
         continue;
       }
-      *status = SysError("accept", errno);
+      *err = errno;
       return kError;
     }
     
-    *status = setNonBlocking(fd);
-    if (!status->Ok()) {
+    ret = setNonBlocking(fd);
+    if (ret != kOK) {
       return kError;
     }
     break;

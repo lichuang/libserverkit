@@ -31,7 +31,7 @@ public:
 
   // return current buffer data length
   int Length() const { 
-    return static_cast<int>(cur_ - data_);
+    return cur_ - data_;
   }
 
   // clear the data, set current point to start
@@ -44,7 +44,7 @@ public:
   char* Current() { return cur_; }
 
   // return available size of the data
-  int Available() const { return static_cast<int>(End() - cur_); }
+  int Available() const { return End() - cur_; }
 
   // append string to the buffer
   void AppendString(const string& str) {

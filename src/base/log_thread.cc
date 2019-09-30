@@ -31,8 +31,7 @@ GetHostName(string* hostname) {
 }
 
 LogThread::LogThread()
-	: Thread("logger", NULL),
-		write_index_(0),
+	: write_index_(0),
 		mutex_(new Mutex()),
 		poller_(new Epoll()),
 		last_flush_time_(0),
@@ -49,6 +48,9 @@ LogThread::LogThread()
 
 	updateTime();
 	poller_->AddTimer(kUpdateTimeInterval, this, kTimerPermanent);
+
+	thread_ = new Thread("logger", this);
+	thread_->Start();
 }
 
 LogThread::~LogThread() {
@@ -64,7 +66,7 @@ LogThread::~LogThread() {
 void
 LogThread::doInit() {
 	// start thread
-	Start();
+	//Start();
 }
 
 void 
@@ -161,7 +163,7 @@ LogThread::flush() {
 
 void
 LogThread::Run() {
-  while (Running()) {
+  while (thread_->Running()) {
     poller_->Dispatch();
   }
 }

@@ -7,6 +7,7 @@ using namespace serverkit;
 void echo_done(EchoResponse* resp, WaitGroup* wait) {
 	Info() << "response: " << resp->echo_msg();
 	wait->Done();
+	delete resp;
 }
 
 void create_channel_done(RpcChannel* channel) {

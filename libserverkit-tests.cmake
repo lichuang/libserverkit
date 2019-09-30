@@ -1,11 +1,11 @@
-set(libserverkit_test_files
+
+add_executable ( buffer_test
   tests/buffer_test.cc
-  tests/echo_service_test.cc
-  tests/main.cc
 )
 
-add_executable ( serverkit_test
-  ${libserverkit_test_files}
+add_executable ( thread_test
+  tests/thread_test.cc
 )
 
-target_link_libraries (serverkit_test PRIVATE protobuf serverkit protobuf gtest pthread)
+target_link_libraries (buffer_test PRIVATE protobuf serverkit protobuf gtest pthread)
+target_link_libraries (thread_test PRIVATE protobuf serverkit protobuf gtest pthread)
