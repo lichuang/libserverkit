@@ -2,8 +2,8 @@
  * Copyright (C) codedump
  */
 
-#ifndef __SERVERKIT_CORE_SERVER_H__
-#define __SERVERKIT_CORE_SERVER_H__
+#ifndef __SERVERKIT_CORE_APPLICATION_H__
+#define __SERVERKIT_CORE_APPLICATION_H__
 
 #include <map>
 #include <string>
@@ -27,11 +27,11 @@ class SessionFactory;
 class RpcChannel;
 class RpcService;
 
-class Server {
-  friend class Singleton<Server>;
+class Application {
+  friend class Singleton<Application>;
 
 public:
-  ~Server();
+  ~Application();
 
   void AddService(const Endpoint&, AcceptorHandler*);
 
@@ -48,7 +48,7 @@ public:
   }
   
 private:
-  Server();
+  Application();
   void doInit() {
     // nothing to do
   }
@@ -61,10 +61,10 @@ private:
   Poller *poller_;
   map<string, Listener*> listeners_;
 
-  DISALLOW_COPY_AND_ASSIGN(Server);
+  DISALLOW_COPY_AND_ASSIGN(Application);
 };
 
-#define gServer Singleton<Server>::Instance()
+#define gApplication Singleton<Application>::Instance()
 
 };  // namespace serverkit
-#endif  // __SERVERKIT_CORE_SERVER_H__
+#endif  // __SERVERKIT_CORE_APPLICATION_H__

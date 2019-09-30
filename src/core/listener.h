@@ -15,11 +15,11 @@ namespace serverkit {
 
 class AcceptorHandler;
 class Poller;
-class Server;
+class Application;
 
 class Listener : public Event {
 public:
-  Listener(const Endpoint& endpoint, Server *server,
+  Listener(const Endpoint& endpoint, Application *server,
            AcceptorHandler*);
   ~Listener();
 
@@ -40,7 +40,7 @@ public:
 private:
   Endpoint endpoint_;
   int fd_;
-  Server *server_;
+  Application *application_;
   Poller *poller_;
   AcceptorHandler *handler_;
 };

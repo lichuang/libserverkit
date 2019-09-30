@@ -12,7 +12,7 @@
 #include "base/log.h"
 #include "base/log_thread.h"
 #include "base/status.h"
-#include "core/server.h"
+#include "core/application.h"
 #include "rpc/rpc_channel.h"
 #include "rpc/rpc_controller.h"
 

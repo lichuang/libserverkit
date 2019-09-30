@@ -8,7 +8,7 @@
 #include "core/accept_message.h"
 #include "core/epoll.h"
 #include "core/io_thread.h"
-#include "core/server.h"
+#include "core/application.h"
 #include "core/session.h"
 #include "core/socket.h"
 #include "rpc/rpc_channel.h"

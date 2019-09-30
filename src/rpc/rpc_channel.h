@@ -12,7 +12,7 @@
 #include "base/endpoint.h"
 #include "core/data_handler.h"
 #include "core/message.h"
-#include "core/server.h"
+#include "core/application.h"
 
 using namespace std;
 namespace gpb = ::google::protobuf;

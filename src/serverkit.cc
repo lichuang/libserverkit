@@ -10,7 +10,7 @@ namespace serverkit {
 Status 
 ServerkitInit(int argc, char *args[], const ServerkitOption& options) {
 	gLogThread->Init(argc, args, options);
-	gServer->Init(options);
+	gApplication->Init(options);
 
 	TZSet();
 	
@@ -19,22 +19,22 @@ ServerkitInit(int argc, char *args[], const ServerkitOption& options) {
 
 void 
 AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
-  gServer->AddService(endpoint, handler);
+  gApplication->AddService(endpoint, handler);
 }
 
 void 
 AddRpcService(const Endpoint& endpoint, gpb::Service* service) {
-  gServer->AddRpcService(endpoint, service);
+  gApplication->AddRpcService(endpoint, service);
 }
 
 void 
 RunServer() {
-  gServer->Run();
+  gApplication->Run();
 }
 
 void 
 CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
-	gServer->CreateRpcChannel(endpoint, done);
+	gApplication->CreateRpcChannel(endpoint, done);
 }
 
 };  // namespace serverkit

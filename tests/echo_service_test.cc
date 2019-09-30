@@ -4,7 +4,7 @@
 
 #include <string.h>
 #include <gtest/gtest.h>
-#include "core/server.h"
+#include "core/application.h"
 #include "core/session.h"
 #include "core/data_handler.h"
 #include "core/acceptor_handler.h"
@@ -76,5 +76,5 @@ public:
 
 TEST_F(EchoServiceTest, Echo) {
   EchoService *service = new EchoService(new EchoSessionFactory());
-  gServer->AddService(Endpoint("127.0.0.1", 22222), service);
+  gApplication->AddService(Endpoint("127.0.0.1", 22222), service);
 }

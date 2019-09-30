@@ -8,7 +8,7 @@
 #include "core/accept_message.h"
 #include "core/io_thread.h"
 #include "core/listener.h"
-#include "core/server.h"
+#include "core/application.h"
 #include "core/poller.h"
 #include "core/epoll.h"
 #include "rpc/rpc_channel.h"
@@ -16,14 +16,14 @@
 
 namespace serverkit {
 
-Server::Server()
+Application::Application()
   : index_(0),
     poller_(new Epoll()) {
   Assert(poller_ != NULL);
   poller_->Init(1024);
 }
 
-Server::~Server() {
+Application::~Application() {
   delete poller_;
   size_t n;
   for (n = 0; n < workers_.size(); ++n) {
@@ -32,7 +32,7 @@ Server::~Server() {
 }
 
 void
-Server::AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
+Application::AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
   string address = endpoint.String();
   Assert(listeners_.find(address) == listeners_.end()) << "duplicate listener for address " << address;
 
@@ -43,7 +43,7 @@ Server::AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
 }
 
 void 
-Server::AddRpcService(const Endpoint& endpoint, gpb::Service* s) {
+Application::AddRpcService(const Endpoint& endpoint, gpb::Service* s) {
   const string &address = endpoint.String();
   RpcService *service;
   Listener *listener;
@@ -61,7 +61,7 @@ Server::AddRpcService(const Endpoint& endpoint, gpb::Service* s) {
 }
 
 void 
-Server::Init(const ServerkitOption& options) {
+Application::Init(const ServerkitOption& options) {
   int i;
   for (i = 0; i < options.worker_num; ++i) {
     IOThread* thread = new IOThread(Stringf("worker-%d", i));
@@ -71,7 +71,7 @@ Server::Init(const ServerkitOption& options) {
 }
 
 void
-Server::Run() {
+Application::Run() {
   Info() << "server running...";
 
   while (true) {
@@ -80,14 +80,14 @@ Server::Run() {
 }
 
 IOThread* 
-Server::selectWorker() {
+Application::selectWorker() {
   index_ = (index_ + 1) % static_cast<int>(workers_.size());
 
   return workers_[index_];
 }
 
 void 
-Server::AcceptNewSession(Session* session) {
+Application::AcceptNewSession(Session* session) {
   IOThread* worker = selectWorker();
 
   AcceptMessage *msg = new AcceptMessage(session, worker->GetTid(), worker);
@@ -95,7 +95,7 @@ Server::AcceptNewSession(Session* session) {
 }
 
 void
-Server::CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
+Application::CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
   IOThread* worker = selectWorker();
 
   RpcChannelMessage *msg = new RpcChannelMessage(endpoint, worker->GetTid(), worker, done);

@@ -14,12 +14,12 @@ set(libserverkit_files
   src/base/thread.cc
   src/base/time.cc
   src/base/wait.cc
+  src/core/application.cc
   src/core/epoll.cc
   src/core/io_thread.cc
   src/core/listener.cc
   src/core/mailbox.cc
   src/core/poller.cc
-  src/core/server.cc
   src/core/signaler.cc
   src/core/socket.cc
   src/rpc/packet_parser.cc  

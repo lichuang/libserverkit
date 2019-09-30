@@ -15,15 +15,15 @@
 #include "core/config.h"
 #include "core/listener.h"
 #include "core/session.h"
-#include "core/server.h"
+#include "core/application.h"
 
 namespace serverkit {
 
-Listener::Listener(const Endpoint& endpoint, Server* server,
+Listener::Listener(const Endpoint& endpoint, Application* application,
                    AcceptorHandler *h)
   : endpoint_(endpoint),
-    server_(server),
-    poller_(server->GetPoller()),
+    application_(application),
+    poller_(application->GetPoller()),
     handler_(h) {
   int ret;
   fd_ = Listen(endpoint, kBacklog, &ret);
@@ -43,7 +43,7 @@ Listener::In() {
     int fd = Accept(fd_, &err);
     if (err == kOK) {
       Session* session = handler_->OnAccept(fd);
-      server_->AcceptNewSession(session);
+      application_->AcceptNewSession(session);
     //} else if (status.IsTryAgain()) {
     //  break;
     } else {
