@@ -20,7 +20,7 @@ namespace serverkit {
 
 class AcceptorHandler;
 class Listener;
-class IOThread;
+class Worker;
 class Poller;
 class Session;
 class SessionFactory;
@@ -53,11 +53,11 @@ private:
     // nothing to do
   }
 
-  IOThread* selectWorker();
+  Worker* selectWorker();
 
 private:
   int index_;
-  vector<IOThread*> workers_;
+  vector<Worker*> workers_;
   Poller *poller_;
   map<string, Listener*> listeners_;
 

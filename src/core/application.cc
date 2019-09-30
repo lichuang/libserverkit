@@ -6,11 +6,11 @@
 #include "base/time.h"
 #include "base/string.h"
 #include "core/accept_message.h"
-#include "core/io_thread.h"
 #include "core/listener.h"
 #include "core/application.h"
 #include "core/poller.h"
 #include "core/epoll.h"
+#include "core/worker.h"
 #include "rpc/rpc_channel.h"
 #include "rpc/rpc_service.h"
 
@@ -64,7 +64,7 @@ void
 Application::Init(const ServerkitOption& options) {
   int i;
   for (i = 0; i < options.worker_num; ++i) {
-    IOThread* thread = new IOThread(Stringf("worker-%d", i));
+    Worker* thread = new Worker(Stringf("worker-%d", i));
     thread->Start();
     workers_.push_back(thread);
   }
@@ -79,7 +79,7 @@ Application::Run() {
   }
 }
 
-IOThread* 
+Worker* 
 Application::selectWorker() {
   index_ = (index_ + 1) % static_cast<int>(workers_.size());
 
@@ -88,7 +88,7 @@ Application::selectWorker() {
 
 void 
 Application::AcceptNewSession(Session* session) {
-  IOThread* worker = selectWorker();
+  Worker* worker = selectWorker();
 
   AcceptMessage *msg = new AcceptMessage(session, worker->GetTid(), worker);
   worker->Send(msg);
@@ -96,7 +96,7 @@ Application::AcceptNewSession(Session* session) {
 
 void
 Application::CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
-  IOThread* worker = selectWorker();
+  Worker* worker = selectWorker();
 
   RpcChannelMessage *msg = new RpcChannelMessage(endpoint, worker->GetTid(), worker, done);
   worker->Send(msg);

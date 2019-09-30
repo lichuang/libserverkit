@@ -1,8 +1,8 @@
 /*
  * Copyright (C) codedump
  */
-#ifndef __SERVERKIT_CORE_IO_THREAD_H__
-#define __SERVERKIT_CORE_IO_THREAD_H__
+#ifndef __SERVERKIT_CORE_WORKER_H__
+#define __SERVERKIT_CORE_WORKER_H__
 
 #include <string>
 #include "base/macros.h"
@@ -16,13 +16,13 @@ using namespace std;
 
 namespace serverkit {
 
-class IOThread 
+class Worker 
   : public Runnable,
     public Event,
     public MessageHandler {
 public:
-  IOThread(const string& name);
-  virtual ~IOThread();
+  Worker(const string& name);
+  virtual ~Worker();
 
   virtual void In();
 
@@ -52,9 +52,9 @@ protected:
   Mailbox mailbox_;
   Thread *thread_;
 
-  DISALLOW_COPY_AND_ASSIGN(IOThread);
+  DISALLOW_COPY_AND_ASSIGN(Worker);
 };
 
 };  // namespace serverkit
 
-#endif  // __SERVERKIT_CORE_IO_THREAD_H__
+#endif  // __SERVERKIT_CORE_WORKER_H__

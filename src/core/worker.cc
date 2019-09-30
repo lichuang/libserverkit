@@ -7,15 +7,15 @@
 #include "base/object_pool.h"
 #include "core/accept_message.h"
 #include "core/epoll.h"
-#include "core/io_thread.h"
 #include "core/application.h"
 #include "core/session.h"
 #include "core/socket.h"
+#include "core/worker.h"
 #include "rpc/rpc_channel.h"
 
 namespace serverkit {
 
-IOThread::IOThread(const string &name)
+Worker::Worker(const string &name)
   : poller_(new Epoll()) {
   int rc = poller_->Init(1024);
   if (rc != kOK) {
@@ -29,12 +29,12 @@ IOThread::IOThread(const string &name)
   thread_ = new Thread(name, this);
 }
 
-IOThread::~IOThread() {
+Worker::~Worker() {
   delete poller_;
 }
 
 void
-IOThread::In() {
+Worker::In() {
   Message* msg;
   int rc = mailbox_.Recv(&msg, 0);
 
@@ -48,17 +48,17 @@ IOThread::In() {
 }
 
 void
-IOThread::Out() {
+Worker::Out() {
   // nothing to do
 }
 
 void
-IOThread::Timeout() {
+Worker::Timeout() {
   // nothing to do
 }
 
 void 
-IOThread::processAcceptMessage(Message* msg) {
+Worker::processAcceptMessage(Message* msg) {
   AcceptMessage* am = static_cast<AcceptMessage*>(msg);
   Session* session = am->GetSession();
   //Infof("process connection from %s", session->String().c_str());  
@@ -66,14 +66,14 @@ IOThread::processAcceptMessage(Message* msg) {
 }
 
 void 
-IOThread::processRpcChannelMessage(Message* msg) {
+Worker::processRpcChannelMessage(Message* msg) {
   RpcChannelMessage* am = static_cast<RpcChannelMessage*>(msg);
   RpcChannel* channel = new RpcChannel(am->endpoint_, poller_);
   am->done_(channel);
 }
 
 void
-IOThread::Process(Message *msg) {
+Worker::Process(Message *msg) {
   int type = msg->Type();
 
   Info() << "Process message " << type;
@@ -93,17 +93,17 @@ IOThread::Process(Message *msg) {
 }
 
 void
-IOThread::Send(Message *msg) {
+Worker::Send(Message *msg) {
   mailbox_.Send(msg);
 }
 
 void 
-IOThread::Start() {
+Worker::Start() {
   thread_->Start();
 }
 
 void
-IOThread::Run() {
+Worker::Run() {
   while (thread_->Running()) {
     poller_->Dispatch();
   }
