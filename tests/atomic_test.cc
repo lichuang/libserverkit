@@ -4,6 +4,7 @@
 
 #include <string.h>
 #include <gtest/gtest.h>
+#include "base/atomic.h"
 #include "base/thread.h"
 #include "serverkit.h"
 

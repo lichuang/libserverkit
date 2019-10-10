@@ -47,40 +47,19 @@ private:
   DISALLOW_COPY_AND_ASSIGN(AtomicPointer);
 };
 
-struct atomic_value_t {
-  atomic_value_t(const int value) : value_(value) {}
-
-  atomic_value_t(const atomic_value_t &src)
-    : value_(src.load()) {
-  }
-
-  void store(const int value) {
-    value_.store(value, std::memory_order_release);
-  }
-
-  int load() const {
-    return value_.load(std::memory_order_acquire);
-  }
-
-private:
-  std::atomic<int> value_;
-
-  atomic_value_t &operator= (const atomic_value_t &src);
-};
-
-class atomic_counter_t {
+class AtomicCounter {
 public:
   typedef uint32_t integer_t;
 
-  inline atomic_counter_t(integer_t value = 0)
+  inline AtomicCounter(integer_t value = 0)
     : value_(value) {
   }
 
-  //  Set counter _value
-  inline void set(integer_t value) { value_.store(value); }
+  //  Set counter value_
+  inline void Set(integer_t value) { value_.store(value); }
 
-  //  Atomic addition. Returns the old _value.
-  inline integer_t add(integer_t increment) {
+  //  Atomic addition. Returns the old value_.
+  inline integer_t Add(integer_t increment) {
     integer_t old_value;
     old_value = value_.fetch_add(increment, std::memory_order_acq_rel);
 
@@ -88,17 +67,17 @@ public:
   }
 
   //  Atomic subtraction. Returns false if the counter drops to zero.
-  inline bool sub(integer_t decrement) {
+  inline bool Sub(integer_t decrement) {
     integer_t old = value_.fetch_sub(decrement, std::memory_order_acq_rel);
     return old - decrement != 0;
   }
 
-  inline integer_t get() const { return value_; }
+  inline integer_t Get() const { return value_; }
 
 private:
   std::atomic<integer_t> value_;
 
-  DISALLOW_COPY_AND_ASSIGN(atomic_counter_t);
+  DISALLOW_COPY_AND_ASSIGN(AtomicCounter);
 } __attribute__ ((aligned (sizeof (void *))));
 
 };  // namespace serverkit

@@ -6,7 +6,6 @@
 
 #include <map>
 #include <stdio.h>
-#include "base/atomic.h"
 #include "base/time.h"
 #include "core/typedef.h"
 
@@ -52,14 +51,14 @@ protected:
   // for load
   inline void adjustLoad(int cnt) {
     if (cnt > 0) {
-      load_.add(cnt);
+
     } else if (cnt < 0) {
-      load_.sub(-cnt);
+
     }
   }
 
   inline int getLoad() const {
-    return load_.get();
+    return 0;
   }
 
 protected:  
@@ -94,7 +93,6 @@ protected:
   TimerIdMap timer_ids_;
 
   timer_id_t max_timer_id_;
-  atomic_counter_t load_;
 
   uint64_t now_ms_;
 };

@@ -63,7 +63,7 @@ Epoll::Add(fd_t fd, Event *event) {
     size_ = fd + kIncrPollSize;
     ep_events_.resize(size_);
   }
-  load_.add(1);
+
   return ee;
 }
 
@@ -76,7 +76,6 @@ Epoll::Del(handle_t handle) {
   int rc = epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, ee->fd, &ee->ev);
   ee->fd = kInvalidFd;
   retired_list_.push_back(ee);
-  load_.add(-1);
   return rc;
 }
 
