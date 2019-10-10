@@ -15,19 +15,19 @@ namespace serverkit {
 
 //  This class encapsulates several atomic operations on pointers.
 template <typename T>
-class atomic_ptr_t {
+class AtomicPointer {
 public:
   //  Initialise atomic pointer
-  inline atomic_ptr_t() : ptr_(NULL) { }
+  inline AtomicPointer() : ptr_(NULL) { }
 
   //  Set value of atomic pointer
   //  Use this function only when you are sure that at most one
   //  thread is accessing the pointer at the moment.
-  inline void set(T *ptr) { ptr_.store(ptr); }
+  inline void Set(T *ptr) { ptr_.store(ptr); }
 
   //  Perform atomic 'exchange pointers' operation. Pointer is set
   //  to the 'val_' value. Old value is returned.
-  inline T *xchg (T *val) {
+  inline T *Xchg (T *val) {
     //return static_cast<T *>(atomic_xchg_ptr (&_ptr, val_));
     return ptr_.exchange(val, std::memory_order_acq_rel);
   }
@@ -36,7 +36,7 @@ public:
   //  The pointer is compared to 'cmp' argument and if they are
   //  equal, its value is set to 'val_'. Old value of the pointer
   //  is returned.
-  inline T *cas(T *cmp, T *val) {
+  inline T *Cas(T *cmp, T *val) {
     ptr_.compare_exchange_strong(cmp, val, std::memory_order_acq_rel);
     return cmp;
   }
@@ -44,7 +44,7 @@ public:
 private:
   std::atomic<T *> ptr_;
 
-  DISALLOW_COPY_AND_ASSIGN(atomic_ptr_t);
+  DISALLOW_COPY_AND_ASSIGN(AtomicPointer);
 };
 
 struct atomic_value_t {

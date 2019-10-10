@@ -54,7 +54,7 @@ template <typename T, int N> class ypipe_t
         //  Let all the pointers to point to the terminator.
         //  (unless pipe is dead, in which case c is set to NULL).
         _r = _w = _f = &_queue.back ();
-        _c.set (&_queue.back ());
+        _c.Set (&_queue.back ());
     }
 
     //  The destructor doesn't have to be virtual. It is made virtual
@@ -110,13 +110,13 @@ template <typename T, int N> class ypipe_t
             return true;
 
         //  Try to set 'c' to 'f'.
-        if (_c.cas (_w, _f) != _w) {
+        if (_c.Cas (_w, _f) != _w) {
             //  Compare-and-swap was unseccessful because 'c' is NULL.
             //  This means that the reader is asleep. Therefore we don't
             //  care about thread-safeness and update c in non-atomic
             //  manner. We'll return false to let the caller know
             //  that reader is sleeping.
-            _c.set (_f);
+            _c.Set (_f);
             _w = _f;
             return false;
         }
@@ -138,7 +138,7 @@ template <typename T, int N> class ypipe_t
         //  Prefetching is to simply retrieve the
         //  pointer from c in atomic fashion. If there are no
         //  items to prefetch, set c to NULL (using compare-and-swap).
-        _r = _c.cas (&_queue.front (), NULL);
+        _r = _c.Cas (&_queue.front (), NULL);
 
         //  If there are no elements prefetched, exit.
         //  During pipe's lifetime r should never be NULL, however,
@@ -198,7 +198,7 @@ template <typename T, int N> class ypipe_t
     //  Points past the last flushed item. If it is NULL,
     //  reader is asleep. This pointer should be always accessed using
     //  atomic operations.
-    atomic_ptr_t<T> _c;
+    AtomicPointer<T> _c;
 
     //  Disable copying of ypipe object.
     ypipe_t (const ypipe_t &);

@@ -76,6 +76,10 @@ public:
     return thread_->GetTid();
   }
   
+  Thread* GetThread() {
+    return thread_;
+  }
+  
 protected:
   Thread *thread_;  
 };

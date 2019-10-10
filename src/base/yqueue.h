@@ -85,7 +85,7 @@ template <typename T, int N> class yqueue_t
             free (o);
         }
 
-        chunk_t *sc = _spare_chunk.xchg (NULL);
+        chunk_t *sc = _spare_chunk.Xchg (NULL);
         free (sc);
     }
 
@@ -106,7 +106,7 @@ template <typename T, int N> class yqueue_t
         if (++_end_pos != N)
             return;
 
-        chunk_t *sc = _spare_chunk.xchg (NULL);
+        chunk_t *sc = _spare_chunk.Xchg (NULL);
         if (sc) {
             _end_chunk->next = sc;
             sc->prev = _end_chunk;
@@ -161,7 +161,7 @@ template <typename T, int N> class yqueue_t
             //  'o' has been more recently used than _spare_chunk,
             //  so for cache reasons we'll get rid of the spare and
             //  use 'o' as the spare.
-            chunk_t *cs = _spare_chunk.xchg (o);
+            chunk_t *cs = _spare_chunk.Xchg (o);
             free (cs);
         }
     }
@@ -201,7 +201,7 @@ template <typename T, int N> class yqueue_t
     //  People are likely to produce and consume at similar rates.  In
     //  this scenario holding onto the most recently freed chunk saves
     //  us from having to call malloc/free.
-    atomic_ptr_t<chunk_t> _spare_chunk;
+    AtomicPointer<chunk_t> _spare_chunk;
 
     //  Disable copying of yqueue.
     yqueue_t (const yqueue_t &);
