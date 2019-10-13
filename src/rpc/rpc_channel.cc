@@ -3,13 +3,13 @@
  */
 
 #include "base/errcode.h"
-#include "base/misc.h"
 #include "core/poller.h"
 #include "core/socket.h"
 #include "rpc/packet_parser.h"
 #include "rpc/request_context.h"
 #include "rpc/rpc_channel.h"
 #include "rpc/rpc_controller.h"
+#include "util/global_id.h"
 
 namespace serverkit {
 

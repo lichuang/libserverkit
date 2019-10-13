@@ -1,8 +1,8 @@
 /*
  * Copyright (C) codedump
  */
-#ifndef __QNODE_CORE_TYPEDEF_H__
-#define __QNODE_CORE_TYPEDEF_H__
+#ifndef __SERVERKIT_CORE_TYPEDEF_H__
+#define __SERVERKIT_CORE_TYPEDEF_H__
 
 #include <stdint.h>
 #include "base/typedef.h"
@@ -16,4 +16,4 @@ static const timer_id_t kInvalidTimer = 0;
 
 };  // namespace serverkit
 
-#endif // __QNODE_CORE_TYPEDEF_H__
+#endif // __SERVERKIT_CORE_TYPEDEF_H__

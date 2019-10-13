@@ -7,7 +7,6 @@ set(libserverkit_files
   src/base/lock.cc
   src/base/log.cc
   src/base/log_thread.cc
-  src/base/misc.cc
   src/base/net.cc
   src/base/status.cc
   src/base/string.cc
@@ -26,6 +25,9 @@ set(libserverkit_files
   src/rpc/rpc_channel.cc
   src/rpc/rpc_session.cc
   src/rpc/rpc_service.cc
+  src/util/lookup8.cc
+  src/util/global_id.cc
+  src/util/misc.cc
 )
 
 add_library(serverkit 

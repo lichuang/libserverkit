@@ -79,8 +79,6 @@ private:
   
   // log file
   File* file_;
-  // host name
-  string host_name_;
   // application name
   string app_name_;
   // log path

@@ -2,8 +2,6 @@
  * Copyright (C) codedump
  */
 
-#include <libgen.h>
-#include <sys/utsname.h>
 #include "base/errcode.h"
 #include "base/file.h"
 #include "base/log.h"
@@ -12,6 +10,7 @@
 #include "base/string.h"
 #include "base/time.h"
 #include "core/epoll.h"
+#include "util/misc.h"
 
 namespace serverkit {
 
@@ -19,16 +18,6 @@ namespace serverkit {
 static const int kUpdateTimeInterval = 100;
 // flush log time internal
 static const int kFlushTimeInterval = 500;
-
-static void 
-GetHostName(string* hostname) {
-  struct utsname buf;
-  if (uname(&buf) == 0) {
-		*hostname = buf.nodename;
-  } else {
-		*hostname = "(unknown host)";
-	}
-}
 
 LogThread::LogThread()
 	: write_index_(0),
@@ -43,8 +32,6 @@ LogThread::LogThread()
   if (rc != kOK) {
     return;
   }
-
-	GetHostName(&host_name_);
 
 	updateTime();
 	poller_->AddTimer(kUpdateTimeInterval, this, kTimerPermanent);
@@ -146,8 +133,9 @@ LogThread::updateTime() {
 void 
 LogThread::output(LogMessageData* data) {
 	if (file_ == NULL) {
+		string *host_name = GetHostName();
 		string file_name = Stringf("%s/%s-%s.log", log_path_.c_str(),
-															 app_name_.c_str(), host_name_.c_str());
+															 app_name_.c_str(), host_name->c_str());
 		file_ = new File(file_name);
 	}
 	file_->Append(Slice(data->text_, data->stream_.pcount()));

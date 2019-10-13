@@ -2,8 +2,8 @@
  * Copyright (C) codedump
  */
 
-#ifndef __QNODE_BASE_BUFFER_H__
-#define __QNODE_BASE_BUFFER_H__
+#ifndef __SERVERKIT_BASE_BUFFER_H__
+#define __SERVERKIT_BASE_BUFFER_H__
 
 #include <string.h>
 #include "base/macros.h"
@@ -147,4 +147,4 @@ private:
 
 };  // namespace serverkit
 
-#endif  // __QNODE_BASE_BUFFER_H__
+#endif  // __SERVERKIT_BASE_BUFFER_H__
