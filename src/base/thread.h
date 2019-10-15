@@ -29,7 +29,7 @@ public:
 
   virtual ~Thread();
 
-  void Stop();
+  void Join();
 
   tid_t GetTid() const {
     return tid_;

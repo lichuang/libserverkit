@@ -34,7 +34,7 @@ TEST(ThreadTest, test1) {
   TestThread test(&cnt);
   Thread thread("test", &test);
   thread.Start();
-  thread.Stop();
+  thread.Join();
 
   ASSERT_EQ(cnt, 0);
 }

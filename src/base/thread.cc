@@ -43,23 +43,13 @@ Thread::~Thread() {
 
 int
 Thread::Start() {
-  Mutex mutex;
-  Condition cond;
-  threadStartEntry entry = {
-    .cond = &cond,
-    .thread = this
-  };
-  int ret = pthread_create(&tid_, NULL, Thread::main, &entry);
-
-  // wait until thread start
-  MutexGuard guard(&mutex);
-  cond.Wait(&mutex);
+  int ret = pthread_create(&tid_, NULL, Thread::main, this);
 
   return ret;
 }
 
 void
-Thread::Stop() {
+Thread::Join() {
   state_ = kThreadStopped;
 
   if (tid_ != 0) {
@@ -70,15 +60,11 @@ Thread::Stop() {
 
 void*
 Thread::main(void* arg) {
-  threadStartEntry* entry = static_cast<threadStartEntry*>(arg);
-  Condition *cond = entry->cond;
-  Thread *thread = entry->thread;
+  Thread* thread = static_cast<Thread*>(arg);
 
   ::prctl(PR_SET_NAME, thread->name_.c_str());
   gPerThreadInfo.thread = thread;
   gPerThreadInfo.name = thread->name_;
-
-  cond->Notify();
 
   thread->state_ = kThreadRunning;
   thread->runnable_->Run();
