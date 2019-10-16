@@ -25,6 +25,7 @@ public:
 
   }
 
+protected:
   virtual void Run() {
     int i = num;
     for (; i > 0; --i) {
@@ -32,6 +33,7 @@ public:
     }
   }
 
+public:
   vector<uint64_t>* global_ids;
   int num;
 };

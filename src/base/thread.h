@@ -4,6 +4,7 @@
 #ifndef __SERVERKIT_BASE_THREAD__
 #define __SERVERKIT_BASE_THREAD__
 
+#include <functional>
 #include <string>
 #include <pthread.h>
 
@@ -19,9 +20,12 @@ enum ThreadState {
   kThreadStopped,
 };
 
+typedef std::function<void ()> ThreadCallback;
+
 class Thread {
 public:
   Thread(const string& name);
+  Thread(const string& name, ThreadCallback);
 
   virtual ~Thread();
 
@@ -47,12 +51,17 @@ public:
 
 private:
   static void* main(void *arg);
-  virtual void Run() = 0;
+
+protected:
+  virtual void Run() {
+    
+  }
 
 private:
   tid_t tid_;
   string name_;
   ThreadState state_;
+  ThreadCallback callback_;
 };
 
 extern const string& CurrentThreadName();

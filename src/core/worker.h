@@ -32,21 +32,18 @@ public:
 
   virtual void Process(Message*);
 
-  virtual void Run();
-
   Poller* GetPoller() {
     return poller_;
   }
 
   void Send(Message *msg);
-
-  void Start();
   
 protected:
 
   void processAcceptMessage(Message*);
   void processRpcChannelMessage(Message*);
   
+  virtual void Run();
 protected:
   Poller *poller_;
   Mailbox mailbox_;

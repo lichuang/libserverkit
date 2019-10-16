@@ -96,11 +96,6 @@ Worker::Send(Message *msg) {
   mailbox_.Send(msg);
 }
 
-void 
-Worker::Start() {
-  Start();
-}
-
 void
 Worker::Run() {
   while (Running()) {

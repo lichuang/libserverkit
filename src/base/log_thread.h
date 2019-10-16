@@ -50,7 +50,9 @@ public:
     return const_cast<char*>(&(now_str_[0]));
   }
 
+protected:
   virtual void Run();
+  
 private:
   LogThread();
   void updateTime();

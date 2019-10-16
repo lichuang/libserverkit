@@ -29,7 +29,15 @@ thread_local static PerThreadInfo gPerThreadInfo;
 Thread::Thread(const string& name)
   : tid_(0),
     name_(name),
-    state_(kThreadNone) {
+    state_(kThreadNone),
+    callback_(NULL) {
+}
+
+Thread::Thread(const string& name, ThreadCallback func)
+  : tid_(0),
+    name_(name),
+    state_(kThreadNone),
+    callback_(func) {
 }
 
 Thread::~Thread() {
@@ -61,7 +69,11 @@ Thread::main(void* arg) {
   gPerThreadInfo.name = thread->name_;
 
   thread->state_ = kThreadRunning;
-  thread->Run();
+  if (thread->callback_ == NULL) {
+    thread->Run();
+  } else {
+    thread->callback_();
+  }
 
   return NULL;
 }
