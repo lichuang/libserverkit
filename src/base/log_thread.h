@@ -24,7 +24,7 @@ typedef std::list<LogMessageData*> LogList;
 typedef LogList::iterator LogListIter;
 
 // the log thread MUST be singleton
-class LogThread : public Runnable, 
+class LogThread : public Thread, 
                   public Event {
   friend class Singleton<LogThread>;
 public:

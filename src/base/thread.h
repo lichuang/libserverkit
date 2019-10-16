@@ -19,13 +19,9 @@ enum ThreadState {
   kThreadStopped,
 };
 
-class Thread;
-class Runnable;
-
 class Thread {
 public:
-  Thread(const string& name, void *arg);
-  Thread(const string& name, Runnable*);
+  Thread(const string& name);
 
   virtual ~Thread();
 
@@ -37,10 +33,6 @@ public:
 
   const string& Name() const {
     return name_;
-  }
-
-  const tid_t& Tid() const {
-    return tid_;
   }
 
   ThreadState State() const { 
@@ -55,33 +47,12 @@ public:
 
 private:
   static void* main(void *arg);
+  virtual void Run() = 0;
 
 private:
   tid_t tid_;
   string name_;
   ThreadState state_;
-  Runnable* runnable_;
-};
-
-class Runnable {
-public:
-  Runnable() : thread_(NULL) {}
-
-  // thread main loop
-	virtual void Run() = 0;
-
-	virtual ~Runnable() {}
-
-  tid_t GetTid() const {
-    return thread_->GetTid();
-  }
-  
-  Thread* GetThread() {
-    return thread_;
-  }
-  
-protected:
-  Thread *thread_;  
 };
 
 extern const string& CurrentThreadName();

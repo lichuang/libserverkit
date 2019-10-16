@@ -26,16 +26,10 @@ struct PerThreadInfo {
 
 thread_local static PerThreadInfo gPerThreadInfo;
 
-struct threadStartEntry {
-  Condition *cond;
-  Thread *thread;
-};
-
-Thread::Thread(const string& name, Runnable* runnable)
+Thread::Thread(const string& name)
   : tid_(0),
     name_(name),
-    state_(kThreadNone),
-    runnable_(runnable) {
+    state_(kThreadNone) {
 }
 
 Thread::~Thread() {
@@ -67,7 +61,7 @@ Thread::main(void* arg) {
   gPerThreadInfo.name = thread->name_;
 
   thread->state_ = kThreadRunning;
-  thread->runnable_->Run();
+  thread->Run();
 
   return NULL;
 }

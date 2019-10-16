@@ -9,9 +9,10 @@
 
 using namespace serverkit;
 
-class TestThread : public Runnable {
+class TestThread : public Thread {
 public:
-  TestThread(int* cnt) {
+  TestThread(int* cnt)
+    : Thread("test") {
     cnt_ = cnt;
   }
   virtual ~TestThread() {
@@ -31,8 +32,8 @@ private:
 TEST(ThreadTest, test1) {
   int cnt = 10;
 
-  TestThread test(&cnt);
-  Thread thread("test", &test);
+  TestThread thread(&cnt);
+
   thread.Start();
   thread.Join();
 

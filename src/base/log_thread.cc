@@ -20,7 +20,8 @@ static const int kUpdateTimeInterval = 100;
 static const int kFlushTimeInterval = 500;
 
 LogThread::LogThread()
-	: write_index_(0),
+	: Thread("logger"),
+		write_index_(0),
 		mutex_(new Mutex()),
 		poller_(new Epoll()),
 		last_flush_time_(0),
@@ -36,8 +37,7 @@ LogThread::LogThread()
 	updateTime();
 	poller_->AddTimer(kUpdateTimeInterval, this, kTimerPermanent);
 
-	thread_ = new Thread("logger", this);
-	thread_->Start();
+	Start();
 }
 
 LogThread::~LogThread() {
@@ -151,7 +151,7 @@ LogThread::flush() {
 
 void
 LogThread::Run() {
-  while (thread_->Running()) {
+  while (Running()) {
     poller_->Dispatch();
   }
 }

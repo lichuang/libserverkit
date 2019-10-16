@@ -13,14 +13,15 @@
 using namespace std;
 using namespace serverkit;
 
-class StressRunnable : public Runnable {
+class StressThread : public Thread {
 public:
-  StressRunnable(vector<uint64_t>* g, int n) {
+  StressThread(vector<uint64_t>* g, int n)
+    : Thread("stress") {
     global_ids = g;
     num = n;
   }
 
-  virtual ~StressRunnable() {
+  virtual ~StressThread() {
 
   }
 
@@ -41,26 +42,22 @@ TEST(TestGlobalId, threadTestGlobalId) {
   int i;
 
   vector< vector<uint64_t> > generated_ids;
-  vector<StressRunnable*> runnables;
-  vector<Thread*> threads;
+  vector<StressThread*> threads;
 
   generated_ids.resize(numThread);
   threads.resize(numThread);
-  runnables.resize(numThread);
 
   for (i = 0; i < numThread; ++i) {
-    StressRunnable* runnable = new StressRunnable(&generated_ids[i], idPerThread);
+    StressThread* thread = new StressThread(&generated_ids[i], idPerThread);
 
-    Thread* thread = new Thread("stress", runnable);
     thread->Start();
 
-    runnables[i] = runnable;
     threads[i] = thread;
   }
 
   map<uint64_t, bool> all_ids;
   for (i = 0; i < numThread; ++i) {
-    Thread* thread = threads[i];
+    StressThread* thread = threads[i];
     thread->Join();
     delete thread;
 
@@ -71,8 +68,6 @@ TEST(TestGlobalId, threadTestGlobalId) {
       EXPECT_EQ(all_ids.find(c), all_ids.end());
       all_ids[c] = true;
     }
-
-    delete runnables[i];
 
     all_ids.clear();
   }

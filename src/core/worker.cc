@@ -16,7 +16,8 @@
 namespace serverkit {
 
 Worker::Worker(const string &name)
-  : poller_(new Epoll()) {
+  : Thread(name),
+    poller_(new Epoll()) {
   int rc = poller_->Init(1024);
   if (rc != kOK) {
     return;
@@ -25,8 +26,6 @@ Worker::Worker(const string &name)
   // add mailbox signal fd into poller
   fd_t fd = mailbox_.Fd();
   handle_ = poller_->Add(fd, this);
-
-  thread_ = new Thread(name, this);
 }
 
 Worker::~Worker() {
@@ -99,12 +98,12 @@ Worker::Send(Message *msg) {
 
 void 
 Worker::Start() {
-  thread_->Start();
+  Start();
 }
 
 void
 Worker::Run() {
-  while (thread_->Running()) {
+  while (Running()) {
     poller_->Dispatch();
   }
 }

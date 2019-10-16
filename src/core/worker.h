@@ -17,7 +17,7 @@ using namespace std;
 namespace serverkit {
 
 class Worker 
-  : public Runnable,
+  : public Thread,
     public Event,
     public MessageHandler {
 public:
@@ -50,7 +50,6 @@ protected:
 protected:
   Poller *poller_;
   Mailbox mailbox_;
-  Thread *thread_;
 
   DISALLOW_COPY_AND_ASSIGN(Worker);
 };
