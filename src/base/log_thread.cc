@@ -10,6 +10,7 @@
 #include "base/string.h"
 #include "base/time.h"
 #include "core/epoll.h"
+#include "core/timer_thread.h"
 #include "util/misc.h"
 
 namespace serverkit {
@@ -34,7 +35,6 @@ LogThread::LogThread()
     return;
   }
 
-	updateTime();
 	poller_->AddTimer(kUpdateTimeInterval, this, kTimerPermanent);
 
 	Start();
@@ -88,14 +88,12 @@ LogThread::Timeout() {
 		write_list_ = &(log_list_[write_index_]);
 	}
 
-	updateTime();
-
 	// TODO: optimize write log
 	// is there any log to output?
 	iterList(read_list_);
 
 	// if need to flush file?
-	if (now_ms_ - last_flush_time_ >= kFlushTimeInterval) {
+	if (CurrentMs() - last_flush_time_ >= kFlushTimeInterval) {
 		flush();
 	}
 }
@@ -114,22 +112,6 @@ LogThread::iterList(LogList* lst) {
 	}
 }
 
-void
-LogThread::updateTime() {
-  struct timeval t;
-  ::gettimeofday(&t, NULL);
-	
-	now_ms_ = t.tv_sec * 1000 + t.tv_usec / 1000;
-  struct tm tim;
-	Localtime(t.tv_sec, &tim);
-  int n = kTimeFormatLength;
-  n+=1;
-  snprintf(const_cast<char *>(now_str_), kTimeFormatLength,
-    "%4d/%02d/%02d %02d:%02d:%02d.%03d",
-    tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
-    tim.tm_hour, tim.tm_min, tim.tm_sec, static_cast<int>(t.tv_usec / 1000));
-}
-
 void 
 LogThread::output(LogMessageData* data) {
 	if (file_ == NULL) {
@@ -146,7 +128,7 @@ LogThread::flush() {
 	if (file_ != NULL) {
 		file_->Flush();
 	}
-	last_flush_time_ = now_ms_;
+	last_flush_time_ = CurrentMs();
 }
 
 void
@@ -168,16 +150,6 @@ LogThread::Flush(bool end) {
 void
 SendLog(LogMessageData *data) {
   Singleton<LogThread>::Instance()->Send(data);
-}
-
-uint64_t 
-CurrentLogTime() {
-  return Singleton<LogThread>::Instance()->CurrentMs();
-}
-
-const char* 
-CurrentLogTimeString() {
-  return Singleton<LogThread>::Instance()->CurrentMsString();
 }
 
 void 

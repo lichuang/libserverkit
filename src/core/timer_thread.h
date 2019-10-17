@@ -34,11 +34,11 @@ public:
   virtual ~TimerThread();
 
   // msec since 1970.01.01 00:00:00
-  uint64_t GetNowMs() const {
+  inline uint64_t GetNowMs() const {
     return *cached_msec_;
   }
 
-  char* GetNowLogtimeString() const {
+  inline char* GetNowLogtimeString() const {
     return const_cast<char*>(cached_log_time_str_);
   }
 

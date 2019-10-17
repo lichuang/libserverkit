@@ -14,8 +14,6 @@
 
 namespace serverkit {
 
-static const int kTimeFormatLength = 84;
-
 struct LogMessageData;
 class File;
 class Poller;
@@ -42,20 +40,11 @@ public:
 
   virtual void Timeout();
 
-  uint64_t CurrentMs() const {
-    return now_ms_;
-  }
-
-  const char* CurrentMsString() const { 
-    return const_cast<char*>(&(now_str_[0]));
-  }
-
 protected:
   virtual void Run();
   
 private:
   LogThread();
-  void updateTime();
   void iterList(LogList*);
   void output(LogMessageData*);
   void flush();
@@ -72,10 +61,6 @@ private:
   Mutex* mutex_;
   Poller* poller_;
 
-  // time
-  volatile uint64_t now_ms_;
-  // now ms string
-  volatile char now_str_[kTimeFormatLength];
   // last flush time
   uint64_t last_flush_time_;
   
@@ -90,8 +75,6 @@ private:
 #define gLogThread serverkit::Singleton<serverkit::LogThread>::Instance()
 
 extern void SendLog(LogMessageData *data);
-extern uint64_t CurrentLogTime();
-extern const char* CurrentLogTimeString();
 extern void Flush(bool end);
 
 }; // namespace serverkit

@@ -20,6 +20,7 @@ set(libserverkit_files
   src/core/poller.cc
   src/core/signaler.cc
   src/core/socket.cc
+  src/core/timer_thread.cc
   src/core/worker.cc
   src/rpc/packet_parser.cc  
   src/rpc/rpc_channel.cc
