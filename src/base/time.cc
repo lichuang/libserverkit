@@ -1,6 +1,8 @@
 /*
  * Copyright (C) codedump
  */
+
+#include <unistd.h>
 #include "base/time.h"
 
 namespace serverkit {
@@ -58,6 +60,11 @@ Localtime(const time_t& unix_sec, struct tm* result) {
     result->tm_mday = -(kDaysFromYear * m + 2)/5 + e + 1;
     result->tm_mon = (-m/10)*12 + m + 2;
     result->tm_year = b*100 + d  - 6700 + (m/10);
+}
+
+void 
+SleepMillisecs(int msec) {
+  ::usleep(msec * 1000);
 }
 
 };  // namespace serverkit

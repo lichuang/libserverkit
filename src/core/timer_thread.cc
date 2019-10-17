@@ -39,7 +39,7 @@ TimerThread::updateTime() {
   logStr = &(cached_log_time_strs_[index_][0]);
 
   struct timeval tv;
-  gettimeofday (&tv, NULL);
+  gettimeofday(&tv, NULL);
 
   sec = tv.tv_sec;
   msec = tv.tv_usec / 1000;
@@ -65,6 +65,7 @@ void
 TimerThread::Run() {
   while (Running()) {
     updateTime();
+    SleepMillisecs(kUpdateIntervalMsec);
   }
 }
 

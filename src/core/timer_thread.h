@@ -21,12 +21,14 @@ struct Time {
 // number of cached time slots 
 static const int kTimeSlots = 64;
 
-// update internal msec
+// update time internal(in msec)
 static const int kUpdateIntervalMsec = 50;
 
 // log time string length
-static const int kLogTimeStringLength = sizeof("2019/10/01 00:00:00.000");
+static const int kLogTimeStringLength = sizeof("2019/01/01 00:00:00.000");
 
+// timer thread generate system-wide time per kUpdateIntervalMsec
+// timer thread use a slot to cache time,string etc.
 class TimerThread : public Thread {
   friend class Singleton<TimerThread>;
 
@@ -38,8 +40,9 @@ public:
     return *cached_msec_;
   }
 
-  inline char* GetNowLogtimeString() const {
-    return const_cast<char*>(cached_log_time_str_);
+  // now time log string
+  inline const char* GetNowLogtimeString() const {
+    return const_cast<const char*>(cached_log_time_str_);
   }
 
 private:
@@ -51,20 +54,28 @@ protected:
   virtual void Run();
 
 private:
+  // cache slots
   Time cached_times_[kTimeSlots];
   char cached_log_time_strs_[kTimeSlots][kLogTimeStringLength];
   uint64_t cached_msecs_[kTimeSlots];
 
+  // current volatile variables
   volatile Time* cached_time_;
   volatile char* cached_log_time_str_;
   volatile uint64_t* cached_msec_;
 
+  // current slots index
   int index_;
 };
 
 #define gTimerThread serverkit::Singleton<serverkit::TimerThread>::Instance()
 
+// global time API
+
+// return msec since 1970.01.01 00:00:00
 #define CurrentMs gTimerThread->GetNowMs
+
+// return current log time string
 #define CurrentLogtimeString gTimerThread->GetNowLogtimeString
 
 };  // namespace serverkit
