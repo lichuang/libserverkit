@@ -5,26 +5,33 @@
 #include <sys/prctl.h>
 #include "base/condition.h"
 #include "base/mutex.h"
+#include "base/spinlock.h"
 #include "base/thread.h"
 #include "base/time.h"
 
 namespace serverkit {
 
 // per thread info
-struct PerThreadInfo {
+struct perThreadInfo {
   Thread *thread;
   string name;
 
-  PerThreadInfo()
+  perThreadInfo()
     : thread(NULL),
       name("main") {      
   }
 
-  ~PerThreadInfo() {
+  ~perThreadInfo() {
   }
 };
 
-thread_local static PerThreadInfo gPerThreadInfo;
+thread_local static perThreadInfo gPerThreadInfo;
+
+// thread entry information
+struct threadEntry {
+  SpinLock* lock;
+  Thread* thread;
+};
 
 Thread::Thread(const string& name)
   : tid_(0),
@@ -45,7 +52,15 @@ Thread::~Thread() {
 
 int
 Thread::Start() {
-  int ret = pthread_create(&tid_, NULL, Thread::main, this);
+  SpinLock lock;
+
+  // Use a spinlock to wait for thread to finish intialization
+  lock.Lock();
+  threadEntry entry = {.lock = &lock, .thread = this};
+  int ret = pthread_create(&tid_, NULL, Thread::main, &entry);
+
+  // Double-lock. This blocks until the thread unlocks spinlock
+  lock.Lock();
 
   return ret;
 }
@@ -62,13 +77,19 @@ Thread::Join() {
 
 void*
 Thread::main(void* arg) {
-  Thread* thread = static_cast<Thread*>(arg);
+  threadEntry *entry = static_cast<threadEntry*>(arg);
+  SpinLock *lock = entry->lock;
+  Thread* thread = entry->thread;
 
   ::prctl(PR_SET_NAME, thread->name_.c_str());
   gPerThreadInfo.thread = thread;
   gPerThreadInfo.name = thread->name_;
 
   thread->state_ = kThreadRunning;
+
+  // Unblock the main thread
+  lock->UnLock();
+
   if (thread->callback_ == NULL) {
     thread->Run();
   } else {
@@ -81,16 +102,6 @@ Thread::main(void* arg) {
 const string&
 CurrentThreadName() {
   return gPerThreadInfo.name;
-}
-
-PerThreadInfo*
-CurrentThreadInfo() {
-  return &gPerThreadInfo;
-}
-
-uint64_t 
-CurrentMs() {
-  return 0;
 }
 
 };  // namespace serverkit

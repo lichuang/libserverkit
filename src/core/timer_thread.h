@@ -73,7 +73,9 @@ private:
 // global time API
 
 // return msec since 1970.01.01 00:00:00
-#define CurrentMs gTimerThread->GetNowMs
+inline uint64_t CurrentMs() {
+  return gTimerThread->GetNowMs();
+}
 
 // return current log time string
 #define CurrentLogtimeString gTimerThread->GetNowLogtimeString
