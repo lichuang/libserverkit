@@ -24,12 +24,12 @@ public:
   //  Initialises the pipe.
   inline YPipe () {
     //  Insert terminator element into the queue.
-    _queue.push ();
+    queue_.Push ();
 
     //  Let all the pointers to point to the terminator.
     //  (unless pipe is dead, in which case c is set to NULL).
-    _r = _w = _f = &_queue.back();
-    _c.Set(&_queue.back());
+    r_ = w_ = f_ = &queue_.Back();
+    c_.Set(&queue_.Back());
   }
 
   //  The destructor doesn't have to be virtual. It is made virtual
@@ -46,21 +46,21 @@ public:
   //  flushed down the stream.
   inline void Write (const T &value_, bool incomplete_) {
     //  Place the value to the queue, add new terminator element.
-    _queue.back () = value_;
-    _queue.push ();
+    queue_.Back() = value_;
+    queue_.Push();
 
     //  Move the "flush up to here" poiter.
     if (!incomplete_)
-      _f = &_queue.back ();
+      f_ = &queue_.Back();
   }
 
   //  Pop an incomplete item from the pipe. Returns true if such
   //  item exists, false otherwise.
   inline bool UnWrite (T *value_) {
-    if (_f == &_queue.back ())
+    if (f_ == &queue_.Back())
       return false;
-    _queue.unpush ();
-    *value_ = _queue.back ();
+    queue_.UnPush();
+    *value_ = queue_.Back();
     return true;
   }
 
@@ -69,44 +69,44 @@ public:
   //  wake the reader up before using the pipe again.
   inline bool Flush() {
     //  If there are no un-flushed items, do nothing.
-    if (_w == _f)
+    if (w_ == f_)
       return true;
 
     //  Try to set 'c' to 'f'.
-    if (_c.Cas (_w, _f) != _w) {
+    if (c_.Cas(w_, f_) != w_) {
       //  Compare-and-swap was unseccessful because 'c' is NULL.
       //  This means that the reader is asleep. Therefore we don't
       //  care about thread-safeness and update c in non-atomic
       //  manner. We'll return false to let the caller know
       //  that reader is sleeping.
-      _c.Set (_f);
-      _w = _f;
+      c_.Set(f_);
+      w_ = f_;
       return false;
     }
 
     //  Reader is alive. Nothing special to do now. Just move
     //  the 'first un-flushed item' pointer to 'f'.
-    _w = _f;
+    w_ = f_;
     return true;
   }
 
   //  Check whether item is available for reading.
   inline bool CheckRead() {
     //  Was the value prefetched already? If so, return.
-    if (&_queue.front () != _r && _r)
+    if (&queue_.Front() != r_ && r_)
       return true;
 
     //  There's no prefetched value, so let us prefetch more values.
     //  Prefetching is to simply retrieve the
     //  pointer from c in atomic fashion. If there are no
     //  items to prefetch, set c to NULL (using compare-and-swap).
-    _r = _c.Cas (&_queue.front (), NULL);
+    r_ = c_.Cas(&queue_.Front(), NULL);
 
     //  If there are no elements prefetched, exit.
     //  During pipe's lifetime r should never be NULL, however,
     //  it can happen during pipe shutdown when items
     //  are being deallocated.
-    if (&_queue.front () == _r || !_r)
+    if (&queue_.Front() == r_ || !r_)
       return false;
 
     //  There was at least one value prefetched.
@@ -117,13 +117,13 @@ public:
   //  available.
   inline bool Read (T *value_) {
     //  Try to prefetch a value.
-    if (!CheckRead ())
+    if (!CheckRead())
       return false;
 
     //  There was at least one value prefetched.
     //  Return it to the caller.
-    *value_ = _queue.front ();
-    _queue.pop ();
+    *value_ = queue_.Front();
+    queue_.Pop();
     return true;
   }
 
@@ -133,7 +133,7 @@ public:
   inline bool Probe(bool (*fn_) (const T &)) {
     bool rc = CheckRead();
 
-    return (*fn_) (_queue.front ());
+    return (*fn_)(queue_.Front());
   }
 
 protected:
@@ -141,24 +141,24 @@ protected:
   //  Front of the queue points to the first prefetched item, back of
   //  the pipe points to last un-flushed item. Front is used only by
   //  reader thread, while back is used only by writer thread.
-  yqueue_t<T, N> _queue;
+  YQueue<T, N> queue_;
 
   //  Points to the first un-flushed item. This variable is used
   //  exclusively by writer thread.
-  T *_w;
+  T *w_;
 
   //  Points to the first un-prefetched item. This variable is used
   //  exclusively by reader thread.
-  T *_r;
+  T *r_;
 
   //  Points to the first item to be flushed in the future.
-  T *_f;
+  T *f_;
 
   //  The single point of contention between writer and reader thread.
   //  Points past the last flushed item. If it is NULL,
   //  reader is asleep. This pointer should be always accessed using
   //  atomic operations.
-  AtomicPointer<T> _c;
+  AtomicPointer<T> c_;
 
   //  Disable copying of ypipe object.
   DISALLOW_COPY_AND_ASSIGN(YPipe);
