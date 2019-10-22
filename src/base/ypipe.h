@@ -17,33 +17,27 @@ namespace serverkit {
 //  N is granularity of the pipe, i.e. how many items are needed to
 //  perform next memory allocation.
 
-template <typename T, int N> class ypipe_t
-{
+template <typename T, int N> 
+class YPipe {
   public:
     //  Initialises the pipe.
-    inline ypipe_t ()
-    {
+    inline YPipe () {
         //  Insert terminator element into the queue.
         _queue.push ();
 
         //  Let all the pointers to point to the terminator.
         //  (unless pipe is dead, in which case c is set to NULL).
-        _r = _w = _f = &_queue.back ();
-        _c.Set (&_queue.back ());
+        _r = _w = _f = &_queue.back();
+        _c.Set(&_queue.back());
     }
 
     //  The destructor doesn't have to be virtual. It is made virtual
     //  just to keep ICC and code checking tools from complaining.
-    inline virtual ~ypipe_t () {}
+    inline virtual ~YPipe () {}
 
         //  Following function (write) deliberately copies uninitialised data
         //  when used with zmq_msg. Initialising the VSM body for
         //  non-VSM messages won't be good for performance.
-
-#ifdef ZMQ_HAVE_OPENVMS
-#pragma message save
-#pragma message disable(UNINIT)
-#endif
 
     //  Write an item to the pipe.  Don't flush it yet. If incomplete is
     //  set to true the item is assumed to be continued by items
@@ -59,14 +53,9 @@ template <typename T, int N> class ypipe_t
             _f = &_queue.back ();
     }
 
-#ifdef ZMQ_HAVE_OPENVMS
-#pragma message restore
-#endif
-
     //  Pop an incomplete item from the pipe. Returns true if such
     //  item exists, false otherwise.
-    inline bool UnWrite (T *value_)
-    {
+    inline bool UnWrite (T *value_) {
         if (_f == &_queue.back ())
             return false;
         _queue.unpush ();
@@ -171,8 +160,8 @@ template <typename T, int N> class ypipe_t
     AtomicPointer<T> _c;
 
     //  Disable copying of ypipe object.
-    ypipe_t (const ypipe_t &);
-    const ypipe_t &operator= (const ypipe_t &);
+    YPipe (const YPipe &);
+    const YPipe &operator= (const YPipe &);
 };
 
 };  // namespace serverkit

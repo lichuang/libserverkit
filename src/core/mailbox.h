@@ -28,7 +28,7 @@ public:
 
 private:
   // The pipe to store actual commands.
-  typedef ypipe_t<Message*, 16> cpipe_t;
+  typedef YPipe<Message*, 16> cpipe_t;
   cpipe_t pipe_;
 
   // Signaler to pass signals from writer thread to reader thread.
