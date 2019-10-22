@@ -1,12 +1,11 @@
 #include "serverkit.h"
 #include "echo.pb.h"
-#include "base/wait.h"
 
 using namespace serverkit;
 
-void echo_done(EchoResponse* resp, WaitGroup* wait) {
+void echo_done(EchoResponse* resp) {
 	Info() << "response: " << resp->echo_msg();
-	wait->Done();
+
 	delete resp;
 }
 
@@ -14,20 +13,13 @@ void create_channel_done(RpcChannel* channel) {
 	EchoRequest request;
 	EchoResponse* response = new EchoResponse();
 	RpcController controller;
-	WaitGroup wait;
 
 	request.set_msg("hello world");
 	
 	EchoService_Stub stub(channel);
 
-	wait.Add(1);
-
 	stub.Echo(&controller, &request, response, 
-		gpb::NewCallback(::echo_done, response, &wait));
-
-	Info() << "client waiting";
-
-	//wait.Wait();
+		gpb::NewCallback(::echo_done, response));
 
   if (controller.Failed()) {
     Error() << "rpc fail: " << controller.ErrorText();

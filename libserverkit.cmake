@@ -10,7 +10,6 @@ set(libserverkit_files
   src/base/net.cc
   src/base/string.cc
   src/base/thread.cc
-  src/base/wait.cc
   src/core/application.cc
   src/core/epoll.cc
   src/core/listener.cc
