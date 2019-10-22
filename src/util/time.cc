@@ -3,7 +3,7 @@
  */
 
 #include <unistd.h>
-#include "base/time.h"
+#include "util/time.h"
 
 namespace serverkit {
 
@@ -21,13 +21,6 @@ MakeTimespec(int64_t ms, struct timespec *ts) {
     ts->tv_sec++;
   }
   return ts;
-}
-
-uint64_t
-NowMs() {
-  struct timeval tv;
-  gettimeofday (&tv, NULL);
-  return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 void 

@@ -3,7 +3,7 @@
  */
 
 #include <list>
-#include "base/time.h"
+#include "util/time.h"
 #include "base/thread.h"
 #include "core/event.h"
 #include "core/poller.h"
@@ -24,7 +24,7 @@ Poller::~Poller() {
 
 timer_id_t
 Poller::AddTimer(int timeout, Event *event, TimerType t) {
-  uint64_t expire = NowMs() + timeout;
+  uint64_t expire = CurrentMs() + timeout;
   ++max_timer_id_;
   timer_id_t id = max_timer_id_;
   TimerEntry *entry = new TimerEntry(timeout, expire, event, id, t);
@@ -96,7 +96,7 @@ void
 Poller::Dispatch() {
   int timeout;
 
-  now_ms_ = NowMs();
+  now_ms_ = CurrentMs();
   timeout = executeTimers();
 
   Poll(timeout);

@@ -11,7 +11,6 @@ set(libserverkit_files
   src/base/status.cc
   src/base/string.cc
   src/base/thread.cc
-  src/base/time.cc
   src/base/wait.cc
   src/core/application.cc
   src/core/epoll.cc
@@ -29,6 +28,7 @@ set(libserverkit_files
   src/util/lookup8.cc
   src/util/global_id.cc
   src/util/misc.cc
+  src/util/time.cc
 )
 
 add_library(serverkit 

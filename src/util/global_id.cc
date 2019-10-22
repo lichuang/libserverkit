@@ -4,7 +4,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
-#include "base/time.h"
+#include "util/time.h"
 #include "util/global_id.h"
 #include "util/misc.h"
 
@@ -75,7 +75,7 @@ idGenerator::newRandom() {
     init();
   }
 
-  uint64_t now = NowMs();
+  uint64_t now = CurrentMs();
   seed_ = hash_data(
       reinterpret_cast<const uint8_t*>(&now),
       sizeof(now), seed_);
