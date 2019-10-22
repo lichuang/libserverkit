@@ -8,7 +8,6 @@ set(libserverkit_files
   src/base/log.cc
   src/base/log_thread.cc
   src/base/net.cc
-  src/base/status.cc
   src/base/string.cc
   src/base/thread.cc
   src/base/wait.cc

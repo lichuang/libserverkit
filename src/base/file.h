@@ -7,7 +7,6 @@
 
 #include <string>
 #include "base/slice.h"
-#include "base/status.h"
 
 using namespace std;
 
@@ -17,17 +16,14 @@ public:
 	File(const Slice&);
 	~File();
 
-	Status Append(const Slice&);
-	Status Flush();
-	Status Close();
-	Status Sync();
-
-	const Status& status() const { return status_; }
-
+	bool Append(const Slice&);
+	bool Flush();
+	bool Close();
+	bool Sync();
+	
 private:
 	int fd_;
 	Slice filename_;
-	Status status_;
 };
 
 };  // namespace serverkit

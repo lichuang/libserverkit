@@ -10,7 +10,6 @@
 #include <string>
 #include "base/endpoint.h"
 #include "base/errcode.h"
-#include "base/status.h"
 
 using namespace std;
 

@@ -7,14 +7,14 @@
 
 namespace serverkit {
 
-Status 
+bool 
 ServerkitInit(int argc, char *args[], const ServerkitOption& options) {
 	gLogThread->Init(argc, args, options);
 	gApplication->Init(options);
 
 	TZSet();
 	
-	return Status::OK();
+	return true;
 }
 
 void 

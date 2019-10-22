@@ -11,7 +11,6 @@
 #include "base/endpoint.h"
 #include "base/log.h"
 #include "base/log_thread.h"
-#include "base/status.h"
 #include "core/application.h"
 #include "rpc/rpc_channel.h"
 #include "rpc/rpc_controller.h"
@@ -20,7 +19,7 @@ namespace serverkit {
 
 class Poller;
 
-extern Status ServerkitInit(int argc, char *args[], const ServerkitOption&);
+extern bool ServerkitInit(int argc, char *args[], const ServerkitOption&);
 
 extern void AddService(const Endpoint&, AcceptorHandler*);
 

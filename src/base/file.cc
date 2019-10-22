@@ -8,16 +8,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "base/file.h"
-#include "base/status.h"
 
 namespace serverkit {
 
 File::File(const Slice& file)
-	: filename_(file),
-		status_(Status::OK()) {
+	: filename_(file) {
 	fd_ = open(file.data(), O_CREAT | O_RDWR | O_APPEND, 0644);
 	if (fd_ < 0) {
-		status_ = IOError(filename_, errno);
+		//status_ = IOError(filename_, errno);
 	}
 }
 
@@ -25,36 +23,39 @@ File::~File() {
 	close(fd_);
 }
 
-Status 
+bool 
 File::Append(const Slice& data) {
 	if (write(fd_, data.data(), data.size()) < 0) {
-		status_ = IOError(filename_, errno);
+		//status_ = IOError(filename_, errno);
+		return false;
 	}
 
-	return status_;
+	return true;
 }
 
-Status
+bool
 File::Flush() {
 	return File::Sync();
 }
 
-Status
+bool
 File::Close() {
   if (close(fd_) < 0) {
-    status_ = IOError(filename_, errno);
+    //status_ = IOError(filename_, errno);
+		return false;
   }
 	fd_ = -1;
-	return status_;
+	return true;
 }
 
-Status
+bool
 File::Sync() {
 	if (fsync(fd_) < 0) {
-    status_ = IOError(filename_, errno);
+    //status_ = IOError(filename_, errno);
+		return false;
   }
 
-	return status_;
+	return true;
 }
 
 };  // namespace serverkit

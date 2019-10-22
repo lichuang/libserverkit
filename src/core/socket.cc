@@ -5,7 +5,6 @@
 #include <error.h>
 #include <string.h>
 #include "base/net.h"
-#include "base/status.h"
 #include "core/data_handler.h"
 #include "core/socket.h"
 
@@ -98,7 +97,6 @@ Socket::In() {
 void
 Socket::Out() {
   Info() << "socket " << endpoint_.String() << " out";
-  serverkit::Status status;
   int err, n;
 
   if (status_ == SOCKET_CONNECTING) {
