@@ -5,6 +5,7 @@
 #ifndef __SERVERKIT_BASE_YPIPE_H__
 #define __SERVERKIT_BASE_YPIPE_H__
 
+#include "base/macros.h"
 #include "base/atomic.h"
 #include "base/yqueue.h"
 
@@ -19,149 +20,148 @@ namespace serverkit {
 
 template <typename T, int N> 
 class YPipe {
-  public:
-    //  Initialises the pipe.
-    inline YPipe () {
-        //  Insert terminator element into the queue.
-        _queue.push ();
+public:
+  //  Initialises the pipe.
+  inline YPipe () {
+    //  Insert terminator element into the queue.
+    _queue.push ();
 
-        //  Let all the pointers to point to the terminator.
-        //  (unless pipe is dead, in which case c is set to NULL).
-        _r = _w = _f = &_queue.back();
-        _c.Set(&_queue.back());
+    //  Let all the pointers to point to the terminator.
+    //  (unless pipe is dead, in which case c is set to NULL).
+    _r = _w = _f = &_queue.back();
+    _c.Set(&_queue.back());
+  }
+
+  //  The destructor doesn't have to be virtual. It is made virtual
+  //  just to keep ICC and code checking tools from complaining.
+  inline virtual ~YPipe () {}
+
+  //  Following function (write) deliberately copies uninitialised data
+  //  when used with zmq_msg. Initialising the VSM body for
+  //  non-VSM messages won't be good for performance.
+
+  //  Write an item to the pipe.  Don't flush it yet. If incomplete is
+  //  set to true the item is assumed to be continued by items
+  //  subsequently written to the pipe. Incomplete items are never
+  //  flushed down the stream.
+  inline void Write (const T &value_, bool incomplete_) {
+    //  Place the value to the queue, add new terminator element.
+    _queue.back () = value_;
+    _queue.push ();
+
+    //  Move the "flush up to here" poiter.
+    if (!incomplete_)
+      _f = &_queue.back ();
+  }
+
+  //  Pop an incomplete item from the pipe. Returns true if such
+  //  item exists, false otherwise.
+  inline bool UnWrite (T *value_) {
+    if (_f == &_queue.back ())
+      return false;
+    _queue.unpush ();
+    *value_ = _queue.back ();
+    return true;
+  }
+
+  //  Flush all the completed items into the pipe. Returns false if
+  //  the reader thread is sleeping. In that case, caller is obliged to
+  //  wake the reader up before using the pipe again.
+  inline bool Flush() {
+    //  If there are no un-flushed items, do nothing.
+    if (_w == _f)
+      return true;
+
+    //  Try to set 'c' to 'f'.
+    if (_c.Cas (_w, _f) != _w) {
+      //  Compare-and-swap was unseccessful because 'c' is NULL.
+      //  This means that the reader is asleep. Therefore we don't
+      //  care about thread-safeness and update c in non-atomic
+      //  manner. We'll return false to let the caller know
+      //  that reader is sleeping.
+      _c.Set (_f);
+      _w = _f;
+      return false;
     }
 
-    //  The destructor doesn't have to be virtual. It is made virtual
-    //  just to keep ICC and code checking tools from complaining.
-    inline virtual ~YPipe () {}
+    //  Reader is alive. Nothing special to do now. Just move
+    //  the 'first un-flushed item' pointer to 'f'.
+    _w = _f;
+    return true;
+  }
 
-        //  Following function (write) deliberately copies uninitialised data
-        //  when used with zmq_msg. Initialising the VSM body for
-        //  non-VSM messages won't be good for performance.
+  //  Check whether item is available for reading.
+  inline bool CheckRead() {
+    //  Was the value prefetched already? If so, return.
+    if (&_queue.front () != _r && _r)
+      return true;
 
-    //  Write an item to the pipe.  Don't flush it yet. If incomplete is
-    //  set to true the item is assumed to be continued by items
-    //  subsequently written to the pipe. Incomplete items are never
-    //  flushed down the stream.
-    inline void Write (const T &value_, bool incomplete_) {
-        //  Place the value to the queue, add new terminator element.
-        _queue.back () = value_;
-        _queue.push ();
+    //  There's no prefetched value, so let us prefetch more values.
+    //  Prefetching is to simply retrieve the
+    //  pointer from c in atomic fashion. If there are no
+    //  items to prefetch, set c to NULL (using compare-and-swap).
+    _r = _c.Cas (&_queue.front (), NULL);
 
-        //  Move the "flush up to here" poiter.
-        if (!incomplete_)
-            _f = &_queue.back ();
-    }
+    //  If there are no elements prefetched, exit.
+    //  During pipe's lifetime r should never be NULL, however,
+    //  it can happen during pipe shutdown when items
+    //  are being deallocated.
+    if (&_queue.front () == _r || !_r)
+      return false;
 
-    //  Pop an incomplete item from the pipe. Returns true if such
-    //  item exists, false otherwise.
-    inline bool UnWrite (T *value_) {
-        if (_f == &_queue.back ())
-            return false;
-        _queue.unpush ();
-        *value_ = _queue.back ();
-        return true;
-    }
+    //  There was at least one value prefetched.
+    return true;
+  }
 
-    //  Flush all the completed items into the pipe. Returns false if
-    //  the reader thread is sleeping. In that case, caller is obliged to
-    //  wake the reader up before using the pipe again.
-    inline bool Flush() {
-        //  If there are no un-flushed items, do nothing.
-        if (_w == _f)
-            return true;
+  //  Reads an item from the pipe. Returns false if there is no value.
+  //  available.
+  inline bool Read (T *value_) {
+    //  Try to prefetch a value.
+    if (!CheckRead ())
+      return false;
 
-        //  Try to set 'c' to 'f'.
-        if (_c.Cas (_w, _f) != _w) {
-            //  Compare-and-swap was unseccessful because 'c' is NULL.
-            //  This means that the reader is asleep. Therefore we don't
-            //  care about thread-safeness and update c in non-atomic
-            //  manner. We'll return false to let the caller know
-            //  that reader is sleeping.
-            _c.Set (_f);
-            _w = _f;
-            return false;
-        }
+    //  There was at least one value prefetched.
+    //  Return it to the caller.
+    *value_ = _queue.front ();
+    _queue.pop ();
+    return true;
+  }
 
-        //  Reader is alive. Nothing special to do now. Just move
-        //  the 'first un-flushed item' pointer to 'f'.
-        _w = _f;
-        return true;
-    }
+  //  Applies the function fn to the first elemenent in the pipe
+  //  and returns the value returned by the fn.
+  //  The pipe mustn't be empty or the function crashes.
+  inline bool Probe(bool (*fn_) (const T &)) {
+    bool rc = CheckRead();
 
-    //  Check whether item is available for reading.
-    inline bool CheckRead() {
-        //  Was the value prefetched already? If so, return.
-        if (&_queue.front () != _r && _r)
-            return true;
+    return (*fn_) (_queue.front ());
+  }
 
-        //  There's no prefetched value, so let us prefetch more values.
-        //  Prefetching is to simply retrieve the
-        //  pointer from c in atomic fashion. If there are no
-        //  items to prefetch, set c to NULL (using compare-and-swap).
-        _r = _c.Cas (&_queue.front (), NULL);
+protected:
+  //  Allocation-efficient queue to store pipe items.
+  //  Front of the queue points to the first prefetched item, back of
+  //  the pipe points to last un-flushed item. Front is used only by
+  //  reader thread, while back is used only by writer thread.
+  yqueue_t<T, N> _queue;
 
-        //  If there are no elements prefetched, exit.
-        //  During pipe's lifetime r should never be NULL, however,
-        //  it can happen during pipe shutdown when items
-        //  are being deallocated.
-        if (&_queue.front () == _r || !_r)
-            return false;
+  //  Points to the first un-flushed item. This variable is used
+  //  exclusively by writer thread.
+  T *_w;
 
-        //  There was at least one value prefetched.
-        return true;
-    }
+  //  Points to the first un-prefetched item. This variable is used
+  //  exclusively by reader thread.
+  T *_r;
 
-    //  Reads an item from the pipe. Returns false if there is no value.
-    //  available.
-    inline bool Read (T *value_) {
-        //  Try to prefetch a value.
-        if (!CheckRead ())
-            return false;
+  //  Points to the first item to be flushed in the future.
+  T *_f;
 
-        //  There was at least one value prefetched.
-        //  Return it to the caller.
-        *value_ = _queue.front ();
-        _queue.pop ();
-        return true;
-    }
+  //  The single point of contention between writer and reader thread.
+  //  Points past the last flushed item. If it is NULL,
+  //  reader is asleep. This pointer should be always accessed using
+  //  atomic operations.
+  AtomicPointer<T> _c;
 
-    //  Applies the function fn to the first elemenent in the pipe
-    //  and returns the value returned by the fn.
-    //  The pipe mustn't be empty or the function crashes.
-    inline bool Probe(bool (*fn_) (const T &)) {
-        bool rc = CheckRead();
-
-        return (*fn_) (_queue.front ());
-    }
-
-  protected:
-    //  Allocation-efficient queue to store pipe items.
-    //  Front of the queue points to the first prefetched item, back of
-    //  the pipe points to last un-flushed item. Front is used only by
-    //  reader thread, while back is used only by writer thread.
-    yqueue_t<T, N> _queue;
-
-    //  Points to the first un-flushed item. This variable is used
-    //  exclusively by writer thread.
-    T *_w;
-
-    //  Points to the first un-prefetched item. This variable is used
-    //  exclusively by reader thread.
-    T *_r;
-
-    //  Points to the first item to be flushed in the future.
-    T *_f;
-
-    //  The single point of contention between writer and reader thread.
-    //  Points past the last flushed item. If it is NULL,
-    //  reader is asleep. This pointer should be always accessed using
-    //  atomic operations.
-    AtomicPointer<T> _c;
-
-    //  Disable copying of ypipe object.
-    YPipe (const YPipe &);
-    const YPipe &operator= (const YPipe &);
+  //  Disable copying of ypipe object.
+  DISALLOW_COPY_AND_ASSIGN(YPipe);
 };
 
 };  // namespace serverkit
