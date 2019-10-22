@@ -11,6 +11,7 @@ using namespace std;
 
 namespace serverkit {
 
+// return global hostname string pointer
 extern string* GetHostName();
 
 }; // namespace serverkit

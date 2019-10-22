@@ -14,11 +14,7 @@ public:
   void Lock() {
     while (flag_.test_and_set()) {
 #if defined(__i386__) || defined(__x86_64__)
-      /*
-       * NOTE: "rep nop" works on all Intel architectures and has the same
-       * encoding as "pause" on the newer ones.
-       */
-      __asm__ __volatile__ ("rep nop");
+      __asm__ __volatile__("pause");
 #else
       /* nothing */
 #endif

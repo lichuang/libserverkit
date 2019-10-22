@@ -10,7 +10,7 @@ namespace serverkit {
 
 Mailbox::Mailbox()
   : active_(false) {
-  pipe_.check_read();
+  pipe_.CheckRead();
 }
 
 Mailbox::~Mailbox() {
@@ -18,8 +18,8 @@ Mailbox::~Mailbox() {
 
 void Mailbox::Send(Message *msg) {
   sync_.Lock();
-  pipe_.write(msg, false);
-  bool ok = pipe_.flush();
+  pipe_.Write(msg, false);
+  bool ok = pipe_.Flush();
   sync_.UnLock();
   if (!ok) {
     signaler_.Send();
@@ -29,7 +29,7 @@ void Mailbox::Send(Message *msg) {
 int
 Mailbox::Recv(Message** msg, int timeout) {
   if (active_) {
-    if (pipe_.read(msg)) {
+    if (pipe_.Read(msg)) {
       return kOK;
     }
     //  If there are no more commands available, switch into passive state.
@@ -49,7 +49,7 @@ Mailbox::Recv(Message** msg, int timeout) {
 
   //  Switch into active state.
   active_ = true;
-  pipe_.read(msg);
+  pipe_.Read(msg);
   return kOK;
 }
 

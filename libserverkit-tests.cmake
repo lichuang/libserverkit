@@ -15,7 +15,12 @@ add_executable ( global_id_test
   tests/global_id_test.cc
 )
 
+add_executable ( ypipe_test
+  tests/ypipe_test.cc
+)
+
 target_link_libraries (atomic_test PRIVATE protobuf serverkit protobuf gtest pthread)
 target_link_libraries (buffer_test PRIVATE protobuf serverkit protobuf gtest pthread)
 target_link_libraries (thread_test PRIVATE protobuf serverkit protobuf gtest pthread)
 target_link_libraries (global_id_test PRIVATE protobuf serverkit protobuf gtest pthread)
+target_link_libraries (ypipe_test PRIVATE protobuf serverkit protobuf gtest pthread)
