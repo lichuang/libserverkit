@@ -51,7 +51,7 @@ RpcService::Register(gpb::Service* service) {
         serviceDescriptor->method(i);    
 		uint64_t method_id = HashString(methodDescriptor->full_name());
 		
-    Assert(method_map_.find(method_id) == method_map_.end()) 
+    ASSERT(method_map_.find(method_id) == method_map_.end()) 
 			<< "register duplicate method " << methodDescriptor->full_name();
     
     Info() << "register method " << methodDescriptor->full_name()

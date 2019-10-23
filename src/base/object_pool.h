@@ -42,12 +42,12 @@ public:
     }
     T* obj = free_list_.front();
     free_list_.pop_front();
-    Assert(obj != NULL);
+    ASSERT(obj != NULL);
     return obj;
   }
 
   void Free(T *obj) {
-    Assert(obj != NULL);
+    ASSERT(obj != NULL);
     obj->Reset();
     free_list_.push_back(obj);
   }

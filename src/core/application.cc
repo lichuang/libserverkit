@@ -19,7 +19,7 @@ namespace serverkit {
 Application::Application()
   : index_(0),
     poller_(new Epoll()) {
-  Assert(poller_ != NULL);
+  ASSERT(poller_ != NULL);
   poller_->Init(1024);
 }
 
@@ -34,10 +34,10 @@ Application::~Application() {
 void
 Application::AddService(const Endpoint& endpoint, AcceptorHandler* handler) {
   string address = endpoint.String();
-  Assert(listeners_.find(address) == listeners_.end()) << "duplicate listener for address " << address;
+  ASSERT(listeners_.find(address) == listeners_.end()) << "duplicate listener for address " << address;
 
   Listener *listener = new Listener(endpoint, this, handler);
-  Assert(listener != NULL);
+  ASSERT(listener != NULL);
   listeners_[address] = listener;
   //Infof("listen at %s", listener->String());
 }

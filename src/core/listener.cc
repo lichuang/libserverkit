@@ -26,7 +26,7 @@ Listener::Listener(const Endpoint& endpoint, Application* application,
     handler_(h) {
   int ret;
   fd_ = Listen(endpoint, kBacklog, &ret);
-  Assert(ret == kOK);
+  ASSERT(ret == kOK);
   handle_ = poller_->Add(fd_, this);
 }
 
@@ -54,12 +54,12 @@ Listener::In() {
 
 void
 Listener::Out() {
-  Assert(false);
+  ASSERT(false);
 }
 
 void
 Listener::Timeout() {
-  Assert(false);
+  ASSERT(false);
 }
 
 };  // namespace serverkit

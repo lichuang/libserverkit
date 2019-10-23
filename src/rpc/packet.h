@@ -17,6 +17,7 @@ namespace serverkit {
 
 // sizeof (magic_num) + sizeof (call_guid) + sizeof (method_id) + sizeof (size) = 21
 static const uint32_t kMetaSize = 21;
+// packet magic number
 static const uint8_t kPacketMagicNum = 0x2B;
 
 struct Packet {
@@ -26,9 +27,15 @@ public:
 	uint64_t method_id;
 	uint32_t size;
 	string content;
+	bool recv_done_;
 
 	Packet() 
-		: magic(0), guid(0), method_id(0), size(0), content(""){
+		: magic(0), 
+			guid(0), 
+			method_id(0), 
+			size(0), 
+			content(""),
+			recv_done_(false) {
 	}
 	
 	Packet(uint64_t id, const gpb::MethodDescriptor *method, 

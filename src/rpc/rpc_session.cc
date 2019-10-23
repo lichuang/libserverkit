@@ -34,7 +34,7 @@ RpcSession::RpcSession(int fd)
 		parser_(NULL),
     guid_(0),
     allocate_guid_(0) {
-  parser_ = new PacketParser(socket_, this);		
+  parser_ = new PacketParser(socket_);		
 }
 
 RpcSession::~RpcSession() {

@@ -20,7 +20,7 @@ RpcChannel::RpcChannel(const Endpoint& endpoint, Poller *poller)
     allocate_guid_(0),
     endpoint_(endpoint),
     poller_(poller) {
-	parser_ = new PacketParser(socket_, this);	
+	parser_ = new PacketParser(socket_);	
 }
 
 RpcChannel::~RpcChannel() {

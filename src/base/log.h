@@ -146,8 +146,14 @@ class LogMessageVoidify {
   !(condition) ? (void) 0 : LogMessageVoidify() \
   & serverkit::LogMessage(__FILE__, __LINE__, serverkit::ERROR, __func__).Stream()
 
-#define Assert(condition) \
+#define ASSERT(condition) \
 	FATAL_IF(unlikely(!(condition))) << "Assertion failed: " #condition << " "
+
+#define ASSERT_EQUAL(c1, c2) \
+	FATAL_IF(unlikely((c1) != (c2))) << "Assertion failed: " #c1 << " not equal to " #c2 << " "
+
+#define ASSERT_NOT_EQ(c1, c2) \
+	FATAL_IF(unlikely((c1) == (c2))) << "Assertion failed: " #c1 << " equal to " #c2 << " "
 }  // namespace serverkit
 
 #endif  // __SERVERKIT_BASE_LOG_H__

@@ -26,7 +26,7 @@ SpinLock::lockSlow() {
         // Let the processor know we're spinning.
         YIELD_PROCESSOR;
         if (!lock_.load(std::memory_order_relaxed) &&
-            LIKELY(!lock_.exchange(true, std::memory_order_acquire)))
+            likely(!lock_.exchange(true, std::memory_order_acquire)))
           return;
       }
 
@@ -42,7 +42,7 @@ SpinLock::lockSlow() {
         SleepMillisecs(1);
       }
     } while (lock_.load(std::memory_order_relaxed));
-  } while (UNLIKELY(lock_.exchange(true, std::memory_order_acquire)));
+  } while (unlikely(lock_.exchange(true, std::memory_order_acquire)));
 }
 
 };  // namespace serverkit

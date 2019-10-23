@@ -25,8 +25,12 @@ enum SocketStatus {
   SOCKET_CLOSED = 3,
 };
 
-const Endpoint gUnconnectedEndpoint = Endpoint("unknown address", -1);
+const Endpoint gUnconnectedEndpoint = Endpoint("unconnected address", -1);
 
+// Socket has user-space write and read stack to buffer the data. 
+// When send data to socket, it will buffer the data, and then send if epoll return writeable.
+// If send data fail, DataHandler->OnError will be called.
+// When read data from socket, it will read data from the buffer.
 class Socket : public Event {
 public:
   Socket(int fd, DataHandler*);
@@ -76,15 +80,31 @@ public:
 private:
   void CloseSocket();
 
-private:  
+private:
+  // socket fd
   int fd_;
+
+  // data handler
   DataHandler *handler_;
+
+  // poller
   Poller* poller_;
+
+  // true if write buffer has data to send
   bool is_writable_;
+
+  // recv buffer list
   BufferList read_list_;
+
+  // write buffer list
   BufferList write_list_;
+
   SocketStatus status_;
+  
+  // corresponding endpoint 
   Endpoint endpoint_;
+
+  // disable copy and assign operate
   DISALLOW_COPY_AND_ASSIGN(Socket);
 };
 

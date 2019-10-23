@@ -7,7 +7,7 @@
 
 #include <atomic>
 #include "base/lock.h"
-#include "base/macros.h"
+#include "base/likely.h"
 
 namespace serverkit {
 
@@ -21,7 +21,7 @@ public:
 
   inline void Lock() {
     // first try lock quickly
-    if (LIKELY(!lock_.exchange(true, std::memory_order_acquire)))
+    if (likely(!lock_.exchange(true, std::memory_order_acquire)))
       return;
     // fail, then try slower one...
     lockSlow();
