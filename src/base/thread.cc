@@ -5,7 +5,7 @@
 #include <sys/prctl.h>
 #include "base/condition.h"
 #include "base/mutex.h"
-#include "base/spinlock.h"
+#include "base/spin_lock.h"
 #include "base/thread.h"
 #include "util/time.h"
 

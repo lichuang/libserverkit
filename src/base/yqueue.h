@@ -39,7 +39,7 @@ template <typename T, int N> class YQueue
   public:
     //  Create the queue.
     inline YQueue() {
-        begin_chunk_ = allocate_chunk ();
+        begin_chunk_ = allocate_chunk();
         begin_pos_ = 0;
         back_chunk_ = NULL;
         back_pos_ = 0;
@@ -83,12 +83,12 @@ template <typename T, int N> class YQueue
         if (++end_pos_ != N)
             return;
 
-        chunk_t *sc = spare_chunk_.Xchg (NULL);
+        chunk_t *sc = spare_chunk_.Xchg(NULL);
         if (sc) {
             end_chunk_->next = sc;
             sc->prev = end_chunk_;
         } else {
-            end_chunk_->next = allocate_chunk ();
+            end_chunk_->next = allocate_chunk();
             end_chunk_->next->prev = end_chunk_;
         }
         end_chunk_ = end_chunk_->next;

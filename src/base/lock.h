@@ -44,6 +44,20 @@ private:
   RWLock& rw_lock_;
 };
 
+template<class Lock>
+class Guard {
+public:  
+  Guard(Lock& lock) : lock_(lock) {
+    lock_.Lock();
+  }
+
+  ~Guard() {
+    lock_.UnLock();
+  }
+private:
+  Lock& lock_;
+};
+
 };  // namespace serverkit
 
 #endif  // __SERVERKIT_BASE_LOCK_H__
