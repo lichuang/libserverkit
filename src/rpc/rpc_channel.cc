@@ -14,7 +14,7 @@
 namespace serverkit {
 
 RpcChannel::RpcChannel(const Endpoint& endpoint, Poller *poller)
-	: socket_(new Socket(poller, this)),
+	: socket_(CreateClientSocket(endpoint, poller, this)),
     parser_(NULL),
     guid_(NewGlobalID()),
     allocate_guid_(0),
@@ -142,7 +142,7 @@ RpcChannel::CallMethod(
       << ", endpoint: " << endpoint_.String();
 
     pushRequestToQueue(method, rpc_controller, request, response, done);
-    socket_->Connect(endpoint_);
+    socket_->Connect();
   }
 
   if (status == SOCKET_CONNECTING) {

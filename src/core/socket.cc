@@ -10,30 +10,47 @@
 
 namespace serverkit {
 
+Socket* 
+CreateClientSocket(const Endpoint& endpoint, Poller* poller, DataHandler* handler) {
+  return new Socket(endpoint, poller, handler);
+}
+
+Socket* 
+CreateServerSocket(int fd, DataHandler* handler) {
+  return new Socket(fd, handler);
+}
+
+// create a server accepted socket
 Socket::Socket(int fd, DataHandler* h)
   : fd_(fd),
     handler_(h),
     poller_(NULL),
     is_writable_(false),
-    status_(SOCKET_CONNECTED) {  
+    status_(SOCKET_CONNECTED),
+    type_(SERVER_SOCKET) {  
   GetEndpointByFd(fd, &endpoint_);
 }
 
-Socket::Socket(Poller* poller, DataHandler* h)
+// create a client socket
+Socket::Socket(const Endpoint& endpoint, Poller* poller, DataHandler* h)
   : fd_(TcpSocket()),
     handler_(h),
     poller_(poller),
     is_writable_(false),
-    status_(SOCKET_INIT) {
+    status_(SOCKET_INIT),
+    endpoint_(endpoint),
+    type_(CLIENT_SOCKET) {
 }
 
 Socket::~Socket() {
-  CloseSocket();
+  poller->Del(this);
+  Socket::close();
 }
 
 void 
-Socket::Connect(const Endpoint& endpoint) {
-  endpoint_ = endpoint;
+Socket::Connect() {
+  ASSERT_EQUAL(type_, CLIENT_SOCKET);
+
   Info() << "try connect to " << String();
 
   if (status_ != SOCKET_INIT) {
@@ -41,7 +58,7 @@ Socket::Connect(const Endpoint& endpoint) {
   }
 
   status_ = SOCKET_CONNECTING;
-  int err = serverkit::ConnectAsync(endpoint, fd_);
+  int err = serverkit::ConnectAsync(endpoint_, fd_);
   
   if (err == kOK) {
     poller_->Add(fd_, this);
@@ -53,14 +70,15 @@ Socket::Connect(const Endpoint& endpoint) {
 
 void
 Socket::SetPoller(Poller *poller) {
+  ASSERT_EQUAL(poller_, NULL);
   poller_ = poller;
   handle_ = poller->Add(fd_, this);
 }
 
 void
-Socket::CloseSocket() {
+Socket::close() {
   poller_->Del(handle_);
-  Close(fd_);
+  serverkit::Close(fd_);
 }
 
 void
@@ -80,7 +98,7 @@ Socket::In() {
         handler_->OnError(err);
       }
       Error() << String() <<" recv error: " << strerror(err);
-      CloseSocket();
+      Socket::close();
       return;
     } else {
       if (IsIOTryAgain(err)) {
@@ -90,6 +108,7 @@ Socket::In() {
   }
 
   if (!read_list_.Empty() && handler_) {
+    // if read buffer is not empty, call handler->OnRead
     handler_->OnRead();
   }
 }
@@ -112,6 +131,7 @@ Socket::Out() {
 
   while (true) {
     if (write_list_.Empty()) {
+      // when write buffer empty, clear the writeable flag
       is_writable_ = false;
       break;
     }
@@ -121,7 +141,7 @@ Socket::Out() {
       if (handler_) {
         handler_->OnError(err);
       }
-      CloseSocket();
+      Socket::close();
       return;
     } else {
       if (IsIOTryAgain(err)) {
@@ -131,6 +151,7 @@ Socket::Out() {
   }
 
   if (n > 0 && handler_) {
+    // if write some data, call handler->OnWrite
     handler_->OnWrite();
   }
 }
@@ -141,15 +162,19 @@ Socket::Timeout() {
 
 void
 Socket::Write(const char* from, size_t n) {
+  // write data to write buffer
   write_list_.Write(from, n);
   if (!is_writable_) {
+    // when write buffer is not empty, set the writeable flag
     is_writable_ = true;
+    // mark this handler writeable
     poller_->MarkWriteable(handle_);
   }
 }
 
 size_t
 Socket::Read(char* to, size_t n) {
+  // read data info read buffer
   return read_list_.Read(to, n);
 }
 

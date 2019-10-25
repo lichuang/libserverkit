@@ -20,7 +20,7 @@ class Poller;
 class Session : public DataHandler {
 public:
   Session(int fd)
-    : socket_(new Socket(fd, this)),
+    : socket_(CreateServerSocket(fd, this)),
       last_read_time_(0),
       last_write_time_(0),
       poller_(NULL) {
