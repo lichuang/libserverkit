@@ -63,6 +63,7 @@ Application::AddRpcService(const Endpoint& endpoint, gpb::Service* s) {
 void 
 Application::Init(const ServerkitOption& options) {
   int i;
+  // start worker threads
   for (i = 0; i < options.worker_num; ++i) {
     Worker* thread = new Worker(Stringf("worker-%d", i));
     thread->Start();
@@ -79,6 +80,7 @@ Application::Run() {
   }
 }
 
+// return a worker in round robin mode
 Worker* 
 Application::selectWorker() {
   index_ = (index_ + 1) % static_cast<int>(workers_.size());
@@ -88,16 +90,20 @@ Application::selectWorker() {
 
 void 
 Application::AcceptNewSession(Session* session) {
+  // select a worker to process the session
   Worker* worker = selectWorker();
 
+  // send it in AcceptMessage to the worker
   AcceptMessage *msg = new AcceptMessage(session, worker->GetTid(), worker);
   worker->Send(msg);
 }
 
 void
 Application::CreateRpcChannel(const Endpoint& endpoint, CreateChannelDone done) {
+  // select a worker to process the sessio
   Worker* worker = selectWorker();
 
+  // send it in RpcChannelMessage to the worker
   RpcChannelMessage *msg = new RpcChannelMessage(endpoint, worker->GetTid(), worker, done);
   worker->Send(msg);
 }

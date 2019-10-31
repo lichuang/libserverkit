@@ -57,33 +57,40 @@ Poller::CancelTimer(timer_id_t id) {
 int
 Poller::executeTimers() {
   if (timers_.empty()) {
+    // if there is no timers, return default timeout
     return kDefaultTimeout;
   }
   
   int res = kDefaultTimeout;
   TimerIdMap::iterator iter = timers_.begin();
   TimerIdMap::iterator end = timers_.end();
+  // save out time timers
   list<TimerIdMap::iterator> del_timers;
 
   for (; iter != end; ++iter) {
     if (iter->first > now_ms_) {
+      // save the timeout and return
       res = static_cast<int>(iter->first - now_ms_);
       break;
     }
 
+    // fire the timer callback
     iter->second->event->Timeout();
     del_timers.push_back(iter);
   }
 
+  // delete out time timers
   for (list<TimerIdMap::iterator>::iterator i = del_timers.begin(); i != del_timers.end(); ++i) {
     TimerIdMap::iterator tmp = *i;
     TimerEntry *entry = tmp->second;
     timers_.erase(tmp);
 
     if (entry->t == kTimerOnce) {
+      // fire only once timer
       timer_ids_.erase(entry->id);
       delete entry;
     } else {
+      // fire repeated timer
       uint64_t expire = now_ms_ + entry->timeout;
       timers_.insert(TimerMap::value_type(expire, entry));
     }

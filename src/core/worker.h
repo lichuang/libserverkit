@@ -16,6 +16,9 @@ using namespace std;
 
 namespace serverkit {
 
+// worker thread
+// inside the worker there is a poller,
+// other threads can communicate to the thread using message
 class Worker 
   : public Thread,
     public Event,
@@ -24,18 +27,21 @@ public:
   Worker(const string& name);
   virtual ~Worker();
 
+  // Event vitual methods
   virtual void In();
 
   virtual void Out();
 
   virtual void Timeout();
 
+  // process message handler
   virtual void Process(Message*);
 
   Poller* GetPoller() {
     return poller_;
   }
 
+  // send message to the worker
   void Send(Message *msg);
   
 protected:

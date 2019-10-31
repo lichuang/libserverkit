@@ -11,6 +11,8 @@ namespace serverkit {
 
 class Session;
 
+// when accept a connection in main thread, it will select
+// a worker to process the connection.
 class AcceptMessage : public Message {
 public:
   AcceptMessage(Session *s, tid_t tid, MessageHandler *h)
@@ -24,6 +26,7 @@ public:
     return session_;
   }
 private:
+  // accepted session
   Session *session_;
 };
 

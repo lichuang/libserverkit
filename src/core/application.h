@@ -33,9 +33,14 @@ class Application {
 public:
   ~Application();
 
+  // add a service listening to the endpoint
   void AddService(const Endpoint&, AcceptorHandler*);
 
+  // add a rpc service listening to the endpoint
   void AddRpcService(const Endpoint&, gpb::Service* service);
+
+  // create a rpc channel connect to the endpoint,
+  // when bond to a worker, CreateChannelDone will be call
   void CreateRpcChannel(const Endpoint&, CreateChannelDone);
 
   void Init(const ServerkitOption&);
