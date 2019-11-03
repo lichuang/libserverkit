@@ -12,7 +12,9 @@ class Message;
 
 // add message types here
 enum {
+  // accepted session from main thread
   kAcceptMessage = 1,
+  // bound a rpc channel to a worker
   kRpcChannelMessage = 2,
 };
 

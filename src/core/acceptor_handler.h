@@ -9,6 +9,9 @@
 
 namespace serverkit {
 
+// AcceptorHandler handle client connect socket event
+// when a client connected to the server, it create 
+// a new session using SessionFactory
 class AcceptorHandler {
 public:
   AcceptorHandler(SessionFactory* factory)
@@ -18,6 +21,7 @@ public:
     delete factory_;
   }
 
+  // OnAccept create a new session using SessionFactory
   virtual Session* OnAccept(int) = 0;
   virtual void OnError(int error) = 0;
 
@@ -25,6 +29,7 @@ public:
     return factory_;
   }
 protected:
+  // SessionFactory
   SessionFactory* factory_;  
 };
 

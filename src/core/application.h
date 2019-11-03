@@ -27,6 +27,7 @@ class SessionFactory;
 class RpcChannel;
 class RpcService;
 
+// the singleton application class
 class Application {
   friend class Singleton<Application>;
 
@@ -40,7 +41,7 @@ public:
   void AddRpcService(const Endpoint&, gpb::Service* service);
 
   // create a rpc channel connect to the endpoint,
-  // when bond to a worker, CreateChannelDone will be call
+  // when bound to a worker, CreateChannelDone will be call
   void CreateRpcChannel(const Endpoint&, CreateChannelDone);
 
   void Init(const ServerkitOption&);

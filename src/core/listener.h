@@ -17,6 +17,7 @@ class AcceptorHandler;
 class Poller;
 class Application;
 
+// connect socket event listener
 class Listener : public Event {
 public:
   Listener(const Endpoint& endpoint, Application *server,
@@ -38,6 +39,7 @@ public:
   }
 
 private:
+  // listen endpoint
   Endpoint endpoint_;
   int fd_;
   Application *application_;

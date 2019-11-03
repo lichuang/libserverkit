@@ -17,8 +17,8 @@ using namespace std;
 namespace serverkit {
 
 // worker thread
-// inside the worker there is a poller,
-// other threads can communicate to the thread using message
+// inside the worker there is a mailbox,
+// other threads can communicate to the thread using message though mailbox
 class Worker 
   : public Thread,
     public Event,
@@ -52,6 +52,7 @@ protected:
   virtual void Run();
 protected:
   Poller *poller_;
+  // thread mailbox
   Mailbox mailbox_;
 
   DISALLOW_COPY_AND_ASSIGN(Worker);
