@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "util/time.h"
 #include "util/global_id.h"
-#include "util/misc.h"
+#include "util/system.h"
 
 extern uint64_t hash3(uint8_t*, uint64_t, uint64_t);
 

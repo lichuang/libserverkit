@@ -11,7 +11,7 @@
 #include "util/time.h"
 #include "core/epoll.h"
 #include "core/timer_thread.h"
-#include "util/misc.h"
+#include "util/system.h"
 
 namespace serverkit {
 

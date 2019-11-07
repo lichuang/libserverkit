@@ -26,7 +26,6 @@ set(libserverkit_files
   src/rpc/rpc_service.cc
   src/util/lookup8.cc
   src/util/global_id.cc
-  src/util/misc.cc
   src/util/system.cc
   src/util/time.cc
 )

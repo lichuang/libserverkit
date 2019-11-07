@@ -11,6 +11,9 @@ using namespace std;
 
 namespace serverkit {
 
+// return global hostname string pointer
+extern string* GetHostName();
+
 // return callstack in result
 void GetCallStack(string *result);
 
