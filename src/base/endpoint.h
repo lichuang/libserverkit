@@ -17,7 +17,7 @@ class Endpoint {
 public:
 	Endpoint(const string& addr, uint16_t port)
 		: addr_(addr), port_(port), str_("") {
-		str_ = Stringf("%s:%d", addr_.c_str(), port_);
+		str_ = StringPrintf("%s:%d", addr_.c_str(), port_);
 	}
 
 	Endpoint() 
@@ -34,7 +34,7 @@ public:
 	void Init(const string& addr, uint16_t port) {
 		this->addr_ = addr;
 		this->port_ = port;
-		str_ = Stringf("%s:%d", addr_.c_str(), port_);
+		str_ = StringPrintf("%s:%d", addr_.c_str(), port_);
 	}
 
 	const string& Address() const {

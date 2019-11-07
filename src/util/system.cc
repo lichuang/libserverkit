@@ -47,21 +47,20 @@ GetCallStack(string *result) {
   }
   char cmd[1024] = "addr2line -Cif -e ";
 
-  //char* prog = cmd + strlen(cmd);
+  char* prog = cmd + strlen(cmd);
   int i;
 
   *result = "\n@========Stack Frame:========@\n";
 
-  //if (readlink("/proc/self/exe", prog, sizeof(cmd) - (prog-cmd)-1) == -1) {
-  if (true) {
+  if (readlink("/proc/self/exe", prog, sizeof(cmd) - (prog-cmd)-1) == -1) {
+  //if (true) {
     char **stack_strings = NULL;
     stack_strings = (char **)backtrace_symbols(buffer, level);
 	  if (!stack_strings) {
 		  return;
 	  }
     for (i = 0; i < level; ++i) {
-      Appendf(result, "  @[%03d]  %s\n", level-i, stack_strings[i]);
-      //*result += "  @  " + string(stack_strings[i]) + "\n";
+      StringAppendf(result, "  [%03d]  %s\n", level-i, stack_strings[i]);
     }
     *result += "@========End Of Stack Frame========@\n";
     free(stack_strings);
@@ -80,7 +79,8 @@ GetCallStack(string *result) {
 
     string::size_type pos = tmp.find_first_of("\n");
     tmp[pos] = ' ';
-    *result += "  @  " + tmp;
+    //*result += "  @  " + tmp;
+    StringAppendf(result, "  [%03d]  %s", level - i - 2, tmp.c_str());
   }
   *result += "@========End Of Stack Frame========@\n";
   return;

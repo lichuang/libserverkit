@@ -116,7 +116,7 @@ void
 LogThread::output(LogMessageData* data) {
 	if (file_ == NULL) {
 		string *host_name = GetHostName();
-		string file_name = Stringf("%s/%s-%s.log", log_path_.c_str(),
+		string file_name = StringPrintf("%s/%s-%s.log", log_path_.c_str(),
 															 app_name_.c_str(), host_name->c_str());
 		file_ = new File(file_name);
 	}

@@ -13,6 +13,7 @@
 #include "base/log_thread.h"
 #include "base/thread.h"
 #include "core/timer_thread.h"
+#include "util/system.h"
 
 namespace serverkit {
 
@@ -70,7 +71,11 @@ LogMessage::~LogMessage() {
   
   SendLog(data_);
   if (level_ == FATAL) {
+    string stack;
+    GetCallStack(&stack);
+    Stream() << stack;
     Flush(true);
+    // TODO: wait for log thread exit
     abort();
   }
 }

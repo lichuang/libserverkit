@@ -65,7 +65,7 @@ Application::Init(const ServerkitOption& options) {
   int i;
   // start worker threads
   for (i = 0; i < options.worker_num; ++i) {
-    Worker* thread = new Worker(Stringf("worker-%d", i));
+    Worker* thread = new Worker(StringPrintf("worker-%d", i));
     thread->Start();
     workers_.push_back(thread);
   }
