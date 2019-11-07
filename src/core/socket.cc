@@ -43,7 +43,7 @@ Socket::Socket(const Endpoint& endpoint, Poller* poller, DataHandler* h)
 }
 
 Socket::~Socket() {
-  poller->Del(this);
+  poller_->Del(handle_);
   Socket::close();
 }
 

@@ -2,6 +2,7 @@
  * Copyright (C) codedump
  */
 
+#include <stdio.h>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -36,6 +37,32 @@ Stringf(const char *fmt, ...) {
   return std::string(zc.data(), zc.size());
 }
 
+void 
+Appendf(string* ret, const char *fmt, ...) {
+  // initialize use of the variable argument array
+  va_list args;
+  va_start(args, fmt);
+
+  // reliably acquire the size from a copy of
+  // the variable argument array
+  // and a functionally reliable call
+  // to mock the formatting
+  va_list copy;
+  va_copy(copy, args);
+  const int iLen = std::vsnprintf(NULL, 0, fmt, copy);
+  va_end(copy);
+
+  // return a formatted string without
+  // risking memory mismanagement
+  // and without assuming any compiler
+  // or platform specific behavior
+  std::vector<char> zc(iLen + 1);
+  std::vsnprintf(zc.data(), zc.size(), fmt, args);
+  va_end(args);
+
+  *ret += std::string(zc.data(), zc.size());
+}
+
 uint64_t 
 HashString(const string& str) {
   return HashBytes(str.c_str(), static_cast<int>(str.size()));
@@ -48,6 +75,21 @@ StringToHex(const string& str) {
     hex += Stringf("%x", static_cast<uint8_t>(str[i]));
   }
   return hex;
+}
+
+bool 
+PopenToString(const char *command, string *result) {
+  result->clear();
+  FILE *fp = popen(command, "r");
+  if (!fp) {
+    return false;
+  }
+  char buffer[200];
+  while (fgets(buffer, sizeof(buffer), fp)) {
+    *result += buffer;
+  }
+  pclose(fp);
+  return true;
 }
 
 };  // namespace serverkit

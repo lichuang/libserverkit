@@ -17,7 +17,6 @@ namespace serverkit {
 //  T is the type of the object in the queue.
 //  N is granularity of the pipe, i.e. how many items are needed to
 //  perform next memory allocation.
-
 template <typename T, int N> 
 class YPipe {
 public:
@@ -44,7 +43,7 @@ public:
   //  set to true the item is assumed to be continued by items
   //  subsequently written to the pipe. Incomplete items are never
   //  flushed down the stream.
-  inline void Write (const T &value_, bool incomplete_) {
+  inline void Write(const T &value_, bool incomplete_) {
     //  Place the value to the queue, add new terminator element.
     queue_.Back() = value_;
     queue_.Push();
@@ -56,7 +55,7 @@ public:
 
   //  Pop an incomplete item from the pipe. Returns true if such
   //  item exists, false otherwise.
-  inline bool UnWrite (T *value_) {
+  inline bool UnWrite(T *value_) {
     if (f_ == &queue_.Back())
       return false;
     queue_.UnPush();
@@ -115,7 +114,7 @@ public:
 
   //  Reads an item from the pipe. Returns false if there is no value.
   //  available.
-  inline bool Read (T *value_) {
+  inline bool Read(T *value_) {
     //  Try to prefetch a value.
     if (!CheckRead())
       return false;

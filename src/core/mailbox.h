@@ -15,6 +15,7 @@ namespace serverkit {
 
 class Message;
 
+// worker message mailbox
 class Mailbox {
 public:
   Mailbox();

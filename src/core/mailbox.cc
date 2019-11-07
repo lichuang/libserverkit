@@ -17,22 +17,27 @@ Mailbox::~Mailbox() {
 }
 
 void Mailbox::Send(Message *msg) {
+  // multi write single read mode
   sync_.Lock();
   pipe_.Write(msg, false);
   bool ok = pipe_.Flush();
   sync_.UnLock();
   if (!ok) {
+    // Flush return false means the reader thread is sleeping,
+    // so send a signal to wake up the reader
     signaler_.Send();
   }
 }
 
 int
 Mailbox::Recv(Message** msg, int timeout) {
+  // Try to get the command straight away.
   if (active_) {
     if (pipe_.Read(msg)) {
+      // if read success, return
       return kOK;
     }
-    //  If there are no more commands available, switch into passive state.
+    // If there are no more commands available, switch into passive state.
     active_ = false;
   }
   //  Wait for signal from the command sender.

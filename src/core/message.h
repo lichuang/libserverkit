@@ -10,7 +10,7 @@
 namespace serverkit {
 class Message;
 
-// add message types here
+// message types
 enum {
   // accepted session from main thread
   kAcceptMessage = 1,
