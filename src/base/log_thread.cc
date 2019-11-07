@@ -7,7 +7,7 @@
 #include "base/log.h"
 #include "base/log_thread.h"
 #include "base/macros.h"
-#include "base/string.h"
+#include "util/string.h"
 #include "util/time.h"
 #include "core/epoll.h"
 #include "core/timer_thread.h"

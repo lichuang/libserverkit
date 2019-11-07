@@ -6,7 +6,7 @@
 #define __SERVERKIT_RPC_PACKET_H__
 
 #include <string>
-#include "base/string.h"
+#include "util/string.h"
 #include "google/protobuf/descriptor.h"
 #include "google/protobuf/message.h"
 

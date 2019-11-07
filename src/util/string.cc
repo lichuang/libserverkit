@@ -7,7 +7,7 @@
 #include <sstream>
 #include <vector>
 #include "base/hash.h"
-#include "base/string.h"
+#include "util/string.h"
 
 namespace serverkit {
 

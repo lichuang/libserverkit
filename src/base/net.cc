@@ -16,7 +16,7 @@
 #include "base/buffer.h"
 #include "base/log.h"
 #include "base/net.h"
-#include "base/string.h"
+#include "util/string.h"
 #include "core/socket.h"
 
 namespace serverkit {

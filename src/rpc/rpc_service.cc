@@ -4,7 +4,7 @@
 
 #include <google/protobuf/descriptor.h>
 #include "base/log.h"
-#include "base/string.h"
+#include "util/string.h"
 #include "rpc/rpc_meta.h"
 #include "rpc/rpc_service.h"
 #include "rpc/rpc_session.h"

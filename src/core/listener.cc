@@ -9,7 +9,7 @@
 #include "base/errcode.h"
 #include "base/log.h"
 #include "base/net.h"
-#include "base/string.h"
+#include "util/string.h"
 #include "core/acceptor_handler.h"
 #include "core/config.h"
 #include "core/listener.h"

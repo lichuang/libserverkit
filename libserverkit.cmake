@@ -8,7 +8,6 @@ set(libserverkit_files
   src/base/log.cc
   src/base/log_thread.cc
   src/base/net.cc
-  src/base/string.cc
   src/base/thread.cc
   src/base/spin_lock.cc
   src/core/application.cc
@@ -26,6 +25,7 @@ set(libserverkit_files
   src/rpc/rpc_service.cc
   src/util/lookup8.cc
   src/util/global_id.cc
+  src/util/string.cc
   src/util/system.cc
   src/util/time.cc
 )

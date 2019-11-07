@@ -4,7 +4,7 @@
 
 #include "base/log.h"
 #include "util/time.h"
-#include "base/string.h"
+#include "util/string.h"
 #include "core/accept_message.h"
 #include "core/listener.h"
 #include "core/application.h"
