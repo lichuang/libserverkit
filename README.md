@@ -1,6 +1,6 @@
 
 
-![serverkit](./images/logo.png "serverkit")
+![serverkit](./images/logo2.png "serverkit")
 
 
 <p align="center">
